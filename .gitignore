@@ -1,0 +1,6 @@
+#exclude everything except files
+.project
+.classpath
+.settings
+target
+logs
