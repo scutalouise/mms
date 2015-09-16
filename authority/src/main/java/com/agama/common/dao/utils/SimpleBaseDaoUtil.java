@@ -197,6 +197,7 @@ public class SimpleBaseDaoUtil<T, PK extends Serializable> {
 		if (values != null) {
 			for (int i = 0; i < values.length; i++) {
 				query.setParameter(String.valueOf(i), values[i]);
+//				query.setParameter(i, values[i]);
 			}
 		}
 		return query;

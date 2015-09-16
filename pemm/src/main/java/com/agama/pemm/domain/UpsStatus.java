@@ -4,8 +4,12 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.Transient;
 
 @Entity
 public class UpsStatus extends BaseDomain {
@@ -20,18 +24,19 @@ public class UpsStatus extends BaseDomain {
 	private String versionNumber;
 	private double rateVoltage;
 	private double ratedCurrent;
+	private double ratedFrequency;
 	private double batteryVoltage;
 	private double power;
-	private int upsStatus;
+	private String upsStatus;
 	private double frequency;
 	private double internalTemperature;
-	private double bypassVoltage;
+	private String bypassVoltage;
 	private double bypassFrequency;
-	private double inputVoltage;
-	private double outputVoltage;
+	private String inputVoltage;
+	private String outputVoltage;
 	private double errorVoltage;
-	@Column(name="[load]")
-	private double load;
+	
+	private String upsLoad;
 	private double outputFrenquency;
 	private double singleVoltage;
 	private double totalVoltage;
@@ -40,7 +45,44 @@ public class UpsStatus extends BaseDomain {
 	private int remainingTime; 
 	private Date collectTime;
 	private int status;
+	/**
+	 * 市电电压状态（1：异常）
+	 */
+	private String cityVoltageStatus;
+	/**
+	 * 电池电压状态（1：电池电压低）
+	 */
+	private String batteryVoltageStatus;
+	/**
+	 * 运行状态（1：旁路）
+	 */
+	private String runningStatus; 
+	/**
+	 * 测试状态（1：测试中）
+	 */
+	private String testStatus;
+	/**
+	 * UPS模式（1：后备式，0：在线式）
+	 */
+	private String patternsStatus;
 	
+	/**
+	 * 关机状态（1：关机有效）
+	 */
+	private String shutdownStatus;
+	
+	/**
+	 * 蜂鸣器状态（1：蜂鸣器开）
+	 */
+	private String buzzerStatus;
+	
+	@Transient
+	private Integer deviceIndex;
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name="deviceId")
+	private Device device;
+	@Transient
+	private Integer deviceId;
 	
 	
 	
@@ -98,6 +140,15 @@ public class UpsStatus extends BaseDomain {
 	public void setRateVoltage(double rateVoltage) {
 		this.rateVoltage = rateVoltage;
 	}
+	
+	
+	
+	public double getRatedFrequency() {
+		return ratedFrequency;
+	}
+	public void setRatedFrequency(double ratedFrequency) {
+		this.ratedFrequency = ratedFrequency;
+	}
 	public double getRatedCurrent() {
 		return ratedCurrent;
 	}
@@ -116,10 +167,10 @@ public class UpsStatus extends BaseDomain {
 	public void setPower(double power) {
 		this.power = power;
 	}
-	public int getUpsStatus() {
+	public String getUpsStatus() {
 		return upsStatus;
 	}
-	public void setUpsStatus(int upsStatus) {
+	public void setUpsStatus(String upsStatus) {
 		this.upsStatus = upsStatus;
 	}
 	public double getFrequency() {
@@ -134,10 +185,10 @@ public class UpsStatus extends BaseDomain {
 	public void setInternalTemperature(double internalTemperature) {
 		this.internalTemperature = internalTemperature;
 	}
-	public double getBypassVoltage() {
+	public String getBypassVoltage() {
 		return bypassVoltage;
 	}
-	public void setBypassVoltage(double bypassVoltage) {
+	public void setBypassVoltage(String bypassVoltage) {
 		this.bypassVoltage = bypassVoltage;
 	}
 	public double getBypassFrequency() {
@@ -146,16 +197,16 @@ public class UpsStatus extends BaseDomain {
 	public void setBypassFrequency(double bypassFrequency) {
 		this.bypassFrequency = bypassFrequency;
 	}
-	public double getInputVoltage() {
+	public String getInputVoltage() {
 		return inputVoltage;
 	}
-	public void setInputVoltage(double inputVoltage) {
+	public void setInputVoltage(String inputVoltage) {
 		this.inputVoltage = inputVoltage;
 	}
-	public double getOutputVoltage() {
+	public String getOutputVoltage() {
 		return outputVoltage;
 	}
-	public void setOutputVoltage(double outputVoltage) {
+	public void setOutputVoltage(String outputVoltage) {
 		this.outputVoltage = outputVoltage;
 	}
 	public double getErrorVoltage() {
@@ -164,11 +215,12 @@ public class UpsStatus extends BaseDomain {
 	public void setErrorVoltage(double errorVoltage) {
 		this.errorVoltage = errorVoltage;
 	}
-	public double getLoad() {
-		return load;
+	
+	public String getUpsLoad() {
+		return upsLoad;
 	}
-	public void setLoad(double load) {
-		this.load = load;
+	public void setUpsLoad(String upsLoad) {
+		this.upsLoad = upsLoad;
 	}
 	public double getOutputFrenquency() {
 		return outputFrenquency;
@@ -218,6 +270,74 @@ public class UpsStatus extends BaseDomain {
 	public void setStatus(int status) {
 		this.status = status;
 	}
+	
+	
+	
+	
+	public String getTestStatus() {
+		return testStatus;
+	}
+	public void setTestStatus(String testStatus) {
+		this.testStatus = testStatus;
+	}
+	public String getPatternsStatus() {
+		return patternsStatus;
+	}
+	public void setPatternsStatus(String patternsStatus) {
+		this.patternsStatus = patternsStatus;
+	}
+	public String getCityVoltageStatus() {
+		return cityVoltageStatus;
+	}
+	public void setCityVoltageStatus(String cityVoltageStatus) {
+		this.cityVoltageStatus = cityVoltageStatus;
+	}
+	
+	
+	public String getRunningStatus() {
+		return runningStatus;
+	}
+	public void setRunningStatus(String runningStatus) {
+		this.runningStatus = runningStatus;
+	}
+	public String getShutdownStatus() {
+		return shutdownStatus;
+	}
+	public void setShutdownStatus(String shutdownStatus) {
+		this.shutdownStatus = shutdownStatus;
+	}
+	public String getBatteryVoltageStatus() {
+		return batteryVoltageStatus;
+	}
+	public void setBatteryVoltageStatus(String batteryVoltageStatus) {
+		this.batteryVoltageStatus = batteryVoltageStatus;
+	}
+	public String getBuzzerStatus() {
+		return buzzerStatus;
+	}
+	public void setBuzzerStatus(String buzzerStatus) {
+		this.buzzerStatus = buzzerStatus;
+	}
+	public Integer getDeviceIndex() {
+		return deviceIndex;
+	}
+	public void setDeviceIndex(Integer deviceIndex) {
+		this.deviceIndex = deviceIndex;
+	}
+	public Device getDevice() {
+		return device;
+	}
+	public void setDevice(Device device) {
+		this.device = device;
+	}
+	public Integer getDeviceId() {
+		return deviceId;
+	}
+	public void setDeviceId(Integer deviceId) {
+		this.deviceId = deviceId;
+	}
 
+	
+	
 
 }

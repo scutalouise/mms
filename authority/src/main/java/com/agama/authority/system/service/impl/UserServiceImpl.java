@@ -9,6 +9,7 @@ import com.agama.authority.common.utils.security.Encodes;
 import com.agama.authority.system.dao.IUserDao;
 import com.agama.authority.system.entity.User;
 import com.agama.authority.system.service.IUserService;
+import com.agama.common.dao.utils.Page;
 import com.agama.common.service.impl.BaseServiceImpl;
 import com.agama.common.utils.DateUtils;
 
@@ -76,6 +77,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, Integer> implements I
 	/**
 	 * 设定安全的密码，生成随机的salt并经过1024次 sha-1 hash
 	 */
+	@Transactional(readOnly=false)
 	public void entryptPassword(User user) {
 		byte[] salt = Digests.generateSalt(SALT_SIZE);
 		user.setSalt(Encodes.encodeHex(salt));
@@ -104,11 +106,19 @@ public class UserServiceImpl extends BaseServiceImpl<User, Integer> implements I
 	 * 修改用户登录
 	 * @param user
 	 */
+	@Transactional(readOnly=false)
 	public void updateUserLogin(User user){
 		user.setLoginCount((user.getLoginCount()==null?0:user.getLoginCount())+1);
 		user.setPreviousVisit(user.getLastVisit());
 		user.setLastVisit(DateUtils.getSysTimestamp());
 		update(user);
 	}
+
+	
+	@Override
+	public Page<User> getUsersByAreaInfoId(Page<User> page, Integer areaInfoId) {
+		return userDao.getUsersAreaInfoId(page, areaInfoId);
+	}
+
 	
 }

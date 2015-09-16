@@ -69,7 +69,8 @@ if(action=='create'){
 	    validType:{
 	    	length:[2,20],
 	    	remote:["${ctx}/system/user/checkLoginName","loginName"]
-	    }
+	    },
+	    invalidMessage:"用户名已存在"
 	});  
 }else if(action=='update'){
 	$("input[name='loginName']").attr('readonly','readonly');

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.agama.authority.common.web.BaseController;
 import com.agama.authority.system.entity.AreaInfo;
 import com.agama.authority.system.service.IAreaInfoService;
+import com.agama.common.domain.TreeBean;
 
 /**
  * 区域信息类型controller
@@ -113,6 +114,12 @@ public class AreaInfoController extends BaseController{
 	public String delete(@PathVariable("id") Integer id) {
 		areaInfoService.delete(id);
 		return "success";
+	}
+	@RequestMapping(value="tree")
+	@ResponseBody
+	public List<TreeBean> tree(Integer pid){
+		List<TreeBean> treeBeans=areaInfoService.getTreeByPid(pid);
+		return treeBeans;
 	}
 	
 }

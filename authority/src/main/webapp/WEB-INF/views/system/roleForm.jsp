@@ -13,13 +13,13 @@
 		<tr>
 			<td>角色名：</td>
 			<td>
-			<input type="hidden" name="id" value="${id }" />
-			<input id="name" name="name" type="text" value="${role.name }" class="easyui-validatebox"  data-options="width: 150,required:'required'"/>
+			<input type="hidden" name="id" value="${id }" id="id"/>
+			<input id="name" name="name" type="text" value="${role.name }" class="easyui-validatebox"  data-options="width: 150,required:'required',validType:['length[1,20]','checkRoleName[\'id\',\'name\']']"/>
 			</td>
 		</tr>
 		<tr>
 			<td>角色编码：</td>
-			<td><input id="roleCode" name="roleCode" type="text" value="${role.roleCode }" class="easyui-validatebox"  data-options="width: 150,required:'required'" validType="length[0,30]"/></td>
+			<td><input id="roleCode" name="roleCode" type="text" value="${role.roleCode }" class="easyui-validatebox"  data-options="width: 150,required:'required'"/></td>
 		</tr>
 		<tr>
 			<td>排序：</td>
@@ -33,10 +33,37 @@
 	</form>
 </div>
 <script type="text/javascript">
+//验证角色名是否存在
+$.extend($.fn.validatebox.defaults.rules, {
+	checkRoleName: {
+        validator: function (value, param) {
+        	var flag = false;
+        	var result = $.ajax({url:"${ctx}/system/role/checkRoleName",
+        						data:{roleId:$("#" + param[0]).val(),roleName:$("#" + param[1]).val()},
+        						async:false,
+        						cache:false,
+        						type:"post"}).responseText;
+        	return result == "true";
+        },
+        message: "角色名已经存在"
+    }
+	
+});
+
+
 var action="${action}";
 if(action=='update'){
 	$('#roleCode').attr("readonly",true);
 	$("#roleCode").css("background","#eee");
+}else{
+	//角色编码存在验证
+	$('#roleCode').validatebox({    
+	    required: true,    
+	    validType:{
+	    	remote:["${ctx}/system/role/checkRoleCode","roleCode"]
+	    },
+	    invalidMessage:"角色编码已存在"
+	});  
 }
 
 $(function(){

@@ -1,5 +1,7 @@
 package com.agama.authority.system.dao;
 
+import java.util.List;
+
 import com.agama.authority.system.entity.AreaInfo;
 import com.agama.common.dao.IBaseDao;
 
@@ -9,5 +11,7 @@ import com.agama.common.dao.IBaseDao;
  * @Since :2015年8月27日 上午9:29:24
  */
 public interface IAreaInfoDao extends IBaseDao<AreaInfo, Integer>{
+
+	List<AreaInfo> findListByPid(Integer pid);
 	
 }

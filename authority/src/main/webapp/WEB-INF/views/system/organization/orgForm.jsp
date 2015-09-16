@@ -44,13 +44,13 @@
 		<tr>
 			<td>机构层级：</td>
 			<td>
-			<input name="orgLevel" type="text" value="${organization.orgLevel }" class="easyui-validatebox"  data-options="required:true,validType:['length[0,12]']" />
+			<input name="orgLevel" type="text" value="${organization.orgLevel }" class="easyui-validatebox"  data-options="required:true,validType:['length[0,12]','integer']" />
 			</td>
 		</tr>
 		<tr>
 			<td>排序码：</td>
 			<td>
-			<input name="orgSort" type="text" value="${organization.orgSort }" class="easyui-validatebox"  data-options="required:true,validType:['length[0,12]']" />
+			<input name="orgSort" type="text" value="${organization.orgSort }" class="easyui-validatebox"  data-options="required:true,validType:['length[0,12]','integer']" />
 			</td>
 		</tr>
 	</table>

@@ -4,6 +4,8 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <c:set var="ctx" value="${pageContext.request.contextPath}"/>
 
+<link rel="shortcut icon" href="${ctx}/static/images/favicon.ico">
+
 <!-- easyui皮肤 -->
 <link href="${ctx}/static/plugins/easyui/jquery-easyui-theme/<c:out value="${cookie.themeName.value}" default="default"/>/easyui.css" rel="stylesheet" type="text/css" />
 <link href="${ctx}/static/plugins/easyui/jquery-easyui-theme/icon.css" rel="stylesheet" type="text/css" />
@@ -63,8 +65,14 @@
 <script src="${ctx}/static/plugins/ztree/js/jquery.ztree.exhide-3.5.min.js"></script>
 
 <link rel="stylesheet" href="${ctx }/static/plugins/easyui/common/other.css"></link>
-
+<script type="text/javascript" src="${ctx }/static/js/dateutils.js"></script>
+<style type="text/css">
+iframe.panel-iframe {
+height: 100%;
+}
+</style>
 <script>
+var ctx = "${ctx}";
 //全局的AJAX访问，处理AJAX清求时SESSION超时
 $.ajaxSetup({
     contentType:"application/x-www-form-urlencoded;charset=utf-8",
@@ -77,4 +85,47 @@ $.ajaxSetup({
        		}	
     }
 });
+
+/**
+ * 日期段初始化方法
+ */
+function initDateFilter(beginDate,endDate){
+	$("#"+beginDate).my97({
+		maxDate:'%y-%M-%d',
+		onShowPanel : function() {
+			var end_Date = $("#"+endDate).my97("getValue");
+			if (end_Date.length > 0) {
+				$("#"+beginDate).my97({
+					maxDate : end_Date
+				});
+			}
+		
+		},
+		onHidePanel : function() {
+			var begin_Date = $("#"+beginDate).my97("getValue");
+
+			if (begin_Date.length > 0) {
+				$("#"+endDate).my97({
+					minDate : begin_Date
+				});
+			}
+		}
+
+	});
+	$("#"+endDate).my97({
+		maxDate:'%y-%M-%d',
+		onHidePanel : function() {
+			var end_Date = $("#"+endDate).my97("getValue");
+
+			if (end_Date.length > 0) {
+				$("#"+beginDate).my97({
+					maxDate : end_Date
+				});
+			}
+		}
+
+	});
+
+}
 </script>
+<meta http-equiv="X-UA-Compatible" content="IE=8"> 

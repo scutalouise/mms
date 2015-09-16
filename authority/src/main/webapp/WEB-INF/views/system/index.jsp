@@ -20,17 +20,27 @@
         </div>
     </div>
     <div id="mainLayout" class="easyui-layout hidden" data-options="fit: true">
-        <div id="northPanel" data-options="region: 'north', border: false" style="height: 80px; overflow: hidden;">
-            <div id="topbar" class="top-bar">
-                <div class="top-bar-left">
+        <div id="northPanel" data-options="region: 'north', border: false" style="height: 103px; overflow: hidden;">
+            <div id="topbar" class="top-bar" style="height:75px;">
+                <div class="top-bar-left" style="height:75px">
                     <!-- <h1 style="margin-left: 10px; margin-top: 10px;color: #fff">Authority<span style="color: #3F4752">后台管理系统</span></h1> -->
-                    <a> <img alt="四川省农村信用社" src="${ctx }/static/images/logo.png" style="width:166px;height:44px"></a>
+                    <a> <img alt="四川省农村信用社" src="${ctx }/static/images/logo.png" style="width:400px;height:75px"></a>
                 </div>
-                <div class="top-bar-right">
-                    <div id="timerSpan"></div>
+                <div class="top-bar-right" style="text-align:center;width: 200px;" >
                     <div id="themeSpan">
                         <a id="btnHideNorth" class="easyui-linkbutton" data-options="plain: true, iconCls: 'layout-button-up'"></a>
                     </div>
+                    <!-- <div id="buttonbar"	style="margin-top:24px;">
+	                    <a href="javascript:void(0);" class="easyui-menubutton" data-options="menu:'#layout_north_set'" iconCls="icon-standard-cog">系统</a>  
+	                    <div id="layout_north_set">
+							<div id="btnFullScreen" data-options="iconCls:'key'">全屏切换</div>
+							<div id="btnExit" data-options="iconCls:'logout'">退出系统</div>
+						</div>
+	                </div> -->
+	                <div id="buttonbar"	style="margin-top:24px;">
+		                <a href="#" id="btnFullScreen" class="easyui-linkbutton" title="全屏切换" data-options="plain:true"><img alt="全屏切换" src="${ctx }/static/images/Full-Screen-32x32.png" style="width:24px;height:24px;border:0px;"></a>
+		                <a href="#" id="btnExit" class="easyui-linkbutton" title="退出系统" data-options="plain:true"><img alt="退出系统" src="${ctx }/static/images/Exit-32x32.png" style="width:24px;height:24px;border:0px;"></a>
+	                </div>
                 </div>
             </div>
             <div id="toolbar" class="panel-header panel-header-noborder top-toolbar">
@@ -40,16 +50,16 @@
                     </span>
                 </div>
                
-                <div id="buttonbar">
-                    <span>更换皮肤：</span>
-                    <select id="themeSelector"></select>
-                    <a href="javascript:void(0);" class="easyui-menubutton" data-options="menu:'#layout_north_set'" iconCls="icon-standard-cog">系统</a>  
+                 <div id="buttonbar">
+                 <!--    <span>更换皮肤：</span>
+                    <select id="themeSelector"></select> -->
+                <!--  <a href="javascript:void(0);" class="easyui-menubutton" data-options="menu:'#layout_north_set'" iconCls="icon-standard-cog">系统</a>  
                     <div id="layout_north_set">
 						<div id="btnFullScreen" data-options="iconCls:'key'">全屏切换</div>
 						<div id="btnExit" data-options="iconCls:'logout'">退出系统</div>
-					</div>
+					</div>  -->
                     <a id="btnShowNorth" class="easyui-linkbutton" data-options="plain: true, iconCls: 'layout-button-down'" style="display: none;"></a>
-                </div>
+                </div> 
             </div>
         </div>
 
@@ -90,18 +100,15 @@
             <div id="mainTabs" class="easyui-tabs" data-options="fit: true, border: false, showOption: true, enableNewTabMenu: true, tools: '#mainTabs_tools', enableJumpTabMenu: true">
                 <div id="homePanel" data-options="title: '主页', iconCls: 'icon-hamburg-home'">
                     <div class="easyui-layout" data-options="fit: true">
-                        <div data-options="region: 'north', split: false, border: false" style="height: 33px;">
-                           	首页内容
-                        </div>
-                        <div data-options="region: 'center', border: false" style="overflow: hidden;">
-                            
-                        </div>
+		                <div data-options="region:'west',split:true,border:false" style="width:700px;height:450px"><img src="${ctx }/static/images/alertTopMap.png" width="666px" height="378px"></div>
+                        <div data-options="region:'center',border:false" style="width:592px;height:450px"><img src="${ctx }/static/images/alertCount.png" width="666px" height="378px"></div>
+                        <div data-options="region:'south',split:true,border:false" style="width:592px;height:400px"><img src="${ctx }/static/images/alertRecord.png" width="1406px" height="361px"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div data-options="region: 'east', title: '日历', iconCls: 'icon-standard-date', split: true,collapsed: true, minWidth: 160, maxWidth: 500" style="width: 220px;">
+        <div data-options="region: 'east', title: '日历', iconCls: 'icon-standard-date', split: true, minWidth: 160, maxWidth: 500" style="width: 220px;">
             <div id="eastLayout" class="easyui-layout" data-options="fit: true">
                 <div data-options="region: 'north', split: false, border: false" style="height: 220px;">
                     <div class="easyui-calendar" data-options="fit: true, border: false"></div>
@@ -112,9 +119,9 @@
             </div>
         </div>
 
-        <div data-options="region: 'south', title: '关于...', iconCls: 'icon-standard-information', collapsed: true, border: false" style="height: 70px;">
-            <div style="color: #4e5766; padding: 6px 0px 0px 0px; margin: 0px auto; text-align: center; font-size:12px; font-family:微软雅黑;">
-                
+        <div data-options="region: 'south', iconCls: 'icon-standard-information', collapsed: false, border: false" style="height: 20px;width:inherit;">
+            <div style="color: #4e5766; margin: 0px auto; text-align: center; font-size:12px; font-family:微软雅黑;">
+                <p style="color:#3399FF;margin:2px 0;">版权所有©四川阿特申商贸有限公司<span style="padding: 0 20px">|</span>成都申控物联科技有限公司<span style="padding: 0 20px">|</span>Version:&nbsp;&nbsp;<span style="font-weight:900;">0.0.0.1</span></p>
             </div>
         </div>
 

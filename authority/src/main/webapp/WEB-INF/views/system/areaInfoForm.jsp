@@ -25,7 +25,7 @@
 		</tr>
 		<tr>
 			<td>上级区域名称：</td>
-			<td><input id="pid" name="pid" type="text" value="${areaInfo.pid }" class="easyui-validatebox" data-options="required:true,validType:['length[0,9]']" /></td>
+			<td><input id="pid" name="pid" type="text" value="${areaInfo.pid }" class="easyui-validatebox"  /></td>
 		</tr>
 	</table>
 	</form>

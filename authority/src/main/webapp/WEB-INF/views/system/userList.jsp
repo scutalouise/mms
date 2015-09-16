@@ -12,8 +12,8 @@
         	<form id="searchFrom" action="">
        	        <input type="text" name="filter_LIKES_name" class="easyui-validatebox" data-options="width:150,prompt: '昵称'"/>
        	        <input type="text" name="filter_LIKES_phone" class="easyui-validatebox" data-options="width:150,prompt: '电话'"/>
-		        <input type="text" name="filter_GTD_createDate" class="easyui-my97" datefmt="yyyy-MM-dd" data-options="width:150,prompt: '开始日期'"/>
-		        - <input type="text" name="filter_LTD_createDate" class="easyui-my97" datefmt="yyyy-MM-dd" data-options="width:150,prompt: '结束日期'"/>
+		        <input type="text" id="startDate" name="filter_GTD_createDate" class="easyui-my97" datefmt="yyyy-MM-dd" data-options="width:150,prompt: '开始日期(创建)'" />
+		        - <input type="text" id="endDate" name="filter_LTD_createDate" class="easyui-my97" datefmt="yyyy-MM-dd" data-options="width:150,prompt: '结束日期(创建)'"/>
 		        <span class="toolbar-item dialog-tool-separator"></span>
 		        <a href="javascript(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="cx()">查询</a>
 			</form>
@@ -71,7 +71,9 @@ $(function(){
         {field:'email',title:'email',sortable:true,width:100},
         {field:'phone',title:'电话',sortable:true,width:100},
         {field:'loginCount',title:'登录次数',sortable:true},
-        {field:'previousVisit',title:'上一次登录',sortable:true}
+        {field:'previousVisit',title:'上一次登录',sortable:true,formatter: function(value,row,index){
+        	return formatDate(value,"yyyy-MM-dd HH:mm:ss")
+        }}
     ]],
     headerContextMenu: [
         {
@@ -88,6 +90,8 @@ $(function(){
     enableRowContextMenu: false,
     toolbar:'#tb'
 	});
+	
+	initDateFilter("startDate","endDate");
 });
 
 //弹窗增加

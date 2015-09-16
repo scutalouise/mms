@@ -36,6 +36,7 @@
 		<!-- other -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.7</jdk.version>
+		<poi.version>3.12</poi.version>
 	</properties>
 
 	<!-- 设定仓库 -->
@@ -326,8 +327,15 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
-			<version>3.6</version>
+			<version>${poi.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>${poi.version}</version>
+		</dependency>
+		
+		
 		<!-- bsh -->
 		<dependency>
 			<groupId>org.beanshell</groupId>

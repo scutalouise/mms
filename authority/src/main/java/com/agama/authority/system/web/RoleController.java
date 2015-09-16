@@ -56,6 +56,49 @@ public class RoleController extends BaseController{
 	}
 	
 	/**
+	 * @Description:角色名要求不重复
+	 * @param roleName
+	 * @return
+	 * @Since :2015年9月9日 下午4:01:13
+	 */
+	@RequestMapping(value="checkRoleName/{roleCode}")
+	@ResponseBody
+	public String checkRoleName(String name,@PathVariable("roleCode") String roleCode){
+		Role role = roleService.getRoleByName(name) ;
+		if(null == role){
+			return "true";
+		}else{
+			if(roleCode.equals(role.getRoleCode())){
+				return "true";
+			}else{
+				return "false";
+			}
+		}
+//		if(roleService.getRoleByName(name) == null){
+//			return "true";
+//		}else{
+//			return "false";
+//		}
+	}
+	
+	/**
+	 * @Description:角色编码要求不重复
+	 * @param roleCode
+	 * @return
+	 * @Since :2015年9月9日 下午6:26:31
+	 */
+	@RequestMapping(value="checkRoleCode")
+	@ResponseBody
+	public String checkRoleCode(String roleCode){
+		if(roleService.getRoleByCode(roleCode) == null){
+			return "true";
+		}else{
+			return "false";
+		}
+	}
+	
+	
+	/**
 	 * 角色集合(JSON)
 	 */
 	@RequiresPermissions("sys:role:view")

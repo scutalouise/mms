@@ -20,5 +20,14 @@ public class RoleServiceImpl extends BaseServiceImpl<Role, Integer> implements I
 	
 	@Autowired
 	private IRoleDao roleDao;
+	
+	public Role getRoleByName(String name){
+		return roleDao.findUniqueBy("name", name);
+	}
+
+	@Override
+	public Role getRoleByCode(String roleCode) {
+		return roleDao.findUniqueBy("roleCode", roleCode);
+	}
 
 }

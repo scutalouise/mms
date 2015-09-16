@@ -16,23 +16,38 @@ import com.agama.pemm.domain.UpsStatus;
 import com.agama.pemm.service.IUpsStatusService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:applicationContext.xml"})
+@ContextConfiguration(locations = { "classpath:applicationContext.xml" })
 public class UpsStatusServiceTest {
-	private String ipAddress="192.168.2.22";
-	@Resource
+	private String ipAddress = "192.168.2.22";
+	@Autowired
 	private IUpsStatusService upsStatusService;
 
 	@Test
 	public void findAll() {
 		List<UpsStatus> upsStatusList = upsStatusService.getAll();
-		
+
 	}
 
 	@Test
 	public void getUpsStatus() {
-		UpsStatus upsStatus = upsStatusService.collectUspStatus(ipAddress);
+		UpsStatus upsStatus = upsStatusService.collectUspStatus(ipAddress, 1,
+				45);
 		upsStatusService.save(upsStatus);
-		
+
+	}
+
+	@Test
+	public void findLatestDataByGitInfoId() {
+		List<UpsStatus> upsStatusList = upsStatusService
+				.findLatestDataByGitInfoId(5);
+		for (UpsStatus upsStatus : upsStatusList) {
+			System.out.println(upsStatus.getId());
+		}
+	}
+
+	@Test
+	public void saveUpsStatus() {
+		upsStatusService.saveUpsStatus();
 	}
 
 }

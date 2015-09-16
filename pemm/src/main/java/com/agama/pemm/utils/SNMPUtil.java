@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.logging.Logger;
 
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
@@ -39,81 +40,7 @@ import com.agama.common.utils.DateUtils;
  *
  */
 public class SNMPUtil {
-	
 	private static Snmp snmp = null ;
-	
-	public static void main(String args[]){
-		/**
-		 * 说明：
-		 * 1、设备中OID的具体含义以及规则，详见《OID说明.doc》
-		 * 2、在设备配置中存在中文时，需要使用change2Chinese()方法进行中文转换
-		 * 3、INT64类似数值转换
-		 * 	    假设 longlong x = 10389104226403；
-		 *		取出第1个值：int a = x & 0xffff;
-		 *		取出第2个值：int b = (x>>16) & 0xffff;
-		 *		取出第3个值：int c = (x>>32) & 0xffff;
-		 */
-		
-//	init();
-		
-		/**
-		 * 可以通过两种方式采集设备数据
-		 * 1、GET 方式，直接通过OID取数据，但需要知晓对应的OID，该方式适用于查询设备某些外设数据。
-		 * 2、GET NEXT方式，只需要设置一个起始OID，自动遍历出该OID下子节点，并查询数据，该方式适用于查询设备所有数据。
-		 */
-		
-		/*
-		 * GET方式获取数据
-		 */
-		List<String> oids = new ArrayList<String>();
-		//温湿度
-		oids.add("1.3.6.1.4.1.34651.1.6.1.1");
-		oids.add("1.3.6.1.4.1.34651.1.6.2.1");
-		oids.add("1.3.6.1.4.1.34651.1.6.10.1");
-		oids.add("1.3.6.1.4.1.34651.1.6.11.1");
-		//UPS
-		oids.add("1.3.6.1.4.1.34651.1.7.1.1");
-		oids.add("1.3.6.1.4.1.34651.1.7.4.1");
-		oids.add("1.3.6.1.4.1.34651.1.7.5.1");
-		oids.add("1.3.6.1.4.1.34651.1.7.10.1");
-		oids.add("1.3.6.1.4.1.34651.1.7.11.1");
-		oids.add("1.3.6.1.4.1.34651.1.7.12.1");
-		oids.add("1.3.6.1.4.1.34651.1.7.13.1");
-		oids.add("1.3.6.1.4.1.34651.1.7.14.1");
-		oids.add("1.3.6.1.4.1.34651.1.7.15.1");
-		oids.add("1.3.6.1.4.1.34651.1.7.16.1");
-		oids.add("1.3.6.1.4.1.34651.1.7.17.1");
-		oids.add("1.3.6.1.4.1.34651.1.7.31.1");
-		//第一路开关量
-		oids.add("1.3.6.1.4.1.34651.1.8.110.1");
-		//第二路开关量
-		oids.add("1.3.6.1.4.1.34651.1.8.10.2");
-
-		try {
-//			walkByGet("192.168.0.114",oids);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		/*
-		 * GET NEXT 方式
-		 */
-		try {
-//			walkByGetNext("192.168.0.114","1.3.6.1.4.1.935.1.1.1.1");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-		/*
-		 * SET 操作，用于控制UPS放电、测试、开关机以及红外指令操作等。
-		 * 该操作必须OID支持写操作 
-		 */
-		try {
-//			sendSetCommand("192.168.0.114","1.3.6.1.4.1.34651.1.8.10.1",1);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 	
 	public SNMPUtil(){
 		init();
@@ -137,7 +64,7 @@ public class SNMPUtil {
 	 * @param ipAddress AEM设备IP地址
 	 * @param oids 待查询的OID列表
 	 */
-	public  void walkByGet(String ipAddress , List<String> oids) throws Exception{
+	public  Map<String,String> walkByGet(String ipAddress , List<String> oids) throws Exception{
 		//创建target
 		Address targetAddress = GenericAddress.parse("udp:"+ipAddress+"/161");
 		Target target = new CommunityTarget();
@@ -151,6 +78,7 @@ public class SNMPUtil {
 		target.setTimeout(500);
 		//发送SNMP消息
 		ResponseEvent event = snmp.send(createGetPdu(oids), target);
+		Map<String,String> result = new HashMap<String,String>();
 		//处理响应
 		if (null != event && null != event.getResponse() ) { 
 			Vector<? extends VariableBinding> recVBs = event.getResponse().getVariableBindings();
@@ -158,11 +86,12 @@ public class SNMPUtil {
 			for (int i = 0; i < recVBs.size(); i++) {  
 				VariableBinding recVB = (VariableBinding)recVBs.elementAt(i);
 				String value = recVB.getVariable().toString() ;
-				System.out.println(recVB.getOid().toString()+" : "+value);
+				result.put(recVB.getOid().toString(), " "+recVB.getVariable().toString());
 			} 
 		}else{
 			System.out.println("未查询到数据或查询超时！");
 		}
+		return result;
 	}
 	
 	/**
@@ -208,7 +137,6 @@ public class SNMPUtil {
 			Vector<? extends VariableBinding> recVBs = event.getResponse().getVariableBindings();
 				//处理所有OID对应的信息
 				VariableBinding recVB = (VariableBinding)recVBs.elementAt(0);
-				System.out.println(recVB.getOid().toString()+" : "+recVB.getVariable().toString());
 				VariableBinding va = pdu.get(0);
 				if(recVB.getOid().compareTo(va.getOid()) == 0){
 					result.put("collectTime",DateUtils.dateFormat(new Date()));
@@ -257,7 +185,6 @@ public class SNMPUtil {
 			for (int i = 0; i < recVBs.size(); i++) {  
 				VariableBinding recVB = (VariableBinding)recVBs.elementAt(i);
 				String value = recVB.getVariable().toString() ;
-				System.out.println(recVB.getOid().toString()+" : "+value);
 			} 
 		}else{
 			System.out.println("SET命令失败！");

@@ -9,6 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @MappedSuperclass
 public abstract class BaseDomain implements Serializable{
 	/**
@@ -19,18 +21,23 @@ public abstract class BaseDomain implements Serializable{
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(updatable = false, nullable = false)
-	private Long id;
+	private Integer id;
 
 	@Version
+	@JsonIgnore
 	private Integer version;
 
-	public Long getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
+
+	
+	
+	
 
 	public Integer getVersion() {
 		return version;
@@ -39,6 +46,8 @@ public abstract class BaseDomain implements Serializable{
 	public void setVersion(Integer version) {
 		this.version = version;
 	}
+
+	
 	
 	
 

@@ -9,5 +9,5 @@ import com.agama.common.service.IBaseService;
  * @Since :2015年8月27日 上午10:09:23
  */
 public interface IOrganizationService extends IBaseService<Organization, Integer> {
-
+	
 }

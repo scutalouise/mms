@@ -10,4 +10,8 @@ import com.agama.common.service.IBaseService;
  */
 public interface IRoleService extends IBaseService<Role, Integer> {
 
+	public Role getRoleByName(String name);
+	
+	public Role getRoleByCode(String roleCode);
+	
 }

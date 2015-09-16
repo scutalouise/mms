@@ -12,6 +12,8 @@ request.setAttribute("error", error);
 <html>
 <head>
 	<title>后台管理系统</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=8"> 
+	<link rel="shortcut icon" href="${ctx}/static/images/favicon.ico">
 	<script src="${ctx}/static/plugins/easyui/jquery/jquery-1.11.1.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="${ctx}/static/css/bglogin.css" />
 	<script>
@@ -26,39 +28,62 @@ request.setAttribute("error", error);
       top.location.href = window.location.href;   
   	</script> 
 </head>
-<body>
-	<div>
-	<form id="loginForm" action="${ctx}/a/login" method="post">
-		<div class="login_top">
-			<div class="login_title">
-				后台管理系统登录页 
+<body style="background-repeat: repeat;">
+	<div style="width:1280px;min-width:768px;margin:auto;">
+		<div class="login_top" 	style="height:150px;">
+			<div class="login_title" style="height:50px;">
+				<span style="width:50px;"><img src="${ctx }/static/images/artisan-b.png" alt="" style="width:48px ;height:48px;position:relative;bottom:-6px;"/></span>
+				<span style="width:400px;position:relative;left:-20px;">动力环境监控系统</span>
 			</div>
 		</div>
-		<div style="float:left;width:100%;">
-			<div class="login_main">
-				<div class="login_main_top"></div>
-				<div class="login_main_errortip">&nbsp;</div>
-				<div class="login_main_ln">
-					<input type="text" id="username" name="username" value="admin"/>
-				</div>
-				<div class="login_main_pw">
-					<input type="password" id="password" name="password" value="123456"/>
-				</div>
-				<div class="login_main_yzm">
-					<div>
-					<input type="text" id="captcha" name="captcha"/>
-					<img alt="验证码" src="${ctx}/static/images/kaptcha.jpg" title="点击更换" id="img_captcha" onclick="javascript:refreshCaptcha();" style="height:45px;width:85px;float:right;margin-right:98px;"/>
+		<div class="login_main_null" style="height:650px;">
+			<div style="float:right;width:600px;margin-top:50px;">
+				<form id="loginForm" action="${ctx}/a/login" method="post">
+					<div class="login_main" style="width:423px;height:366px;">
+						<div class="login_main_top"></div>
+						<div class="login_main_errortip">&nbsp;</div>
+						<div class="login_main_ln">
+							<input type="text" id="username" name="username" value="admin"/>
+						</div>
+						<div class="login_main_pw">
+							<input type="password" id="password" name="password" value="123456"/>
+						</div>
+						<div class="login_main_yzm">
+							<div>
+							<input type="text" id="captcha" name="captcha"/>
+							<img alt="验证码" src="${ctx}/static/images/kaptcha.jpg" title="点击更换" id="img_captcha" onclick="javascript:refreshCaptcha();" style="height:45px;width:85px;float:right;margin-right:98px;"/>
+							</div>
+						</div>
+						<div class="login_main_remb">
+							<input id="rm" name="rememberMe" type="hidden"/><!-- <label for="rm"><span>记住我</span></label> -->
+						</div>
+						<div class="login_main_submit">
+							<button onclick=""></button>
+						</div>
 					</div>
+				</form>
+			</div>
+			<div style="float:right;width:600px;margin-top:75px;;height:500px;">
+				<div style="height:140px">
+					<div class="login_main_right rectangle" style="width:100px;background:#2ABADD;text-align:center"><img src="${ctx}/static/images/01.png" alt="" style="width:80px;height:80px;margin:auto;"/></div>
+					<div class="login_main_right rectangle" style="width:100px;margin-right:15px;background:#DE9804;text-align:center"><img src="${ctx}/static/images/02.png" alt="" style="width:80px;height:80px;"/></div>
+					<div class="login_main_right rectangle" style="width:230px;margin-right:15px;background:#8EC21F;text-align:center"><img src="${ctx}/static/images/03.png" alt="" style="width:80px;height:80px;margin:auto 0;"/></div>
 				</div>
-				<div class="login_main_remb">
-					<input id="rm" name="rememberMe" type="hidden"/><!-- <label for="rm"><span>记住我</span></label> -->
+				<div style="margin-top:10px;height:140px">
+					<div class="login_main_right rectangle" style="width:100px;"></div>
+					<div class="login_main_right rectangle" style="width:100px;margin-right:15px;background:#21B3A8;text-align:center"><img src="${ctx}/static/images/10.png" alt="" style="width:80px;height:80px;margin:auto;"/></div>
+					<div class="login_main_right rectangle" style="width:100px;margin-right:15px;background:#2ABADD;text-align:center"><img src="${ctx}/static/images/05.png" alt="" style="width:80px;height:80px;margin:auto;"/></div>
 				</div>
-				<div class="login_main_submit">
-					<button onclick=""></button>
+				<div style="margin-top:10px;height:140px">
+					<div class="login_main_right rectangle" style="width:100px;/* background:#818BEC; */"><%-- <img src="${ctx}/static/images/08.png" alt="" style="width:80px;height:80px;margin:auto; "/> --%></div>
+					<div class="login_main_right rectangle" style="width:240px;margin-right:15px;background:#818BEC;text-align:center;padding-top: 30px;  height: 80px"><span style="font-family: '黑体';font-size: 24px;color:#fff;vertical-align:50%;">机房与UPS动力环境监控管理专家</span></div>
+					<div class="login_main_right rectangle" style="width:100px;margin-right:15px;background:#01A300;text-align:center;"><img src="${ctx}/static/images/07.png" alt="" style="width:80px;height:80px;margin:auto; "/></div>
 				</div>
 			</div>
 		</div>
-	</form>
+		<div class="login_footer" style="clear:both;height:60px;margin-top:50px;width:inherit;text-align:center;position:absolute;font-size:13px;font-family: '微软雅黑','宋体',Arial, sans-serif;">
+			<p style="color:#fff;">版权所有©四川阿特申商贸有限公司<span style="padding: 0 20px">|</span>成都申控物联科技有限公司<span style="padding: 0 20px;">|</span >Version:&nbsp;&nbsp;<span style="font-weight:900;">0.0.0.1</span></p>
+		</div>
 	</div>
 	<c:choose>
 		<c:when test="${error eq 'com.agama.authority.system.utils.CaptchaException'}">

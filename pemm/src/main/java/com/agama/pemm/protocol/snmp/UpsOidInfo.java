@@ -7,67 +7,70 @@ import org.snmp4j.PDU;
 
 public enum UpsOidInfo {
 	// UPS名称
-	upsName("1.3.6.1.4.1.34651.2.1.1.1.1", PDU.GET),
+	upsName("1.3.6.1.4.1.34651.2.1.1.1", PDU.GET),
 	// 接口类型
-	interfaceType("1.3.6.1.4.1.34651.2.1.1.2.1", PDU.GET),
+	interfaceType("1.3.6.1.4.1.34651.2.1.1.2", PDU.GET),
 	// 通讯状态
-	communicationStatus("1.3.6.1.4.1.34651.2.1.1.4.1", PDU.GET),
+	communicationStatus("1.3.6.1.4.1.34651.2.1.1.4", PDU.GET),
 	// 放电模式
-	dischargePatterns("1.3.6.1.4.1.34651.2.1.1.5.1", PDU.GET),
+	dischargePatterns("1.3.6.1.4.1.34651.2.1.1.5", PDU.GET),
 	// UPS类型
-	upsType("1.3.6.1.4.1.34651.2.1.1.6.1", PDU.GET),
+	upsType("1.3.6.1.4.1.34651.2.1.1.6", PDU.GET),
 	// 型号
-	modelNumber("1.3.6.1.4.1.34651.2.1.1.10.1", PDU.GET),
+	modelNumber("1.3.6.1.4.1.34651.2.1.1.10", PDU.GET),
 	// 厂商品牌
-	brand("1.3.6.1.4.1.34651.2.1.1.11.1", PDU.GET),
+	brand("1.3.6.1.4.1.34651.2.1.1.11", PDU.GET),
 	// 版本号
-	versionNumber("1.3.6.1.4.1.34651.2.1.1.12.1", PDU.GET),
+	versionNumber("1.3.6.1.4.1.34651.2.1.1.12", PDU.GET),
 	// 额定电压
-	ratedVoltage("1.3.6.1.4.1.34651.2.1.1.13.1", PDU.GET),
+	ratedVoltage("1.3.6.1.4.1.34651.2.1.1.13", PDU.GET),
 	// 额定电流
-	ratedCurrent("1.3.6.1.4.1.34651.2.1.1.14.1", PDU.GET),
+	ratedCurrent("1.3.6.1.4.1.34651.2.1.1.14", PDU.GET),
 	// 额定频率
-	ratedFrequency("1.3.6.1.4.1.34651.2.1.1.16.1", PDU.GET),
+	ratedFrequency("1.3.6.1.4.1.34651.2.1.1.16", PDU.GET),
 	// 电池电压
-	batteryVoltage("1.3.6.1.4.1.34651.2.1.1.15.1", PDU.GET),
+	batteryVoltage("1.3.6.1.4.1.34651.2.1.1.15", PDU.GET),
 	// 功率
-	power("1.3.6.1.4.1.34651.2.1.1.17.1", PDU.GET),
+	power("1.3.6.1.4.1.34651.2.1.1.17", PDU.GET),
 	// UPS状态
-	upsStatus("1.3.6.1.4.1.34651.2.1.1.30.1", PDU.GET),
+	upsStatus("1.3.6.1.4.1.34651.2.1.1.20", PDU.GET),
 	// *频率
-	frequency("1.3.6.1.4.1.34651.2.1.1.30.1", PDU.GET),
+	frequency("1.3.6.1.4.1.34651.2.1.1.30", PDU.GET),
 	// 机内温度
-	internalTemperature("1.3.6.1.4.1.34651.2.1.1.21.1", PDU.GET),
+	internalTemperature("1.3.6.1.4.1.34651.2.1.1.21", PDU.GET),
 	// *旁路电压
-	bypassVoltage("1.3.6.1.4.1.34651.2.1.1.22.1", PDU.GET),
+	bypassVoltage("1.3.6.1.4.1.34651.2.1.1.22", PDU.GET),
 	// 旁路频率
-	bypassFrequency("1.3.6.1.4.1.34651.2.1.1.23.1", PDU.GET),
+	bypassFrequency("1.3.6.1.4.1.34651.2.1.1.23", PDU.GET),
 	// 输入电压
-	inputVoltage("1.3.6.1.4.1.34651.2.1.1.31.1", PDU.GET),
+	inputVoltage("1.3.6.1.4.1.34651.2.1.1.31", PDU.GET),
 	// 输出电压
-	outputVoltage("1.3.6.1.4.1.34651.2.1.1.40.1", PDU.GET),
+	outputVoltage("1.3.6.1.4.1.34651.2.1.1.40", PDU.GET),
 	// 故障电压
-	errorVoltage("1.3.6.1.4.1.34651.2.1.1.32.1", PDU.GET),
+	errorVoltage("1.3.6.1.4.1.34651.2.1.1.32", PDU.GET),
 	// 负载
-	load("1.3.6.1.4.1.34651.2.1.1.41.1", PDU.GET),
+	load("1.3.6.1.4.1.34651.2.1.1.41", PDU.GET),
 	// *输出频率
-	outputFrenquency("1.3.6.1.4.1.34651.2.1.1.42.1", PDU.GET),
+	outputFrenquency("1.3.6.1.4.1.34651.2.1.1.42", PDU.GET),
 	// 单节电压
-	singleVoltage("1.3.6.1.4.1.34651.2.1.1.50.1", PDU.GET),
+	singleVoltage("1.3.6.1.4.1.34651.2.1.1.50", PDU.GET),
 	// *总电压
-	totalVoltage("1.3.6.1.4.1.34651.2.1.1.51.1", PDU.GET),
+	totalVoltage("1.3.6.1.4.1.34651.2.1.1.51", PDU.GET),
 	// 充电量
-	electricQuantity("1.3.6.1.4.1.34651.2.1.1.52.1", PDU.GET),
+	electricQuantity("1.3.6.1.4.1.34651.2.1.1.52", PDU.GET),
 	// *充/放电电流
-	passCurrent("1.3.6.1.4.1.34651.2.1.1.53.1", PDU.GET),
+	passCurrent("1.3.6.1.4.1.34651.2.1.1.53", PDU.GET),
 	// *剩余时间
-	remainingTime("1.3.6.1.4.1.34651.2.1.1.54.1", PDU.GET),
+	remainingTime("1.3.6.1.4.1.34651.2.1.1.54", PDU.GET),
 	//放电测试
-	dischargeTest("1.3.6.1.4.1.34651.2.1.1.60.1",PDU.SET),
+	dischargeTest("1.3.6.1.4.1.34651.2.1.1.60",PDU.SET),
 	//UPS关机
-	shutdown("1.3.6.1.4.1.34651.2.1.1.62.1",PDU.SET),
+	shutdown("1.3.6.1.4.1.34651.2.1.1.62",PDU.SET),
 	//蜂鸣器控制
-	buzzerControl("1.3.6.1.4.1.34651.2.1.1.61.1",PDU.SET); 
+	buzzerControl("1.3.6.1.4.1.34651.2.1.1.61",PDU.SET),
+	
+	//上传获取时间间隔
+	lastCollectTnterval("1.3.6.1.4.1.34651.2.1.1.99",PDU.SET); 
 
 
 	private String oid;

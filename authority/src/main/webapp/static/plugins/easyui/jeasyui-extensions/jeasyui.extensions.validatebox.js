@@ -27,6 +27,23 @@
 
 
     var rules = {
+        //时间比较
+        // timeAfter:{
+            // validator:function(value,param){     
+             // var s = $("input[name="+param[0]+"]").val();
+             // //因为日期是统一格式的所以可以直接比较字符串 否则需要Date.parse(_date)转换
+             // return value>=s;
+            // },
+            // message:'日期先后顺序选择错误'
+        // },
+        // timeBefore:{
+            // validator:function(value,param){     
+             // var s = $("input[name="+param[0]+"]").val();
+             // //因为日期是统一格式的所以可以直接比较字符串 否则需要Date.parse(_date)转换
+             // return value<s;
+            // },
+            // message:'日期先后顺序选择错误'
+        // },
         //  只允许输入英文字母或数字
         engNum: {
             validator: function (value) {
