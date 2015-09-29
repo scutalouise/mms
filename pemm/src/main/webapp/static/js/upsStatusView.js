@@ -282,14 +282,22 @@ $(function() {
 																	field : "inputVoltage",
 																	title : "输入电压",
 																	sortable : true,
-																	width : 50
+																	width : 50,
+																	formatter : function(
+																			value) {
+																		return value;
+																	}
 
 																},
 																{
 																	field : "outputVoltage",
 																	title : "输出电压",
 																	sortable : true,
-																	width : 50
+																	width : 50,
+																	formatter : function(
+																			value) {
+																		return value;
+																	}
 																},
 																{
 																	field : "errorVoltage",
@@ -306,7 +314,11 @@ $(function() {
 																	field : "upsLoad",
 																	title : "负载",
 																	sortable : true,
-																	width : 50
+																	width : 50,
+																	formatter : function(
+																			value) {
+																		return value;
+																	}
 																},
 																{
 																	field : "outputFrenquency",
@@ -581,7 +593,7 @@ function createTooltip() {
 
 												content += '<li>输入电压: '
 														+ row.inputVoltage
-														+ '</li>';
+														 + '</li>';
 
 												content += '<li>输出电压: '
 														+ row.outputVoltage
@@ -592,7 +604,8 @@ function createTooltip() {
 														+ "V" + '</li>';
 
 												content += '<li>负载: '
-														+ row.upsLoad + '</li>';
+														+ row.upsLoad
+														+ '</li>';
 
 												content += '<li>*输出频率: '
 														+ row.outputFrenquency
@@ -700,3 +713,76 @@ function del() {
 		}
 	});
 }
+
+function refresh() {
+	$
+			.ajax({
+				type : "post",
+				url : ctx + "/upsStatus/getUpsStatus",
+				data : {
+					gitInfoId : gitInfoId
+				},
+				success : function(data) {
+
+					for (var i = 0; i < data.length; i++) {
+						$("#rateVoltage_" + i).html(
+								(data[i].rateVoltage).toFixed(1) + "V");
+						$("#ratedCurrent_" + i).html(
+								(data[i].ratedCurrent).toFixed(1) + "A");
+						$("#batteryVoltage_" + i).html(
+								(data[i].batteryVoltage));
+						$("#power_" + i).html(
+								(data[i].power).toFixed(1) + "KVA");
+						$("#upsStatus_" + i)
+								.html(
+										data[i].upsStatus == 1 ? "<span style='color: red;'>故障</span>"
+												: "<span style='color: green;'>正常</span>");
+						$("#internalTemperature_" + i).html(
+								(data[i].internalTemperature).toFixed(1) + "℃");
+						$("#bypassFrequency_" + i).html(
+								(data[i].bypassFrequency).toFixed(1) + "Hz");
+						$("#inputVoltage_" + i).html(
+								(data[i].inputVoltage));
+						$("#outputVoltage_" + i).html(
+								(data[i].outputVoltage));
+						$("#errorVoltage_" + i).html(
+								(data[i].errorVoltage).toFixed(1) + "V");
+						$("#upsLoad_" + i).html(
+								(data[i].upsLoad));
+						$("#singleVoltage_" + i).html(
+								(data[i].singleVoltage).toFixed(1) + "V");
+						$("#electricQuantity_" + i).html(
+								(data[i].electricQuantity).toFixed(1) + "%");
+						$("#cityVoltageStatus_" + i)
+								.html(
+										(data[i].cityVoltageStatus == 1 ? '<span style="color: red;">异常</span>'
+												: '<span style="color: green;">正常</span>'));
+						$("#batteryVoltageStatus_" + i)
+								.html(
+										(data[i].batteryVoltageStatus == 1 ? '<span style="color: red;">低</span>'
+												: '<span style="color: green;">正常</span>'));
+						$("#runningStatus_" + i)
+								.html(
+										(data[i].runningStatus == 1 ? '<span style="color: red;">旁路</span>'
+												: '<span style="color: green;">正常</span>'));
+						$("#testStatus_" + i)
+								.html(
+										(data[i].testStatus == 1 ? '<span style="color: green;">测试中</span>'
+												: '<span style="color: green;">未测试</span>'));
+						$("#shutdownStatus_" + i)
+								.html(
+										(data[i].shutdownStatus == 1 ? '<span style="color: red;">已关机</span>'
+												: '<span style="color: green;">未关机</span>'));
+						$("#buzzerStatus_" + i)
+								.html(
+										(data[i].buzzerStatus == 1 ? '<span style="color: green;">开</span>'
+												: '<span style="color: red;">关</span>'));
+						$("#linkState_" + i)
+								.html(
+										(data[i].linkState == 1 ? '<span style="color: green;">正常</span>'
+												: '<span style="color: red;">丢失</span>'));
+					}
+				}
+			});
+}
+var interval = setInterval("refresh()", 10000);

@@ -89,4 +89,11 @@ public class UpsStatusController extends BaseController {
 		upsStatusService.updateStatusByIds(ids);
 		return "success";
 	}
+	@RequestMapping(value="getUpsStatus",method=RequestMethod.POST)
+	@ResponseBody
+	public List<UpsStatus> getUpsStatus(Integer gitInfoId){
+		List<UpsStatus> upsStatusList=upsStatusService.findLatestDataByGitInfoId(gitInfoId);
+		
+		return upsStatusList;
+	}
 }

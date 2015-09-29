@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,8 @@ import com.agama.common.service.impl.BaseServiceImpl;
 import com.agama.common.utils.DateUtils;
 import com.agama.pemm.bean.AlarmType;
 import com.agama.pemm.bean.DeviceType;
+import com.agama.pemm.bean.StateEnum;
+import com.agama.pemm.bean.UpsChartBean;
 import com.agama.pemm.dao.IAlarmLogDao;
 import com.agama.pemm.dao.IDeviceDao;
 import com.agama.pemm.dao.IGitInfoDao;
@@ -43,6 +47,8 @@ public class UpsStatusServiceImpl extends BaseServiceImpl<UpsStatus, Integer>
 	private IGitInfoDao gitInfoDao;
 	@Autowired
 	private IAlarmLogDao alarmLogDao;
+	
+	
 
 	@Scheduled(fixedRateString = "${interval}")
 	public void saveUpsStatus() {
@@ -50,9 +56,11 @@ public class UpsStatusServiceImpl extends BaseServiceImpl<UpsStatus, Integer>
 		for (GitInfo gitInfo : gitInfos) {
 			List<Device> devices = gitInfo.getDevices();
 			for (Device device : devices) {
-				UpsStatus upsStatus = collectUspStatus(gitInfo.getIp(),
+				if(device.getStatus()!=1){
+					UpsStatus upsStatus = collectUspStatus(gitInfo.getIp(),
 						device.getDeviceIndex(), device.getId());
-				upsStatusDao.save(upsStatus);
+					upsStatusDao.save(upsStatus);
+				}
 			}
 		}
 
@@ -61,19 +69,21 @@ public class UpsStatusServiceImpl extends BaseServiceImpl<UpsStatus, Integer>
 	public UpsStatus collectUspStatus(String ipAaddress, Integer index,
 			Integer deviceId) {
 		log.info("开始采集UPS信息...");
-		long start=System.currentTimeMillis();  
+		long start = System.currentTimeMillis();
 		UpsStatus upsStatus = new UpsStatus();
 		try {
 			SNMPUtil snmp = new SNMPUtil();
+
 			Map<String, String> resultMap = snmp.walkByGetNext(ipAaddress,
 					"1.3.6.1.4.1.34651.2.1.1");
-			String lastCollectIntervalStr = resultMap.get(
-					UpsOidInfo.lastCollectTnterval.getOid() + "." + index)
-					;
+			String lastCollectIntervalStr = resultMap
+					.get(UpsOidInfo.lastCollectTnterval.getOid() + "." + index);
 			if (lastCollectIntervalStr != null) {
 				Long lastCollectTnterval = Long
 						.parseLong(lastCollectIntervalStr.trim());
-				if (lastCollectTnterval < 20) {
+				
+				//
+				if (lastCollectTnterval < 2000) {
 					upsStatus.setName(resultMap.get(UpsOidInfo.upsName.getOid()
 							+ "." + index));
 
@@ -116,7 +126,6 @@ public class UpsStatusServiceImpl extends BaseServiceImpl<UpsStatus, Integer>
 									.get(UpsOidInfo.upsStatus.getOid() + "."
 											+ index).trim());
 					if (upsStatus.getRateVoltage() == 220) {
-
 						byte singlePhaseByte = (byte) (upsStatusResult & 0xff);// 最低位
 						// 单项电低8位
 						String singlePhase = ConverToBitUtils
@@ -148,7 +157,6 @@ public class UpsStatusServiceImpl extends BaseServiceImpl<UpsStatus, Integer>
 							.parseDouble(resultMap.get(
 									UpsOidInfo.internalTemperature.getOid()
 											+ "." + index).trim()) / 10);
-
 					String byPassVoltage = null;
 					String byPassVolage_v = resultMap.get(
 							UpsOidInfo.bypassVoltage.getOid() + "." + index)
@@ -194,15 +202,13 @@ public class UpsStatusServiceImpl extends BaseServiceImpl<UpsStatus, Integer>
 						int a = (int) v & 0xffff;
 						int b = (int) (v >> 16) & 0xffff;
 						int c = (int) (v >> 32) & 0xffff;
-						outputVoltage = ((double) a / 10 + "v/" + (double) b
-								/ 10 + "v/" + (double) c / 10 + "v");
+						outputVoltage = ((double) a / 10 + "V/" + (double) b
+								/ 10 + "V/" + (double) c / 10 + "V");
 					}
 					upsStatus.setOutputVoltage(outputVoltage);
-
 					upsStatus.setErrorVoltage(Double.parseDouble(resultMap.get(
 							UpsOidInfo.errorVoltage.getOid() + "." + index)
 							.trim()) / 10);
-
 					String load_v = resultMap.get(
 							UpsOidInfo.load.getOid() + "." + index).trim();
 					String load = null;
@@ -214,9 +220,7 @@ public class UpsStatusServiceImpl extends BaseServiceImpl<UpsStatus, Integer>
 						load = ((double) a / 10 + "%/" + (double) b / 10 + "%/"
 								+ (double) c / 10 + "%");
 					}
-
 					upsStatus.setUpsLoad(load);
-
 					upsStatus.setOutputFrenquency(Double.parseDouble(resultMap
 							.get(UpsOidInfo.outputFrenquency.getOid() + "."
 									+ index).trim()) / 10);
@@ -237,25 +241,78 @@ public class UpsStatusServiceImpl extends BaseServiceImpl<UpsStatus, Integer>
 							.trim()));
 					upsStatus.setCollectTime(DateUtils.parseDate(resultMap
 							.get("collectTime")));
-					upsStatus.setStatus(0);			
+					upsStatus.setStatus(0);
+					upsStatus.setLinkState(1);
 					Device device = deviceDao.find(deviceId);
 					upsStatus.setDevice(device);
-					AlarmLog alarmLog=new AlarmLog();
-					alarmLog.setCollectTime(new Date());
-					alarmLog.setAlarmType(AlarmType.error);
-					alarmLog.setContent("UPS电压异常");
-					alarmLog.setDeviceType(DeviceType.UPS);
-					alarmLog.setDeviceId(deviceId);
-					alarmLogDao.save(alarmLog);
+					upsAlarmLogRule(upsStatus);
+
+				}else {
+					upsStatus.setLinkState(-1);
+					upsStatus.setCollectTime(new Date());
+					Device device = deviceDao.find(deviceId);
+					upsStatus.setDevice(device);
+					upsAlarmLogRule(upsStatus);
 				}
-			}
+			} 
+
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		long end=System.currentTimeMillis();  
-		log.info("UPS采集所用时间："+(end-start)+"ms");
+		long end = System.currentTimeMillis();
+		log.info("UPS采集所用时间：" + (end - start) + "ms");
 		return upsStatus;
+	}
+
+	@Transactional(readOnly = false)
+	public void upsAlarmLogRule(UpsStatus upsStatus) {
+		StateEnum runState=StateEnum.good;
+		if (("1").equals(upsStatus.getCityVoltageStatus())) {
+			AlarmLog alarmLog = new AlarmLog();
+			alarmLog.setCollectTime(new Date());
+			alarmLog.setAlarmType(AlarmType.error);
+			alarmLog.setContent("市电电压异常");
+			alarmLog.setDeviceType(DeviceType.UPS);
+			alarmLog.setDevice(upsStatus.getDevice());
+			alarmLogDao.save(alarmLog);
+			runState=StateEnum.error;
+		}
+		if (("1").equals(upsStatus.getBatteryVoltageStatus())) {
+			AlarmLog alarmLog = new AlarmLog();
+			alarmLog.setCollectTime(new Date());
+			alarmLog.setAlarmType(AlarmType.error);
+			alarmLog.setContent("电池低电压");
+			alarmLog.setDeviceType(DeviceType.UPS);
+			alarmLog.setDevice(upsStatus.getDevice());
+			alarmLogDao.save(alarmLog);
+			runState=StateEnum.error;
+		}
+		if (("1").equals(upsStatus.getUpsStatus())) {
+			AlarmLog alarmLog = new AlarmLog();
+			alarmLog.setCollectTime(new Date());
+			alarmLog.setAlarmType(AlarmType.error);
+			alarmLog.setContent("UPS故障");
+			alarmLog.setDeviceType(DeviceType.UPS);
+			alarmLog.setDevice(upsStatus.getDevice());
+			alarmLogDao.save(alarmLog);
+			runState=StateEnum.error;
+		}
+		if (-1 != upsStatus.getLinkState()) {
+			AlarmLog alarmLog = new AlarmLog();
+			alarmLog.setCollectTime(new Date());
+			alarmLog.setAlarmType(AlarmType.error);
+			alarmLog.setContent("UPS链接丢失");
+			alarmLog.setDeviceType(DeviceType.UPS);
+			alarmLog.setDevice(upsStatus.getDevice());
+			alarmLogDao.save(alarmLog);
+			runState=StateEnum.error;
+		}
+		//改变当前设备的状态
+		if(runState==StateEnum.error){
+			deviceDao.updateCurrentStateById(upsStatus.getDeviceId(), runState);
+		}
+
 	}
 
 	@Override
@@ -285,6 +342,15 @@ public class UpsStatusServiceImpl extends BaseServiceImpl<UpsStatus, Integer>
 	public void updateStatusByIds(String ids) {
 		upsStatusDao.updateStatusByIds(ids);
 
+	}
+
+	@Override
+	public List<UpsChartBean> getListbyDeviceId(Integer deviceId,
+			Date beginDate, Date endDate) {
+		// TODO Auto-generated method stub
+
+		return upsStatusDao.getUpsChartListbyDeviceId(deviceId, beginDate,
+				endDate);
 	}
 
 }

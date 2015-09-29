@@ -1,5 +1,7 @@
 package com.agama.pemm.dao.impl;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.transform.ResultTransformer;
@@ -7,7 +9,9 @@ import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Repository;
 
 import com.agama.common.dao.impl.HibernateDaoImpl;
+import com.agama.pemm.bean.DeviceStateRecord;
 import com.agama.pemm.bean.DeviceType;
+import com.agama.pemm.bean.UpsChartBean;
 import com.agama.pemm.dao.IUpsStatusDao;
 import com.agama.pemm.domain.UpsStatus;
 
@@ -44,11 +48,8 @@ public class UpsStatusDaoImpl extends HibernateDaoImpl<UpsStatus, Integer>
 		sql.append("s.ups_load as upsLoad,");
 		sql.append("s.output_frenquency as outputFrenquency,");
 		sql.append("s.single_voltage as singleVoltage,");
-
 		sql.append("s.total_voltage as totalVoltage,");
-
 		sql.append("s.electric_quantity as electricQuantity,");
-
 		sql.append("s.pass_current as passCurrent,");
 		sql.append("s.remaining_time as remainingTime,");
 		sql.append("s.collect_time as collectTime,");
@@ -61,10 +62,9 @@ public class UpsStatusDaoImpl extends HibernateDaoImpl<UpsStatus, Integer>
 		sql.append("s.shutdown_Status as shutdownStatus,");
 		sql.append("s.buzzer_Status as buzzerStatus,");
 		sql.append("d.device_id as deviceId,");
-		sql.append("d.device_index as deviceIndex ");
-		
-		sql.append(
-				"from ups_status s right join (select device_index, device_id, collect_time from device,(select device_id,max(collect_time) as collect_time from ups_status  where device_id in (select id from device where device_type=")
+		sql.append("d.device_index as deviceIndex,");
+		sql.append("s.link_State as linkState ");
+		sql.append("from ups_status s right join (select device_index, device_id, collect_time from device,(select device_id,max(collect_time) as collect_time from ups_status  where device_id in (select id from device where device_type=")
 				.append(DeviceType.UPS.ordinal()).append(" and git_info_id=");
 		sql.append(gitInfoId)
 				.append(")  group by device_id) t where device.id=t.device_id) d on d.device_id=s.device_id and d.collect_time=s.collect_time");
@@ -82,6 +82,27 @@ public class UpsStatusDaoImpl extends HibernateDaoImpl<UpsStatus, Integer>
 				")");
 		this.getSession().createQuery(hql.toString()).executeUpdate();
 		
+	}
+
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<UpsChartBean> getUpsChartListbyDeviceId(Integer deviceId,
+			Date beginDate, Date endDate) {
+		SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		StringBuffer hql=new StringBuffer("select inputVoltage as inputVoltage,outputVoltage as outputVoltage,upsLoad as upsLoad,batteryVoltage as batteryVoltage,collectTime as collectTime ,upsType as upsType from UpsStatus where status=0");
+		if(deviceId!=null){
+			hql.append(" and device.id=").append(deviceId);
+		}
+		if(beginDate!=null){
+			hql.append(" and collectTime>='").append(simpleDateFormat.format(beginDate)).append("'");
+		}
+		if(endDate!=null){
+			hql.append(" and collectTime<='").append(simpleDateFormat.format(endDate)).append("'");
+		}
+		hql.append(" order by collectTime asc");
+		
+		return this.getSession().createQuery(hql.toString()).setResultTransformer(Transformers.aliasToBean(UpsChartBean.class)).list();
 	}
 
 }

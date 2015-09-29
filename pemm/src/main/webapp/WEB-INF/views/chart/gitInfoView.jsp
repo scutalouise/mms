@@ -50,7 +50,7 @@ a:ACTIVE {
 						IP：${gitInfo.ip}<br /> 名称：${gitInfo.name }<br />
 
 						<div style="text-align: center;">
-							<a href="${ctx }/chart/upsChart?gitInfoId=${gitInfo.id}">查看报表 </a>
+							<a href="${ctx }/chart/deviceTabs?gitInfoId=${gitInfo.id}">查看报表 </a>
 							
 						</div>
 						

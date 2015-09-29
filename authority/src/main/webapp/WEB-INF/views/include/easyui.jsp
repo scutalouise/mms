@@ -75,6 +75,7 @@ height: 100%;
 var ctx = "${ctx}";
 //全局的AJAX访问，处理AJAX清求时SESSION超时
 $.ajaxSetup({
+	cache: false, //关闭AJAX相应的缓存
     contentType:"application/x-www-form-urlencoded;charset=utf-8",
     complete:function(XMLHttpRequest,textStatus){
           //通过XMLHttpRequest取得响应头，sessionstatus           
@@ -128,4 +129,4 @@ function initDateFilter(beginDate,endDate){
 
 }
 </script>
-<meta http-equiv="X-UA-Compatible" content="IE=8"> 
+<meta http-equiv="X-UA-Compatible" content="IE=edge"> 

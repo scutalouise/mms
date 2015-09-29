@@ -33,6 +33,11 @@ import com.agama.pemm.service.IGitInfoService;
 import com.agama.pemm.utils.DeviceListBean;
 import com.agama.pemm.utils.SNMPUtil;
 
+/**
+ * @Author:ranjunfeng
+ * @Since :2015年9月17日 下午5:12:04
+ * @Description:动换设备控制层
+ */
 @Controller
 @RequestMapping("device")
 @SessionAttributes("device")

@@ -81,7 +81,7 @@ a:ACTIVE {
 									<tr>
 										<td>${deviceStateRecord.deviceType}</td>
 										<td>${deviceStateRecord.count }</td>
-										<td>${deviceStateRecord.currentState==0?'正常':'异常'}</td>
+										<td>${deviceStateRecord.currentState=="error"?"异常":"正常"}</td>
 								</c:if>
 							</c:forEach>
 							</tr>

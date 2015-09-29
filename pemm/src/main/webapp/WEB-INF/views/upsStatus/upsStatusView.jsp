@@ -78,7 +78,8 @@ a {
 				<c:if test="${fn:length(upsStatusList)>0}">
 					<fieldset>
 						<legend>UPS状态信息</legend>
-						<c:forEach items="${upsStatusList }" var="upsStatus">
+						<c:forEach items="${upsStatusList }" var="upsStatus"
+							varStatus="status">
 							<div class="upsStatus">
 								<fieldset>
 									<legend>【UPS-${upsStatus.deviceIndex }】状态</legend>
@@ -132,57 +133,58 @@ a {
 										</tr>
 										<tr>
 											<td class="title">额定电压:</td>
-											<td>${upsStatus.rateVoltage}V</td>
+											<td><span id="rateVoltage_${status.index }">${upsStatus.rateVoltage}V</span></td>
 											<td class="title">额定电流:</td>
-											<td>${upsStatus.ratedCurrent}A</td>
+											<td><span id="ratedCurrent_${status.index }">${upsStatus.ratedCurrent}A</span></td>
 											<td class="title">电池电压:</td>
-											<td>${upsStatus.batteryVoltage}V</td>
+											<td><span id="batteryVoltage_${status.index }">${upsStatus.batteryVoltage}</span></td>
 											<td class="title">额定频率:</td>
 											<td>${upsStatus.ratedFrequency}Hz</td>
 
 										</tr>
 										<tr>
 											<td class="title">功率:</td>
-											<td>${upsStatus.power}KVA</td>
+											<td><span id="power_${status.index }">${upsStatus.power}KVA</span></td>
 											<td class="title">UPS状态:</td>
-											<td><c:if test="${upsStatus.upsStatus==1 }">
-													<span style="color: red;">故障</span>
-												</c:if> <c:if test="${upsStatus.runningStatus!=1 }">
-													<span style="color: green;">正常</span>
-												</c:if></td>
+											<td><span id="upsStatus_${status.index }"><c:if
+														test="${upsStatus.upsStatus==1 }">
+														<span style="color: red;">故障</span>
+													</c:if> <c:if test="${upsStatus.upsStatus!=1 }">
+														<span style="color: green;">正常</span>
+													</c:if> </span></td>
 											<td class="title">*频率:</td>
 											<td>${upsStatus.frequency}Hz</td>
 											<td class="title">机内温度:</td>
-											<td>${upsStatus.internalTemperature}℃</td>
+											<td><span id="internalTemperature_${status.index }">${upsStatus.internalTemperature}℃</span></td>
 
 										</tr>
 										<tr>
 											<td class="title">*旁路电压:</td>
 											<td>${upsStatus.bypassVoltage }</td>
 											<td class="title">旁路频率:</td>
-											<td>${upsStatus.bypassFrequency}Hz</td>
+											<td><span id="bypassFrequency_${status.index }">${upsStatus.bypassFrequency}Hz</span></td>
 											<td class="title">输入电压:</td>
-											<td>${upsStatus.inputVoltage}</td>
+											<td><span id="inputVoltage_${status.index }">${upsStatus.inputVoltage}</span></td>
 											<td class="title">输出电压:</td>
-											<td>${upsStatus.outputVoltage}</td>
+											<td><span id="outputVoltage_${status.index }">${upsStatus.outputVoltage}</span></td>
 
 										</tr>
 										<tr>
 											<td class="title">故障电压:</td>
-											<td>${upsStatus.errorVoltage }V</td>
+											<td><span id="errorVoltage_${status.index }">${upsStatus.errorVoltage }V</span></td>
 											<td class="title">负载:</td>
-											<td>${upsStatus.upsLoad}</td>
+											<td><span id="upsLoad_${status.index }">${upsStatus.upsLoad}</span></td>
 											<td class="title">*输出频率:</td>
 											<td>${upsStatus.outputFrenquency}Hz</td>
 											<td class="title">单节电压:</td>
-											<td>${upsStatus.singleVoltage}V</td>
+											<td><span id="singleVoltage_${status.index }">${upsStatus.singleVoltage}V</span></td>
 
 										</tr>
 										<tr>
 											<td class="title">*总电压:</td>
 											<td>${upsStatus.totalVoltage }V</td>
 											<td class="title">充电量:</td>
-											<td>${upsStatus.electricQuantity}%</td>
+											<td><span id="electricQuantity_${status.index }">${upsStatus.electricQuantity}%</span></td>
 											<td class="title">*充/放电电流:</td>
 											<td>${upsStatus.passCurrent}A</td>
 											<td class="title">*剩余时间:</td>
@@ -191,23 +193,29 @@ a {
 										</tr>
 										<tr>
 											<td class="title">市电电压:</td>
-											<td><c:if test="${upsStatus.cityVoltageStatus==1 }">
-													<span style="color: red;">异常</span>
-												</c:if> <c:if test="${upsStatus.cityVoltageStatus!=1 }">
-													<span style="color: green;">正常</span>
-												</c:if></td>
+											<td><span id="cityVoltageStatus_${status.index }">
+													<c:if test="${upsStatus.cityVoltageStatus==1 }">
+														<span style="color: red;">异常</span>
+													</c:if> <c:if test="${upsStatus.cityVoltageStatus!=1 }">
+														<span style="color: green;">正常</span>
+													</c:if>
+											</span></td>
 											<td class="title">电池电压:</td>
-											<td><c:if test="${upsStatus.batteryVoltageStatus==1 }">
-													<span style="color: red;">低</span>
-												</c:if> <c:if test="${upsStatus.batteryVoltageStatus!=1 }">
-													<span style="color: green;">正常</span>
-												</c:if></td>
+											<td><span id="batteryVoltageStatus_${status.index }">
+													<c:if test="${upsStatus.batteryVoltageStatus==1 }">
+														<span style="color: red;">低</span>
+													</c:if> <c:if test="${upsStatus.batteryVoltageStatus!=1 }">
+														<span style="color: green;">正常</span>
+													</c:if>
+											</span></td>
 											<td class="title">运行状态:</td>
-											<td><c:if test="${upsStatus.runningStatus==1 }">
-													<span style="color: red;">旁路</span>
-												</c:if> <c:if test="${upsStatus.runningStatus!=1 }">
-													<span style="color: green;">正常</span>
-												</c:if></td>
+											<td><span id="runningStatus_${status.index }"> <c:if
+														test="${upsStatus.runningStatus==1 }">
+														<span style="color: red;">旁路</span>
+													</c:if> <c:if test="${upsStatus.runningStatus!=1 }">
+														<span style="color: green;">正常</span>
+													</c:if>
+											</span></td>
 											<td class="title">UPS模式:</td>
 											<td><c:if test="${upsStatus.patternsStatus==1 }">
 													<span style="color: green;">后备式</span>
@@ -220,24 +228,37 @@ a {
 										<tr>
 
 											<td class="title">是否测试:</td>
-											<td><c:if test="${upsStatus.testStatus==1 }">
-													<span style="color: green;">测试中</span>
-												</c:if> <c:if test="${upsStatus.testStatus!=1 }">
-													<span style="color: green;">未测试</span>
-												</c:if></td>
+											<td><span id="testStatus_${status.index }"> <c:if
+														test="${upsStatus.testStatus==1 }">
+														<span style="color: green;">测试中</span>
+													</c:if> <c:if test="${upsStatus.testStatus!=1 }">
+														<span style="color: green;">未测试</span>
+													</c:if>
+											</span></td>
 											<td class="title">关机状态:</td>
-											<td><c:if test="${upsStatus.shutdownStatus==1 }">
-													<span style="color: green;">已关机</span>
-												</c:if> <c:if test="${upsStatus.shutdownStatus!=1 }">
-													<span style="color: green;">未关机</span>
-												</c:if></td>
-											<td class="title">蜂鸣器</td>
-											<td colspan="3"><c:if
-													test="${upsStatus.buzzerStatus==1 }">
-													<span style="color: green;">开</span>
-												</c:if> <c:if test="${upsStatus.buzzerStatus!=1 }">
-													<span style="color: green;">关</span>
-												</c:if></td>
+											<td><span id="shutdownStatus_${status.index }"> <c:if
+														test="${upsStatus.shutdownStatus==1 }">
+														<span style="color: green;">已关机</span>
+													</c:if> <c:if test="${upsStatus.shutdownStatus!=1 }">
+														<span style="color: green;">未关机</span>
+													</c:if>
+											</span></td>
+											<td class="title">蜂鸣器:</td>
+											<td><span id="buzzerStatus_${status.index }"> <c:if
+														test="${upsStatus.buzzerStatus==1 }">
+														<span style="color: green;">开</span>
+													</c:if> <c:if test="${upsStatus.buzzerStatus!=1 }">
+														<span style="color: green;">关</span>
+													</c:if>
+											</span></td>
+											<td class="title">链接状态:</td>
+											<td><span id="linkState_${status.index }"> <c:if
+														test="${upsStatus.linkState==1 }">
+														<span style="color: green;">正常</span>
+													</c:if> <c:if test="${upsStatus.linkState==-1 }">
+														<span style="color: red;">丢失</span>
+													</c:if>
+											</span></td>
 
 										</tr>
 

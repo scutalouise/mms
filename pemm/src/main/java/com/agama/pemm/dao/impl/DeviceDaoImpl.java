@@ -1,6 +1,7 @@
 package com.agama.pemm.dao.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Query;
 
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import com.agama.common.dao.impl.HibernateDaoImpl;
 import com.agama.pemm.bean.DeviceStateRecord;
+import com.agama.pemm.bean.StateEnum;
 import com.agama.pemm.dao.IDeviceDao;
 import com.agama.pemm.domain.Device;
 
@@ -30,9 +32,7 @@ public class DeviceDaoImpl extends HibernateDaoImpl<Device, Integer> implements
 
 	}
 
-	/* (non-Javadoc)
-	 * @see com.agama.pemm.dao.IDeviceDao#getDeviceStateRecordByAreaInfoId(java.lang.Integer)
-	 */
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<DeviceStateRecord> getDeviceStateRecordByAreaInfoId(
@@ -46,5 +46,19 @@ public class DeviceDaoImpl extends HibernateDaoImpl<Device, Integer> implements
 		
 	
 		return getSession().createQuery(hql.toString()).setResultTransformer(Transformers.aliasToBean(DeviceStateRecord.class)).list();
+	}
+
+	@Override
+	public void updateCurrentStateById(Integer id, StateEnum stateEnum) {
+		StringBuffer hql=new StringBuffer("update Device set currentState=").append(stateEnum.ordinal()).append(" where id=").append(id);
+		this.batchExecute(hql.toString());
+		
+	}
+
+
+	@Override
+	public List<Map<String,Object>> getCurrentStateAndCount() {
+		String hql="select new map(currentState as currentState,count(currentState) as num) from Device where status=0 group by currentState";
+		return this.getSession().createQuery(hql.toString()).list();
 	}
 }

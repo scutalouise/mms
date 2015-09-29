@@ -19173,7 +19173,7 @@ define('zrender/zrender', [
                 this._textArea = document.createElement('div');
                 this._textArea.innerHTML = customContent(this.option);
             }
-            this._textArea.style.cssText = 'display:block;margin:0 0 8px 0;padding:4px 6px;overflow:auto;' + 'width:100%;' + 'height:' + (this._zrHeight - 100) + 'px;';
+            this._textArea.style.cssText = 'display:block;margin:0 0 8px 0;padding:4px 0px;overflow:auto;' + 'width:100%;' + 'height:' + (this._zrHeight - 100) + 'px;';
             this._tDom.appendChild(this._textArea);
             this._buttonClose.style.cssText = 'float:right;padding:1px 6px;';
             this._buttonClose.innerHTML = lang[1] || this._lang[1];

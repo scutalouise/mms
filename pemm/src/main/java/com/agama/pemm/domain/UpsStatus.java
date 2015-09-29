@@ -85,6 +85,8 @@ public class UpsStatus extends BaseDomain {
 	private Integer deviceId;
 	
 	
+	private Integer linkState;
+	
 	
 	public String getName() {
 		return name;
@@ -336,6 +338,13 @@ public class UpsStatus extends BaseDomain {
 	public void setDeviceId(Integer deviceId) {
 		this.deviceId = deviceId;
 	}
+	public Integer getLinkState() {
+		return linkState;
+	}
+	public void setLinkState(Integer linkState) {
+		this.linkState = linkState;
+	}
+	
 
 	
 	

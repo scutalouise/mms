@@ -69,7 +69,18 @@
                     $.util.requestFullScreen();
                 }
             } else {
-                $.easyui.messager.show("当前浏览器不支持全屏 API，请更换至最新的 Chrome/Firefox/Safari 浏览器或通过 F11 快捷键进行操作。");
+            	$.messager.show({
+    				title:'操作提示',
+    				width:320,
+    				msg:'当前浏览器不支持全屏 API，请更换至最新的 Chrome/Firefox/Safari浏览器或通过 F11 快捷键进行操作。',
+    				showType:'slide',
+    				style:{
+    					right:'',
+    					top:document.body.scrollTop+document.documentElement.scrollTop,
+    					bottom:''
+    				}
+    			});
+              //  $.easyui.messager.show("当前浏览器不支持全屏 API，请更换至最新的 Chrome/Firefox/Safari 浏览器或通过 F11 快捷键进行操作。");
             }
         });
 

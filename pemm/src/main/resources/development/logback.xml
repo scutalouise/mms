@@ -8,9 +8,9 @@
 	</appender>
 
 	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>c:/temp/logs/application.log</file>
+		<file>/temp/logs/pemm.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>c:/temp/logs/application-%d{yyyy-MM-dd}.log</fileNamePattern>
+			<fileNamePattern>/temp/logs/pemm-%d{yyyy-MM-dd}.log</fileNamePattern>
 			 <maxHistory>30</maxHistory>
 		</rollingPolicy>
 
@@ -21,15 +21,13 @@
 		</encoder>
 		
 	</appender>
-	         
-
 
 	<logger name="ch.qos.logback" level="WARN" />
 	<logger name="org.mortbay.log" level="WARN" />
 	<logger name="org.springframework" level="INFO" />
 	<logger name="org.springframework.beans" level="WARN" />
-	<logger name="org.ibatis" level="INFO" />
-	<logger name="com.uxsino.simo" level="INFO" />
+    <logger name="com.agama.authority" level="DEBUG"/>
+    <logger name="com.agama.pemm" level="INFO"/>
     
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />

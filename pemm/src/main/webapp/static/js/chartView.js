@@ -3,7 +3,9 @@ var areaInfoId;
 $(function() {
 	$("#beginDate").my97("setValue", getLastMonthYestdy(new Date()));
 	$("#endDate").my97("setValue", new Date().format("yyyy-MM-dd"));
+	
 	initDateFilter("beginDate", "endDate");
+	
 	$("#areaInfoTree").tree(
 			{
 				method : "get",
@@ -101,7 +103,7 @@ function initChart(areaInfoId) {
 								optionToContent : function(opt) {
 									var axisData = opt.xAxis[0].data;
 									var series = opt.series;
-									var html = "<table  id='dataView_table' style='width:100%;text-align:center' cellspacing='0' cellpadding='5'>";
+									var html = "<center><table  id='dataView_table' style='width:98%;text-align:center' cellspacing='0' cellpadding='5'>";
 									html += "<thead id='dataView_thead'><tr><td>时间</td><td>"
 											+ series[0].name
 											+ "</td></tr></thead>";
@@ -114,7 +116,7 @@ function initChart(areaInfoId) {
 												+ '</tr>';
 									}
 									html += "</tbody>";
-									html += "</table>";
+									html += "</table></center>";
 									return html;
 								}
 							},
@@ -142,8 +144,8 @@ function initChart(areaInfoId) {
 						show : true,
 						realtime : true,
 						
-						start : 20,
-						end : 80
+						start : 0,
+						end : 100
 					},
 					legend : {
 						y : 30,

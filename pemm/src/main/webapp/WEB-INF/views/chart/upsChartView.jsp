@@ -7,8 +7,6 @@
 <title>UPS统计报表</title>
 <%@ include file="/WEB-INF/views/include/easyui.jsp"%>
 <script type="text/javascript"
-	src="${ctx }/static/plugins/echarts/dist/echarts.js"></script>
-<script type="text/javascript"
 	src="${ctx }/static/js/chart/upsChartView.js"></script>
 	
 <style type="text/css">
@@ -21,12 +19,12 @@ html, body {
 <body>
 	<div class="easyui-layout" data-options="fit:true">
 		<div
-			data-options="region:'west',title:'区域导航',iconCls:'icon-standard-map',split:true,minWidth: 200, maxWidth: 400,width:220">
+			data-options="region:'west',title:'区域导航',iconCls:'icon-standard-map',split:true,minWidth: 150, maxWidth: 400,width:180">
 
 			<ul id="areaInfoTree"></ul>
 		</div>
 		<div data-options="region:'center'" style="overflow: hidden;">
-			<iframe frameborder="0" style="margin: 0" width="100%" height="100%" src="${ctx }/chart/gitInfoView">
+			<iframe frameborder="0" id="gitInfoList" style="margin: 0" width="100%" height="100%" src="${ctx }/chart/gitInfoView">
 			
 			</iframe>
 		</div>

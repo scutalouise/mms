@@ -18,6 +18,7 @@ import com.agama.common.dao.utils.PropertyFilter;
 import com.agama.common.service.impl.BaseServiceImpl;
 import com.agama.pemm.bean.DeviceStateRecord;
 import com.agama.pemm.bean.DeviceType;
+import com.agama.pemm.bean.StateEnum;
 import com.agama.pemm.dao.IDeviceDao;
 import com.agama.pemm.dao.IGitInfoDao;
 import com.agama.pemm.domain.Device;
@@ -40,7 +41,8 @@ public class DeviceServiceImpl extends BaseServiceImpl<Device, Integer> implemen
 		Criterion gitInfoIdCriterion=Restrictions.eq("gitInfo.id", gitInfoId);
 		Criterion deviceTypeCriterion=Restrictions.eq("deviceType", deviceType);
 		Criterion indexCriterion=Restrictions.eq("deviceIndex", index);
-		return deviceDao.findUnique(gitInfoIdCriterion,deviceTypeCriterion,indexCriterion);
+		Criterion statusCriterion=Restrictions.eq("status", 0);
+		return deviceDao.findUnique(gitInfoIdCriterion,deviceTypeCriterion,indexCriterion,statusCriterion);
 	}
 
 	@Override
@@ -59,6 +61,7 @@ public class DeviceServiceImpl extends BaseServiceImpl<Device, Integer> implemen
 					device.setEnabled(1);
 					device.setDeviceType(DeviceType.UPS);
 					device.setDeviceIndex(Integer.parseInt(map.getValue().toString()));
+					device.setCurrentState(StateEnum.good);
 					String oidStr="1.3.6.1.4.1.34651.2.1.1.1."+map.getValue();
 					List<String> oids=new ArrayList<String>();
 					oids.add(oidStr);
@@ -106,6 +109,19 @@ public class DeviceServiceImpl extends BaseServiceImpl<Device, Integer> implemen
 		// TODO Auto-generated method stub
 		String hql="from Device where status=0 and gitInfo.id=?0 and deviceType=?1 order by deviceIndex asc";
 		return deviceDao.find(hql, gitInfoId,deviceType);
+	}
+
+	@Override
+	public void updateCurrentStateById(Integer id, StateEnum stateEnum) {
+	
+		deviceDao.updateCurrentStateById(id,stateEnum);
+		
+	}
+
+	@Override
+	public List<Map<String,Object>> getCurrentStateAndCount() {
+		// TODO Auto-generated method stub
+		return deviceDao.getCurrentStateAndCount();
 	}
 	
 	

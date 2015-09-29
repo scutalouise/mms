@@ -9,7 +9,7 @@ public class DeviceStateRecord{
 	private Integer gitInfoId;
 	private DeviceType deviceType;
 	private Long count;
-	private Integer currentState;
+	private StateEnum currentState;
 	private String stateDetails;
 	public Integer getGitInfoId() {
 		return gitInfoId;
@@ -29,10 +29,10 @@ public class DeviceStateRecord{
 	public void setCount(Long count) {
 		this.count = count;
 	}
-	public Integer getCurrentState() {
+	public StateEnum getCurrentState() {
 		return currentState;
 	}
-	public void setCurrentState(Integer currentState) {
+	public void setCurrentState(StateEnum currentState) {
 		this.currentState = currentState;
 	}
 	public String getStateDetails() {

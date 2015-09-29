@@ -16,6 +16,7 @@ import javax.persistence.Transient;
 
 import com.agama.pemm.bean.DeviceStateRecord;
 import com.agama.pemm.bean.DeviceType;
+import com.agama.pemm.bean.StateEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -37,14 +38,14 @@ public class Device extends BaseDomain {
 	private int status;
 	
 	private int deviceIndex;
-	private int currentState; 
+	private StateEnum currentState; 
 	private String stateDetails; 
 	private String remark;
 	@ManyToOne( fetch = FetchType.EAGER)
 	@JoinColumn(name = "gitInfoId")
 	private GitInfo gitInfo;   
 	
-	@OneToMany(mappedBy="device",cascade= CascadeType.ALL , fetch = FetchType.LAZY)
+	@OneToMany(mappedBy="device",cascade= {CascadeType.ALL} , fetch = FetchType.LAZY)
 	@JsonIgnore
 	private List<UpsStatus> upsStatuses;
 	
@@ -135,11 +136,11 @@ public class Device extends BaseDomain {
 	
 	
 
-	public int getCurrentState() {
+	public StateEnum getCurrentState() {
 		return currentState;
 	}
 
-	public void setCurrentState(int currentState) {
+	public void setCurrentState(StateEnum currentState) {
 		this.currentState = currentState;
 	}
 

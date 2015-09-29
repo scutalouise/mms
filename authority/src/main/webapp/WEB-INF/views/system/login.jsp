@@ -11,9 +11,9 @@ request.setAttribute("error", error);
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-	<title>后台管理系统</title>
+	<title>动力环境监控系统</title>
 	<meta http-equiv="X-UA-Compatible" content="IE=8"> 
-	<link rel="shortcut icon" href="${ctx}/static/images/favicon.ico">
+	<link rel="shortcut icon" href="${ctx}/static/images/favicon.ico"/>
 	<script src="${ctx}/static/plugins/easyui/jquery/jquery-1.11.1.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="${ctx}/static/css/bglogin.css" />
 	<script>
@@ -82,7 +82,7 @@ request.setAttribute("error", error);
 			</div>
 		</div>
 		<div class="login_footer" style="clear:both;height:60px;margin-top:50px;width:inherit;text-align:center;position:absolute;font-size:13px;font-family: '微软雅黑','宋体',Arial, sans-serif;">
-			<p style="color:#fff;">版权所有©四川阿特申商贸有限公司<span style="padding: 0 20px">|</span>成都申控物联科技有限公司<span style="padding: 0 20px;">|</span >Version:&nbsp;&nbsp;<span style="font-weight:900;">0.0.0.1</span></p>
+			<p style="color:#fff;">版权所有©四川阿特申商贸有限公司<span style="padding: 0 20px">|</span>成都申控物联科技有限公司<span style="padding: 0 20px;">|</span >Version:&nbsp;&nbsp;<span style="font-weight:900;">SK_DHRS_NX0100</span></p>
 		</div>
 	</div>
 	<c:choose>

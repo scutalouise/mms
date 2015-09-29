@@ -20,7 +20,7 @@
 		<tr>
 			<td>上级机构：</td>
 			<td>
-				<input id="pid" name="pid" type="text" value="${organization.pid }" class="easyui-validatebox" data-options="required:true,validType:['length[0,9]']" />
+				<input id="pid" name="pid" type="text" value="${organization.pid }" class="easyui-validatebox" data-options="validType:['length[0,9]']" />
 			</td>
 		</tr>
 		<tr>

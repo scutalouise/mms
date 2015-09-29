@@ -3,9 +3,14 @@ package com.agama.pemm.domain;
 import java.util.Date;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import com.agama.pemm.bean.AlarmType;
 import com.agama.pemm.bean.DeviceType;
+
 @Entity
 public class AlarmLog extends BaseDomain{
 
@@ -17,9 +22,19 @@ public class AlarmLog extends BaseDomain{
 	private String content;
 	private AlarmType alarmType;
 	private DeviceType deviceType;
-	private Integer deviceId;
-	
-	
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name="deviceId")
+	private Device device;
+	private Integer status;
+	@Transient
+	private String deviceName;
+	@Transient
+	private String gitInfoIp;
+	@Transient
+	private Integer runState;
+	@Transient
+	private Integer deviceTypeIndex;
+
 	public Date getCollectTime() {
 		return collectTime;
 	}
@@ -44,11 +59,41 @@ public class AlarmLog extends BaseDomain{
 	public void setDeviceType(DeviceType deviceType) {
 		this.deviceType = deviceType;
 	}
-	public Integer getDeviceId() {
-		return deviceId;
+	public Device getDevice() {
+		return device;
 	}
-	public void setDeviceId(Integer deviceId) {
-		this.deviceId = deviceId;
+	public void setDevice(Device device) {
+		this.device = device;
+	}
+	public Integer getStatus() {
+		return status;
+	}
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
+	public String getDeviceName() {
+		return deviceName;
+	}
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
+	}
+	public String getGitInfoIp() {
+		return gitInfoIp;
+	}
+	public void setGitInfoIp(String gitInfoIp) {
+		this.gitInfoIp = gitInfoIp;
+	}
+	public Integer getRunState() {
+		return runState;
+	}
+	public void setRunState(Integer runState) {
+		this.runState = runState;
+	}
+	public Integer getDeviceTypeIndex() {
+		return deviceTypeIndex;
+	}
+	public void setDeviceTypeIndex(Integer deviceTypeIndex) {
+		this.deviceTypeIndex = deviceTypeIndex;
 	}
 
 	
