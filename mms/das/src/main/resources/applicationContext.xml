@@ -1,0 +1,35 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+	xsi:schemaLocation="http://www.springframework.org/schema/data/mongo http://www.springframework.org/schema/data/mongo/spring-mongo-1.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<bean id="propertiesPlaceholder" 
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">  
+       		<list>  
+            	<value>classpath:local.properties</value>  
+        	</list>  
+    	</property>
+	</bean>
+	
+	<!-- 扫描包 -->  
+	<context:component-scan base-package="com.agama"/>
+	
+	<!-- mongoDB -->
+	<mongo:mongo id="replicaSetMongo" replica-set="${mongodb.address}">
+		<mongo:options connections-per-host="100" 
+		threads-allowed-to-block-for-connection-multiplier="50"
+    	auto-connect-retry="true"/>
+	</mongo:mongo>
+	
+	<!-- <mongo:mongo host="192.168.2.78" port="27017"/> --> 
+	<bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+		<constructor-arg name="mongo" ref="replicaSetMongo"/>
+		<constructor-arg name="databaseName" value="${mongodb.database.name}"/>   
+	</bean>
+
+</beans>

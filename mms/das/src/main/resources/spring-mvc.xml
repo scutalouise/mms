@@ -1,0 +1,79 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		
+	<!-- 注解驱动 -->  
+    <mvc:annotation-driven/>
+		
+	<!-- 输出对象转JSON支持 -->  
+	<bean id="stringConverter" class="org.springframework.http.converter.StringHttpMessageConverter">  
+        <property name="supportedMediaTypes">  
+            <list>  
+                <value>text/plain;charset=UTF-8</value>  
+            </list>  
+        </property>  
+    </bean>
+    <bean id="jsonConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"></bean>  
+    <bean  
+        class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">  
+        <property name="messageConverters">
+			<list>
+                <ref bean="stringConverter"/>  
+                <ref bean="jsonConverter" />  
+			</list>  
+        </property>  
+    </bean>
+	
+	<!-- 扫描包 -->  
+	<context:component-scan base-package="com.agama"/>
+	
+	<!-- 视图解析器 -->  
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">  
+        <!-- 返回的视图模型数据需要经过jstl来处理 -->  
+        <property name="viewClass"  
+            value="org.springframework.web.servlet.view.JstlView" />  
+        <property name="prefix" value="/WEB-INF/view/" />  
+        <property name="suffix" value=".jsp" />
+    </bean> 
+    
+    <!-- 对静态资源文件的访问 不支持访问WEB-INF目录 -->  
+    <mvc:default-servlet-handler/>  
+    
+    <!-- 视图控制器 -->
+    <mvc:view-controller path="/" view-name="login" />
+    <mvc:view-controller path="/login" view-name="login" />
+    <mvc:view-controller path="/assetpage" view-name="assetpage" />
+    <mvc:view-controller path="/qrcode" view-name="qrcode" />
+    <mvc:view-controller path="/index" view-name="user"/>
+    <mvc:view-controller path="/system1" view-name="system_1"/>
+    <mvc:view-controller path="/system2" view-name="system_2"/>
+    <mvc:view-controller path="/system3" view-name="system_3"/>
+    
+    <!-- 自定义拦截链配置 -->
+    <mvc:interceptors>
+    	<bean class="com.agama.das.interceptor.SpringMVCInterceptor"/>
+        <!-- <mvc:interceptor>
+        	<mvc:mapping path="/*"/>
+            <bean class="com.agama.das.interceptor.SpringMVCInterceptor"/>
+        </mvc:interceptor> -->
+    </mvc:interceptors>
+		
+	<!-- 全局异常处理-->  
+	<!-- <bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">  
+    	<property name="defaultErrorView">    
+        	<value>/error</value>  
+    	</property>  
+    	<property name="defaultStatusCode">    
+        	<value>500</value>  
+    	</property>     
+		<property name="warnLogCategory">    
+    	    <value>org.springframework.web.servlet.handler.SimpleMappingExceptionResolver</value>  
+    	</property>     
+	</bean> -->
+		
+</beans>

@@ -1,6 +1,11 @@
 #exclude everything except files
+*.log
+*/.git/*
 .project
 .classpath
 .settings
+.springBeans
+.svn
+WebContent
 target
 logs
