@@ -24,7 +24,7 @@ $(function() {
 	});
 	$("#showTime").combobox({
 		onChange : function(value) {
-			initChart(deviceId, type, value)
+			initChart(deviceId, type, value);
 		}
 	});
 	$("#isRefresh").combobox({
@@ -32,7 +32,7 @@ $(function() {
 			if (value == "0") {
 				collect();
 			} else {
-				closoeInterval();
+				closeInterval();
 			}
 		}
 	});
@@ -424,7 +424,19 @@ function initChart(deviceId, type, time) {
 								},
 								restore : {
 									show : true
-								},
+								}
+								,
+//								excelImport:{
+//									show:true,
+//									title:"excel导出",
+//									icon:ctx+"/static/images/export_excel.png",
+//									onclick:function(){
+//										exportExcel
+//										window.location.href=ctx+"/system/excel/exportOutputVoltage/"+deviceId+"/"+$("#showTime").combobox("getValue");
+//										
+//									}
+//								},
+								
 								saveAsImage : {
 									show : true
 								}
@@ -490,6 +502,10 @@ function initChart(deviceId, type, time) {
 var interval;
 function collect() {
 	interval = setInterval(function() {
+		var values;
+		var values;
+		var values;
+		var upsType;
 		$.ajaxSettings.async = false;
 
 		// 加载数据
@@ -503,30 +519,82 @@ function collect() {
 			method : "get",
 			success : function(result) {
 				var json = eval(result.data);
-
+				if (json.length > 0) {
+					upsType = json[0].upsType;
+				}
 				for (var i = 0; i < json.length; i++) {
-					var lastData;
 
 					if (type == "inputVoltage") {
-						lastData = json[i].inputVoltage;
+						var inputVoltage = json[i].inputVoltage;
+						values1 = inputVoltage.substring(0, inputVoltage
+								.indexOf("V"));
+						values2 = inputVoltage.substring(inputVoltage
+								.indexOf("V/") + 2, inputVoltage
+								.lastIndexOf("V/"));
+						values3 = inputVoltage
+								.substring(inputVoltage.lastIndexOf("V/") + 2,
+										inputVoltage.length - 1);
+
 					} else if (type == "outputVoltage") {
-						lastData = json[i].outputVoltage;
+
+						var outputVoltage = json[i].outputVoltage;
+
+						values1 = outputVoltage.substring(0, outputVoltage
+								.indexOf("V"));
+						values2 = outputVoltage.substring(outputVoltage
+								.indexOf("V/") + 2, outputVoltage
+								.lastIndexOf("V/"));
+						values3 = outputVoltage.substring(outputVoltage
+								.lastIndexOf("V/") + 2,
+								outputVoltage.length - 1);
+
 					} else if (type == "upsLoad") {
-						lastData = json[i].upsLoad;
+						var upsLoad = json[i].upsLoad;
+
+						values1 = upsLoad.substring(0, upsLoad.indexOf("%"));
+						values2 = upsLoad.substring(upsLoad.indexOf("%/") + 2,
+								upsLoad.lastIndexOf("%/"));
+						values3 = upsLoad.substring(
+								upsLoad.lastIndexOf("%/") + 2,
+								upsLoad.length - 1);
+
 					} else if (type == "batteryVoltage") {
-						lastData = json[i].batteryVoltage;
+						values1 = json[i].batteryVoltage;
 					}
+
 					var axisData = formatDate(json[i].collectTime,
 							'yyyy-MM-dd HH:mm:ss');
-					// 动态数据接口 addData
-					chart.addData([
+					if (upsType == 2||upsType==3) {
+						// 动态数据接口 addData
+						chart.addData([
 
-					[ 0, // 系列索引
-					lastData, // 新增数据
-					false, // 新增数据是否从队列头部插入
-					false, // 是否增加队列长度，false则自定删除原有数据，队头插入删队尾，队尾插入删队头
-					axisData // 坐标轴标签
-					] ]);
+						[ 0, // 系列索引
+						values1, // 新增数据
+						false, // 新增数据是否从队列头部插入
+						false, // 是否增加队列长度，false则自定删除原有数据，队头插入删队尾，队尾插入删队头
+						axisData // 坐标轴标签
+						], [ 1, // 系列索引
+						values2, // 新增数据
+						false, // 新增数据是否从队列头部插入
+						false, // 是否增加队列长度，false则自定删除原有数据，队头插入删队尾，队尾插入删队头
+						axisData // 坐标轴标签
+						], [ 2, // 系列索引
+						values3, // 新增数据
+						false, // 新增数据是否从队列头部插入
+						false, // 是否增加队列长度，false则自定删除原有数据，队头插入删队尾，队尾插入删队头
+						axisData // 坐标轴标签
+						] ]);
+
+					} else {
+						chart.addData([
+
+						[ 0, // 系列索引
+						values1, // 新增数据
+						false, // 新增数据是否从队列头部插入
+						false, // 是否增加队列长度，false则自定删除原有数据，队头插入删队尾，队尾插入删队头
+						axisData // 坐标轴标签
+						] ]);
+					}
 
 				}
 				lastDate = result.lastDate
@@ -536,6 +604,9 @@ function collect() {
 
 	}, 10000);
 }
-function closoeInterval() {
+function closeInterval() {
 	clearInterval(interval);
+}
+function exportExcel(){
+window.location.href=ctx+"/system/excel/exportUpsData/"+deviceId+"/"+$("#showTime").combobox("getValue");
 }

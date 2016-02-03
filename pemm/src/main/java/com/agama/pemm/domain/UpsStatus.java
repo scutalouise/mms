@@ -2,14 +2,13 @@ package com.agama.pemm.domain;
 
 import java.util.Date;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.Transient;
+
+import com.agama.authority.entity.BaseDomain;
 
 @Entity
 public class UpsStatus extends BaseDomain {
@@ -18,7 +17,7 @@ public class UpsStatus extends BaseDomain {
 	private int interfaceType;
 	private int communicationStatus;
 	private int dischargePatterns;
-	private int upsType;
+	private int upsType;  //UPS类型 0:未知,1:二相
 	private String modelNumber;
 	private String brand;
 	private String versionNumber;
@@ -44,6 +43,7 @@ public class UpsStatus extends BaseDomain {
 	private double passCurrent;
 	private int remainingTime; 
 	private Date collectTime;
+	
 	private int status;
 	/**
 	 * 市电电压状态（1：异常）
@@ -76,6 +76,10 @@ public class UpsStatus extends BaseDomain {
 	 */
 	private String buzzerStatus;
 	
+	/**
+	 * 放电状态0为正常
+	 */
+	private Integer dischargeStatus;
 	@Transient
 	private Integer deviceIndex;
 	@ManyToOne(fetch=FetchType.EAGER)
@@ -83,11 +87,27 @@ public class UpsStatus extends BaseDomain {
 	private Device device;
 	@Transient
 	private Integer deviceId;
+	@Transient
+	private String deviceName;
 	
 	
+	public String getDeviceName() {
+		return deviceName;
+	}
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
+	}
 	private Integer linkState;
 	
+	@Transient
+	private Integer currentState;
 	
+	public Integer getCurrentState() {
+		return currentState;
+	}
+	public void setCurrentState(Integer currentState) {
+		this.currentState = currentState;
+	}
 	public String getName() {
 		return name;
 	}
@@ -343,6 +363,12 @@ public class UpsStatus extends BaseDomain {
 	}
 	public void setLinkState(Integer linkState) {
 		this.linkState = linkState;
+	}
+	public Integer getDischargeStatus() {
+		return dischargeStatus;
+	}
+	public void setDischargeStatus(Integer dischargeStatus) {
+		this.dischargeStatus = dischargeStatus;
 	}
 	
 

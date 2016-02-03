@@ -12,13 +12,21 @@ import com.agama.common.dao.utils.PropertyFilter;
 import com.agama.common.dao.utils.PropertyFilter.MatchType;
 
 public interface IBaseDao<T, PK extends Serializable> {
-	
+
 	/**
 	 * 保存新增对象.
+	 * 
 	 * @param entity
 	 */
 	public abstract void save(T entity);
-	
+
+	/**
+	 * 合并对象
+	 * 
+	 * @param entity
+	 */
+	public abstract void merge(T entity);
+
 	/**
 	 * 修改对象.
 	 * @param entity
@@ -202,6 +210,18 @@ public interface IBaseDao<T, PK extends Serializable> {
 	 * @return 分页查询结果, 附带结果列表及所有查询输入参数.
 	 */
 	public abstract Page<T> findPage(Page<T> page, String hql, Object... values);
+	
+	
+	/**
+	 * 按SQL分页查询.
+	 * 
+	 * @param page 分页参数. 
+	 * @param sql sql语句.
+	 * @param values 数量可变的查询参数,按顺序绑定.
+	 * 
+	 * @return 分页查询结果, 附带结果列表及所有查询输入参数.
+	 */
+	public abstract Page<T> findPageBySQL(Page<T> page, String sql, Object... values);
 
 	/**
 	 * 按HQL分页查询.

@@ -1,21 +1,27 @@
 package com.agama.pemm.domain;
 
-import java.util.List;
-
-import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.agama.authority.entity.BaseDomain;
 
 @Entity
 public class AlarmTemplate extends BaseDomain {
+	/**
+	 * long
+	 */
+	private static final long serialVersionUID = -8702455687112791473L;
+	/**
+	 * 模板名称
+	 */
 	private String name;
+	/**
+	 * 是否启用
+	 */
 	private Integer enabled;
 	private Integer status;
+	@Column(length=5000)
 	private String remark;
-
 	
 	
 	
@@ -52,6 +58,8 @@ public class AlarmTemplate extends BaseDomain {
 	public void setRemark(String remark) {
 		this.remark = remark;
 	}
+
+	
 
 	
 	

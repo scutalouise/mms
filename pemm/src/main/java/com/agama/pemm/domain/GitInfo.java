@@ -6,17 +6,24 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.format.annotation.DateTimeFormat;
 
+import com.agama.authority.entity.BaseDomain;
+import com.agama.common.domain.ServerStateEnum;
+import com.agama.common.domain.StateEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @DynamicUpdate @DynamicInsert
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class GitInfo extends BaseDomain{
 	
 	/**
@@ -35,10 +42,28 @@ public class GitInfo extends BaseDomain{
 	private int enabled;
 	private int status;
 	private String location;
+	private Integer organizationId;
+	private String organizationName;
+	@Enumerated(EnumType.STRING)
+	private StateEnum currentState;
+	
+	@Transient
+	private List<UpsStatus> upsStatusList;
+	@Transient
+	private List<ThStatus> thStatusList;
+	@Transient
+	private List<AcStatus> acStatusList;
+	
+	@Transient
+	private List<SwitchInputStatus> waterStatusList;
+	@Transient
+	private List<SwitchInputStatus> smokeStatusList;
+	@Column(length=5000)
 	private String remark;
 	@OneToMany(mappedBy = "gitInfo", cascade = CascadeType.ALL , fetch = FetchType.LAZY)
 	@JsonIgnore
 	private List<Device> devices;
+	private ServerStateEnum serverState;
 	public String getIp() {
 		return ip;
 	}
@@ -111,6 +136,21 @@ public class GitInfo extends BaseDomain{
 	public void setLocation(String location) {
 		this.location = location;
 	}
+	
+	
+	
+	public Integer getOrganizationId() {
+		return organizationId;
+	}
+	public void setOrganizationId(Integer organizationId) {
+		this.organizationId = organizationId;
+	}
+	public String getOrganizationName() {
+		return organizationName;
+	}
+	public void setOrganizationName(String organizationName) {
+		this.organizationName = organizationName;
+	}
 	public String getRemark() {
 		return remark;
 	}
@@ -123,6 +163,54 @@ public class GitInfo extends BaseDomain{
 	public void setDevices(List<Device> devices) {
 		this.devices = devices;
 	}
+	public List<UpsStatus> getUpsStatusList() {
+		return upsStatusList;
+	}
+	public void setUpsStatusList(List<UpsStatus> upsStatusList) {
+		this.upsStatusList = upsStatusList;
+	}
+	public List<ThStatus> getThStatusList() {
+		return thStatusList;
+	}
+	public void setThStatusList(List<ThStatus> thStatusList) {
+		this.thStatusList = thStatusList;
+	}
+	
+	
+	
+	public List<AcStatus> getAcStatusList() {
+		return acStatusList;
+	}
+	public void setAcStatusList(List<AcStatus> acStatusList) {
+		this.acStatusList = acStatusList;
+	}
+	public List<SwitchInputStatus> getWaterStatusList() {
+		return waterStatusList;
+	}
+	public void setWaterStatusList(List<SwitchInputStatus> waterStatusList) {
+		this.waterStatusList = waterStatusList;
+	}
+	public List<SwitchInputStatus> getSmokeStatusList() {
+		return smokeStatusList;
+	}
+	public void setSmokeStatusList(List<SwitchInputStatus> smokeStatusList) {
+		this.smokeStatusList = smokeStatusList;
+	}
+	public ServerStateEnum getServerState() {
+		return serverState;
+	}
+	public void setServerState(ServerStateEnum serverState) {
+		this.serverState = serverState;
+	}
+	public StateEnum getCurrentState() {
+		return currentState;
+	}
+	public void setCurrentState(StateEnum currentState) {
+		this.currentState = currentState;
+	}
+	
 	
 
+	
+	
 }

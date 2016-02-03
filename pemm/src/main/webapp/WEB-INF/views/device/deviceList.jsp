@@ -24,10 +24,10 @@
 	<div class="easyui-layout" data-options="fit: true">
 
 		<div
-			data-options="region: 'west', title: '区域导航', iconCls: 'icon-standard-map', split: true, minWidth: 200, maxWidth: 400"
+			data-options="region: 'west', title: '组织机构', iconCls: 'icon-hamburg-world', split: true, minWidth: 200, maxWidth: 400"
 			style="width: 220px; padding: 1px;">
 			<!-- 区域树 -->
-			<ul id="areaInfoTree"></ul>
+			<ul id="organizationTree"></ul>
 
 		</div>
 		<div data-options="region: 'center'">
@@ -52,7 +52,10 @@
 				</div>
 
 			</div>
-			<div id="dg"></div>
+			
+			<div id="dg">
+				
+			</div>
 			<div id="dlg"></div>
 		</div>
 	</div>

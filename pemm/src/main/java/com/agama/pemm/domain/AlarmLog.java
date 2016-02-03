@@ -8,8 +8,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
-import com.agama.pemm.bean.AlarmType;
-import com.agama.pemm.bean.DeviceType;
+import com.agama.authority.entity.BaseDomain;
+import com.agama.common.domain.StateEnum;
+import com.agama.common.enumbean.DeviceInterfaceType;
 
 @Entity
 public class AlarmLog extends BaseDomain{
@@ -20,8 +21,8 @@ public class AlarmLog extends BaseDomain{
 	private static final long serialVersionUID = -5026894469462294487L;
 	private  Date collectTime;
 	private String content;
-	private AlarmType alarmType;
-	private DeviceType deviceType;
+	private StateEnum alarmType;
+	private DeviceInterfaceType deviceInterfaceType;
 	@ManyToOne(fetch=FetchType.EAGER)
 	@JoinColumn(name="deviceId")
 	private Device device;
@@ -34,6 +35,8 @@ public class AlarmLog extends BaseDomain{
 	private Integer runState;
 	@Transient
 	private Integer deviceTypeIndex;
+	@Transient
+	private String organizationName;
 
 	public Date getCollectTime() {
 		return collectTime;
@@ -47,17 +50,17 @@ public class AlarmLog extends BaseDomain{
 	public void setContent(String content) {
 		this.content = content;
 	}
-	public AlarmType getAlarmType() {
+	public StateEnum getAlarmType() {
 		return alarmType;
 	}
-	public void setAlarmType(AlarmType alarmType) {
+	public void setAlarmType(StateEnum alarmType) {
 		this.alarmType = alarmType;
 	}
-	public DeviceType getDeviceType() {
-		return deviceType;
+	public DeviceInterfaceType getDeviceInterfaceType() {
+		return deviceInterfaceType;
 	}
-	public void setDeviceType(DeviceType deviceType) {
-		this.deviceType = deviceType;
+	public void setDeviceInterfaceType(DeviceInterfaceType deviceInterfaceType) {
+		this.deviceInterfaceType = deviceInterfaceType;
 	}
 	public Device getDevice() {
 		return device;
@@ -94,6 +97,12 @@ public class AlarmLog extends BaseDomain{
 	}
 	public void setDeviceTypeIndex(Integer deviceTypeIndex) {
 		this.deviceTypeIndex = deviceTypeIndex;
+	}
+	public String getOrganizationName() {
+		return organizationName;
+	}
+	public void setOrganizationName(String organizationName) {
+		this.organizationName = organizationName;
 	}
 
 	

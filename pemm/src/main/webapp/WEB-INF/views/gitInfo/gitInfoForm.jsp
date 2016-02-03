@@ -21,37 +21,38 @@
 					<td>IP地址</td>
 					<td><input type="hidden" name="id" id='gitInfoId' value="${gitInfo.id }" />
 						<input type="hidden" name="version" value="${gitInfo.version }">
-						
+						<input type="hidden" name="currentStatus" value="${gitInfo.currentStatus }">
 						<input type="text" name="ip" value="${gitInfo.ip }"
 						class="easyui-validatebox"
 						data-options="required:true,validType:['checkIp','validIp[$(\'#gitInfoId\').val()]']"></td>
 					<td>名称</td>
-					<td><input type="text" name="name" value="${gitInfo.name }" data-options="required:true"
+					<td><input type="text" name="name" value="${gitInfo.name }" data-options="required:true,validType:['maxLength[20]']"
 						class="easyui-validatebox"></td>
 				</tr>
 				<tr>
 
 					<td>厂商</td>
 					<td><input type="text" name="vendor"
-						value="${gitInfo.vendor }" class="easyui-validatebox"></td>
+						value="${gitInfo.vendor }" class="easyui-validatebox" data-options="validType:['maxLength[50]']"></td>
 					<td>品牌</td>
 					<td><input type="text" name="brand" value="${gitInfo.brand }"
-						class="easyui-validatebox"></td>
+						class="easyui-validatebox" data-options="validType:['maxLength[20]']"></td>
 				</tr>
 				<tr>
 					<td>购买时间</td>
 					<td><input class="easyui-datebox" name="buyTime"
 						value="${gitInfo.buyTime}"></td>
 				
-					<td>位置</td>
-					<td><input type="hidden" value="${gitInfo.location }"
-						name="location" id="location" /><input type="text"
-						name="areaInfoId" value="${gitInfo.areaInfoId }"
-						data-options="required:true" id="area_info_id"></td>
+					<td>所属机构</td>
+					<td><input type="hidden" value="${gitInfo.organizationName}"
+						name="organizationName" id="organizationName" />
+						<input type="text"
+						name="organizationId" value="${gitInfo.organizationId }"
+						data-options="required:true" id="organizationId"></td>
 					
 				</tr>
 				<tr>
-					<td>管理人员</td>
+					<td>维护人员</td>
 					<td>
 					<input type="hidden" name="managerName" value="${gitInfo.managerName }" id="managerName" >
 					<input type="text" name="managerId" id="managerId"
@@ -66,7 +67,7 @@
 				<tr>
 					<td>描述</td>
 					<td colspan="3"><textarea name="remark"
-							class="easyui-validatebox" style="height: 60px; width: 360px;">${gitInfo.remark }</textarea></td>
+							class="easyui-validatebox" data-options="validType:['maxLength[500]']" style="height: 60px; width: 360px;">${gitInfo.remark }</textarea></td>
 
 				</tr>
 			</table>
@@ -84,7 +85,7 @@
 				$("input[name='enabled'][value=${gitInfo.enabled}]").attr(
 						"checked", true);
 				$('#managerId').combogrid({
-					url : ctx + "/gitInfo/userjson/${gitInfo.areaInfoId }"
+					url : ctx + "/gitInfo/userjson/${gitInfo.organizationId }"
 				});
 			}
 
@@ -98,15 +99,15 @@
 					successTip(data, dg, d);
 				}
 			});
-			$("#area_info_id").combotree({
-				url : ctx + "/system/area/json",
+			$("#organizationId").combotree({
+				url : ctx + "/system/organization/json",
 				idField : 'id',
-				textFiled : 'areaName',
+				textFiled : 'orgName',
 				parentField : 'pid',
 				method : 'GET',
 				animate : true,
 				onSelect : function(node) {
-					$("#location").val(node.text);
+				    $("#organizationName").val(node.text);
 					$('#managerId').combogrid({
 						url : ctx + "/gitInfo/userjson/"+node.id
 					});
@@ -114,7 +115,7 @@
 				onLoadSuccess : function() {
 
 					if ("${gitInfo.id==null}" == "true") {
-						$("#area_info_id").combotree("setValue", areaInfoId);
+						$("#organizationId").combotree("setValue", organizationId);
 					}
 				}
 			});
@@ -125,7 +126,7 @@
 				textField : 'name',
 				fitColumns : true,
 				striped : true,
-				editable : true,
+				editable : false,
 				pagination : true,//是否分页  
 				rownumbers : true,//序号  
 				collapsible : false,//是否可折叠的  

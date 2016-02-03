@@ -7,7 +7,7 @@ $(function() {
 		queryParams : {
 			filter_EQI_status : '0'
 		},
-		
+
 		fit : true,
 		fitColumns : true,
 		border : false,
@@ -30,12 +30,12 @@ $(function() {
 		}, {
 			field : "alarmSort",
 			title : "告警等级序号",
-			align:"center",
+			align : "center",
 			width : 50
 		}, {
 			field : "isEmail",
 			title : "是否邮件报警",
-			align:"center",
+			align : "center",
 			width : 50,
 			formatter : function(v) {
 				if (v == 0) {
@@ -47,7 +47,7 @@ $(function() {
 		}, {
 			field : "isSms",
 			title : "是否短信报警",
-			align:"center",
+			align : "center",
 			width : 50,
 			formatter : function(v) {
 				if (v == 0) {
@@ -59,7 +59,7 @@ $(function() {
 		}, {
 			field : "isSound",
 			title : "是否声音报警",
-			align:"center",
+			align : "center",
 			width : 50,
 			formatter : function(v) {
 				if (v == 0) {
@@ -71,7 +71,7 @@ $(function() {
 		}, {
 			field : "enabled",
 			title : "状态",
-			align:"center",
+			align : "center",
 			width : 50,
 			formatter : function(v) {
 				if (v == 0) {
@@ -90,7 +90,6 @@ $(function() {
 		enableRowContextMenu : false,
 		toolbar : '#tb'
 	});
-	
 
 });
 
@@ -114,7 +113,7 @@ function add() {
 		} ]
 	});
 }
-function del(){
+function del() {
 	var ids = "";
 	var rows = $('#dg').datagrid('getSelections');
 	if (rows.length < 1) {
@@ -122,35 +121,42 @@ function del(){
 		return;
 	}
 	parent.$.messager.confirm('提示', '删除后无法恢复，您确定要删除？', function(data) {
-		for (var i = 0; i < rows.length; i++) {
-			var row = rows[i];
-			if (i < rows.length - 1) {
-				ids += "'" + row.id + "',";
-			} else {
-				ids += "'" + row.id + "'"
+		if (data) {
+			for (var i = 0; i < rows.length; i++) {
+				var row = rows[i];
+				if (i < rows.length - 1) {
+					ids += "'" + row.id + "',";
+				} else {
+					ids += "'" + row.id + "'"
+				}
 			}
+			$.ajax({
+				type : 'get',
+				url : ctx + "/system/alarmLevel/delete",
+				data : {
+					ids : ids
+				},
+				success : function(data) {
+					successTip(data, dg);
+					$('#dg').datagrid('clearSelections');
+				}
+			});
 		}
-		$.ajax({
-			type : 'get',
-			url : ctx + "/system/alarmLevel/delete",
-			data : {
-				ids : ids
-			},
-			success : function(data) {
-				successTip(data, dg);
-			}
-		});
 	});
-	
+
 }
-function upd(){
+function upd() {
 	var row = dg.datagrid("getSelected");
 	var rows = $('#dg').datagrid('getSelections');
 	if (rows.length < 1) {
 		rowIsNull(null);
 		return;
-	}else if(rows.length>1){
-		parent.$.messager.show({ title : "提示",msg: "只能选择一条记录！", position: "bottomRight" });
+	} else if (rows.length > 1) {
+		parent.$.messager.show({
+			title : "提示",
+			msg : "只能选择一条记录！",
+			position : "bottomRight"
+		});
 		return;
 	}
 	d = $("#dlg").dialog({

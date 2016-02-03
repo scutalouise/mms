@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.hibernate.engine.spi.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,11 +16,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.agama.authority.common.web.BaseController;
-import com.agama.authority.system.entity.User;
-import com.agama.authority.system.service.IUserService;
+
+
+
+
+
+
+import com.agama.authority.entity.User;
+import com.agama.authority.service.IUserService;
 import com.agama.common.dao.utils.Page;
 import com.agama.common.dao.utils.PropertyFilter;
+import com.agama.common.domain.StateEnum;
+import com.agama.common.web.BaseController;
 import com.agama.pemm.domain.GitInfo;
 import com.agama.pemm.service.IGitInfoService;
 
@@ -45,11 +53,11 @@ public class GitInfoController extends BaseController {
 		return getEasyUIData(page);
 	}
 	
-	@RequestMapping(value="userjson/{areaInfoId}",method=RequestMethod.GET)
+	@RequestMapping(value="userjson/{organizationId}",method=RequestMethod.GET)
 	@ResponseBody
-	public Map<String,Object> collectUserList(@PathVariable("areaInfoId") Integer areaInfoId,HttpServletRequest request){
+	public Map<String,Object> collectUserList(@PathVariable("organizationId") Integer organizationId,HttpServletRequest request){
 		Page<User> page = getPage(request);
-		page=userService.getUsersByAreaInfoId(page,areaInfoId);
+		page=userService.getUsersByOrganizationId(page,organizationId);
 		return getEasyUIData(page);
 	}
 	
@@ -65,6 +73,7 @@ public class GitInfoController extends BaseController {
 	@ResponseBody
 	public String create(@Valid GitInfo gitInfo,Model model){
 		gitInfo.setStatus(0);
+		gitInfo.setCurrentState(StateEnum.good);
 		gitInfoService.save(gitInfo);
 		return "success";
 	}

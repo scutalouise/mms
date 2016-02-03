@@ -23,8 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 import com.agama.common.dao.utils.PropertyFilter.MatchType;
-import com.agama.common.utils.Reflections;
-import com.agama.common.utils.StringUtils;
+import com.agama.tool.utils.Reflections;
+import com.agama.tool.utils.string.StringUtils;
 
 
 

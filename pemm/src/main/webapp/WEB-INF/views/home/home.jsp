@@ -18,8 +18,35 @@
 			: "${currentState_warning}");
 	var error = parseInt("${currentState_error}" == "" ? 0
 			: "${currentState_error}");
+	
 </script>
 <script type="text/javascript" src="${ctx }/static/js/home/home.js"></script>
+<style type="text/css">
+#tooltipul {
+	list-style: none;
+	margin: 0px;
+	padding: 0px;
+}
+
+#tooltipul>li {
+	padding: 5px;
+	float: left;
+	width: 170px;
+}
+
+#tooltiptitle {
+	font-weight: bold;
+	padding: 5px;
+}
+a:HOVER {
+	text-decoration: none;
+}
+
+a {
+	text-decoration: none;
+	color: black;
+}
+</style>
 </head>
 <body>
 	<div class="easyui-layout" data-options="fit: true" id="home_panel">

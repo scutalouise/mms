@@ -69,7 +69,7 @@ public enum UpsOidInfo {
 	//蜂鸣器控制
 	buzzerControl("1.3.6.1.4.1.34651.2.1.1.61",PDU.SET),
 	
-	//上传获取时间间隔
+	//上次获取时间间隔
 	lastCollectTnterval("1.3.6.1.4.1.34651.2.1.1.99",PDU.SET); 
 
 

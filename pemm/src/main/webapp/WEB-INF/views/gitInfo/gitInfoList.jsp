@@ -36,10 +36,10 @@ width: 100px;
 <body>
 	<div class="easyui-layout" data-options="fit: true">
 		<div
-			data-options="region: 'west', title: '区域导航', iconCls: 'icon-standard-map', split: true, minWidth: 200, maxWidth: 400"
+			data-options="region: 'west', title: '组织机构', iconCls: 'icon-hamburg-world', split: true, minWidth: 200, maxWidth: 400"
 			style="width: 220px; padding: 1px;">
-			<!-- 区域树 -->
-			<ul id="areaInfoTree"></ul>
+			<!-- 组织机构树 -->
+			<ul id="organizationTree"></ul>
 
 		</div>
 		<div data-options="region: 'center'">
@@ -67,8 +67,7 @@ width: 100px;
 						<span class="toolbar-item dialog-tool-separator"></span>
 					</shiro:hasPermission>
 					<shiro:hasPermission name="sys:gitInfo:delete">
-						<a href="javascript:void(0)" class="easyui-linkbutton"
-							iconCls="icon-remove" plain="true" data-options="disabled:false"
+						<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" data-options="disabled:false"
 							onclick="del()">删除</a>
 						<span class="toolbar-item dialog-tool-separator"></span>
 					</shiro:hasPermission>
@@ -77,7 +76,6 @@ width: 100px;
 							iconCls="icon-edit" plain="true" onclick="update()">修改</a>
 					</shiro:hasPermission>
 				</div>
-
 
 			</div>
 			<div id="dg"></div>

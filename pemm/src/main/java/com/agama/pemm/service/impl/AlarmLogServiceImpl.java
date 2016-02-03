@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.agama.common.dao.utils.Page;
+import com.agama.common.enumbean.DeviceInterfaceType;
 import com.agama.common.service.impl.BaseServiceImpl;
 import com.agama.pemm.dao.IAlarmLogDao;
 import com.agama.pemm.domain.AlarmLog;
@@ -19,9 +19,9 @@ public class AlarmLogServiceImpl extends BaseServiceImpl<AlarmLog, Integer>
 	private IAlarmLogDao alarmLogDao;
 
 	@Override
-	public Object getAlarmNumAndTime(String areaInfoStr,String beginDate,String endDate) {
+	public Object getAlarmNumAndTime(String organizationIdIdStr,DeviceInterfaceType deviceInterfaceType,String beginDate,String endDate) {
 
-		return alarmLogDao.getAlarmNumAndTime(areaInfoStr,beginDate,endDate);
+		return alarmLogDao.getAlarmNumAndTime(organizationIdIdStr, deviceInterfaceType,beginDate,endDate);
 	}
 
 	@Override
@@ -47,6 +47,18 @@ public class AlarmLogServiceImpl extends BaseServiceImpl<AlarmLog, Integer>
 		
 		
 		return alarmLogDao.getAlarmLog();
+	}
+
+	@Override
+	public Object getAlarmNum(String organizationIdIdStr,Integer top,String beginDate,String endDate) {
+		// TODO Auto-generated method stub
+		return alarmLogDao.getAlarmNum(organizationIdIdStr,top,beginDate,endDate);
+	}
+
+	@Override
+	public List<AlarmLog> getAlarmLogforTop(Integer top) {
+		// TODO Auto-generated method stub
+		return alarmLogDao.getAlarmLogforTop(top);
 	}
 
 }

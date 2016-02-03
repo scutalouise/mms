@@ -20,13 +20,13 @@
 		<tr>
 			<td>上级机构：</td>
 			<td>
-				<input id="pid" name="pid" type="text" value="${organization.pid }" class="easyui-validatebox" data-options="validType:['length[0,9]']" />
+				<input id="pid" name="pid" type="text" value="${organization.pid }" class="easyui-validatebox" />
 			</td>
 		</tr>
 		<tr>
 			<td>所在区域：</td>
 			<td>
-				<input id="areaId" name="areaId" type="text" value="${organization.areaId }" class="easyui-validatebox" data-options="required:true,validType:['length[0,9]']" />
+				<input id="areaId" name="areaId" type="text" value="${organization.areaId }" data-options="required:true"/>
 			</td>
 		</tr>
 		<tr>
@@ -44,13 +44,25 @@
 		<tr>
 			<td>机构层级：</td>
 			<td>
-			<input name="orgLevel" type="text" value="${organization.orgLevel }" class="easyui-validatebox"  data-options="required:true,validType:['length[0,12]','integer']" />
+			<input name="orgLevel" type="text" value="${organization.orgLevel }" class="easyui-validatebox"  data-options="required:true,validType:['length[0,3]','integer']" />
 			</td>
 		</tr>
 		<tr>
 			<td>排序码：</td>
 			<td>
-			<input name="orgSort" type="text" value="${organization.orgSort }" class="easyui-validatebox"  data-options="required:true,validType:['length[0,12]','integer']" />
+			<input name="orgSort" type="text" value="${organization.orgSort }" class="easyui-validatebox"  data-options="required:true,validType:['length[0,3]','integer']" />
+			</td>
+		</tr>
+		<tr>
+			<td>经度：</td>
+			<td>
+			<input name="longitude" type="text" value="${organization.longitude }" class="easyui-validatebox"  data-options="validType:'Number'" />
+			</td>
+		</tr>
+		<tr>
+			<td>纬度：</td>
+			<td>
+			<input name="latitude" type="text" value="${organization.latitude }" class="easyui-validatebox"  data-options="validType:'Number'" />
 			</td>
 		</tr>
 	</table>
@@ -78,13 +90,13 @@ $(function(){
 	    textFiled : 'areaName',
 		parentField : 'pid',
 	    animate:true
-	});
+	    });
 	$('#mainform').form({    
 	    onSubmit: function(){    
-	    	//var isValid = $(this).form('validate');
-	    	//console.log(isValid);
-			//return isValid;	// 返回false终止表单提交
-	    	return true;
+	    	var isValid = $(this).form('validate');
+	    	console.log(isValid);
+			return isValid;	// 返回false终止表单提交
+	    	
 	    },    
 	    success:function(data){   
 	    	if(successTip(data,dg,d))

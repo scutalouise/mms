@@ -11,9 +11,11 @@ public interface IBaseService<T, PK extends Serializable> {
 	public T get(final PK id) ;
 
 	public void save(final T entity) ;
-	
+
 	public void update(final T entity);
 	
+	public void merge(final T entity);
+
 	public void delete(final T entity);
 	
 	public void delete(final PK id);

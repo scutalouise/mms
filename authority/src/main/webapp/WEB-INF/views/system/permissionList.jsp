@@ -135,6 +135,7 @@ function del(){
 				url:"${ctx}/system/permission/delete/"+row.id,
 				success: function(data){
 					successTip(data,dg);
+					dg.treegrid('clearSelections');
 				}
 			});
 			//dg.datagrid('reload'); //grid移除一行,不需要再刷新

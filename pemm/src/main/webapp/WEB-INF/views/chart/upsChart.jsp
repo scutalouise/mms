@@ -37,14 +37,8 @@ html, body {
 			<div class="easyui-tabs"
 				data-options="tabPosition:'left',fit:true,headerWidth:80"
 				id="tab_ups">
-				<div title="输入电压" iconCls="" data-options='refreshable:false'>
-
-				</div>
-				<div title="输出电压" iconCls="" data-options='refreshable:false'>
-
-
-				</div>
-
+				<div title="输入电压" iconCls="" data-options='refreshable:false'></div>
+				<div title="输出电压" iconCls="" data-options='refreshable:false'></div>
 				<div title="负载容量" iconCls="" data-options='refreshable:false'></div>
 				<div title="电池电压" iconCls="" data-options='refreshable:false'></div>
 			</div>
@@ -69,6 +63,10 @@ html, body {
 							<option value="0">是</option>
 							<option value="1">否</option>
 						</select>
+						<span class="toolbar-item dialog-tool-separator"></span>
+						 <a href="javascript(0)" class="easyui-linkbutton"
+										iconCls="icon-export-excel" plain="true"
+										onclick="exportExcel()">导出ups数据</a>
 
 					</div>
 

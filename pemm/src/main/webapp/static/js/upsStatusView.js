@@ -715,73 +715,101 @@ function del() {
 }
 
 function refresh() {
-	$
-			.ajax({
+	$.ajax({
 				type : "post",
-				url : ctx + "/upsStatus/getUpsStatus",
+				url : ctx + "/upsStatus/getLatestData",
 				data : {
 					gitInfoId : gitInfoId
 				},
 				success : function(data) {
-
-					for (var i = 0; i < data.length; i++) {
+                    var upsData=data.upsStatusList;
+					for (var i = 0; i < upsData.length; i++) {
 						$("#rateVoltage_" + i).html(
-								(data[i].rateVoltage).toFixed(1) + "V");
+								(upsData[i].rateVoltage).toFixed(1) + "V");
 						$("#ratedCurrent_" + i).html(
-								(data[i].ratedCurrent).toFixed(1) + "A");
+								(upsData[i].ratedCurrent).toFixed(1) + "A");
 						$("#batteryVoltage_" + i).html(
-								(data[i].batteryVoltage));
+								(upsData[i].batteryVoltage));
 						$("#power_" + i).html(
-								(data[i].power).toFixed(1) + "KVA");
+								(upsData[i].power).toFixed(1) + "KVA");
 						$("#upsStatus_" + i)
 								.html(
-										data[i].upsStatus == 1 ? "<span style='color: red;'>故障</span>"
+										upsData[i].upsStatus == 1 ? "<span style='color: red;'>故障</span>"
 												: "<span style='color: green;'>正常</span>");
 						$("#internalTemperature_" + i).html(
-								(data[i].internalTemperature).toFixed(1) + "℃");
+								(upsData[i].internalTemperature).toFixed(1) + "℃");
 						$("#bypassFrequency_" + i).html(
-								(data[i].bypassFrequency).toFixed(1) + "Hz");
+								(upsData[i].bypassFrequency).toFixed(1) + "Hz");
 						$("#inputVoltage_" + i).html(
-								(data[i].inputVoltage));
+								(upsData[i].inputVoltage));
 						$("#outputVoltage_" + i).html(
-								(data[i].outputVoltage));
+								(upsData[i].outputVoltage));
 						$("#errorVoltage_" + i).html(
-								(data[i].errorVoltage).toFixed(1) + "V");
+								(upsData[i].errorVoltage).toFixed(1) + "V");
 						$("#upsLoad_" + i).html(
-								(data[i].upsLoad));
+								(upsData[i].upsLoad));
 						$("#singleVoltage_" + i).html(
-								(data[i].singleVoltage).toFixed(1) + "V");
+								(upsData[i].singleVoltage).toFixed(1) + "V");
 						$("#electricQuantity_" + i).html(
-								(data[i].electricQuantity).toFixed(1) + "%");
+								(upsData[i].electricQuantity).toFixed(1) + "%");
 						$("#cityVoltageStatus_" + i)
 								.html(
-										(data[i].cityVoltageStatus == 1 ? '<span style="color: red;">异常</span>'
+										(upsData[i].cityVoltageStatus == 1 ? '<span style="color: red;">异常</span>'
 												: '<span style="color: green;">正常</span>'));
 						$("#batteryVoltageStatus_" + i)
 								.html(
-										(data[i].batteryVoltageStatus == 1 ? '<span style="color: red;">低</span>'
+										(upsData[i].batteryVoltageStatus == 1 ? '<span style="color: red;">低</span>'
 												: '<span style="color: green;">正常</span>'));
 						$("#runningStatus_" + i)
 								.html(
-										(data[i].runningStatus == 1 ? '<span style="color: red;">旁路</span>'
+										(upsData[i].runningStatus == 1 ? '<span style="color: red;">旁路</span>'
 												: '<span style="color: green;">正常</span>'));
 						$("#testStatus_" + i)
 								.html(
-										(data[i].testStatus == 1 ? '<span style="color: green;">测试中</span>'
+										(upsData[i].testStatus == 1 ? '<span style="color: green;">测试中</span>'
 												: '<span style="color: green;">未测试</span>'));
 						$("#shutdownStatus_" + i)
 								.html(
-										(data[i].shutdownStatus == 1 ? '<span style="color: red;">已关机</span>'
+										(upsData[i].shutdownStatus == 1 ? '<span style="color: red;">已关机</span>'
 												: '<span style="color: green;">未关机</span>'));
 						$("#buzzerStatus_" + i)
 								.html(
-										(data[i].buzzerStatus == 1 ? '<span style="color: green;">开</span>'
+										(upsData[i].buzzerStatus == 1 ? '<span style="color: green;">开</span>'
 												: '<span style="color: red;">关</span>'));
 						$("#linkState_" + i)
 								.html(
-										(data[i].linkState == 1 ? '<span style="color: green;">正常</span>'
+										(upsData[i].linkState == 1 ? '<span style="color: green;">正常</span>'
 												: '<span style="color: red;">丢失</span>'));
 					}
+					var thStatusData=data.thStatusList;
+					for (var i = 0; i < thStatusData.length; i++) {
+						$("#temperature_"+i).html(thStatusData[i].temperatur);
+						$("#humidity_"+i).html(thStatusData[i].humidity);
+					}
+					var waterStatusData=data.waterStatusList;
+					for (var i = 0; i < waterStatusData.length; i++) {
+						var currentStatusHtml='<span style="color: green;">正常</span>';
+						
+						if(waterStatusData[i].currentState==1){
+							currentStatusHtml='<span style="color: yellow;">警告</span>';
+						}else if(waterStatusData[i].currentState==2){
+							currentStatusHtml='<span style="color: red;">异常</span>';
+						}
+						$("#waterCurrentStatus_"+i).html(currentStatusHtml);
+					
+					}
+					var smokeStatusData=data.smokeStatusList;
+					for (var i = 0; i < smokeStatusData.length; i++) {
+						var currentStatusHtml='<span style="color: green;">正常</span>';
+						if(smokeStatusData[i].currentState==1){
+							currentStatusHtml='<span style="color: yellow;">警告</span>';
+						}else if(smokeStatusData[i].currentState==2){
+							currentStatusHtml='<span style="color: red;">异常</span>';
+						}
+						$("#smokeCurrentStatus_"+i).html(currentStatusHtml);
+					
+					}
+					
 				}
 			});
 }

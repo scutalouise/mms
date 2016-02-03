@@ -9,9 +9,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.util.Assert;
 
-import com.agama.authority.common.utils.ServletUtils;
-import com.agama.common.utils.ConvertUtils;
-import com.agama.common.utils.StringUtils;
+import com.agama.authority.utils.ServletUtils;
+import com.agama.common.enumbean.ProblemStatusEnum;
+import com.agama.common.enumbean.StatusEnum;
+import com.agama.tool.utils.ConvertUtils;
+import com.agama.tool.utils.string.StringUtils;
 
 
 /**
@@ -31,7 +33,14 @@ public class PropertyFilter {
 
 	/** 属性数据类型. */
 	public enum PropertyType {
-		S(String.class), I(Integer.class), L(Long.class), N(Double.class), D(Date.class), B(Boolean.class);
+		S(String.class),
+		I(Integer.class),
+		L(Long.class),
+		N(Double.class),
+		D(Date.class),
+		B(Boolean.class),
+		E(StatusEnum.class),
+		PROBLEMSTATUS(ProblemStatusEnum.class);
 
 		private Class<?> clazz;
 
@@ -58,12 +67,20 @@ public class PropertyFilter {
 	 *                   eg. LIKES_NAME_OR_LOGIN_NAME
 	 * @param value 待比较的值.
 	 */
-	public PropertyFilter(final String filterName, final String value) {
-
-		String firstPart = StringUtils.substringBefore(filterName, "_");
-		String matchTypeCode = StringUtils.substring(firstPart, 0, firstPart.length() - 1);
-		String propertyTypeCode = StringUtils.substring(firstPart, firstPart.length() - 1, firstPart.length());
-
+	public PropertyFilter(String filterName, String value) {
+		String[] strArray = filterName.split("_");
+		if (strArray.length == 3) {
+			constructEnumProperty(filterName, value);
+		} else {
+			constructBuiltIn(filterName, value);
+		}
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private void constructEnumProperty(final String filterName, final String value) {
+		String[] strArray = filterName.split("_");
+		String matchTypeCode = strArray[0];
+		
 		try {
 			matchType = Enum.valueOf(MatchType.class, matchTypeCode);
 		} catch (RuntimeException e) {
@@ -71,16 +88,52 @@ public class PropertyFilter {
 		}
 
 		try {
+			propertyClass = Class.forName("com.agama.common.enumbean." + strArray[1]);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			throw new IllegalArgumentException("filter名称" + filterName + "没有按规则编写,无法找到枚举类.", e);
+		}
+		
+		String propertyNameStr = strArray[2];
+		Assert.isTrue(StringUtils.isNotBlank(propertyNameStr), "filter名称" + filterName + "没有按规则编写,无法得到属性名称.");
+		propertyNames = StringUtils.splitByWholeSeparator(propertyNameStr, PropertyFilter.OR_SEPARATOR);
+		
+		this.matchValue = null;
+		try {
+			matchValue = Enum.valueOf((Class)propertyClass, value);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new IllegalArgumentException("filter名称" + filterName + "没有按规则编写,无法得到枚举对应的值.", e);
+		}
+	}
+	
+	private void constructBuiltIn(final String filterName, final String value) {
+		String firstPart = StringUtils.substringBefore(filterName, "_");
+		String matchTypeCode = StringUtils.substring(firstPart, 0, firstPart.length() - 1);
+		String propertyTypeCode = StringUtils.substring(firstPart, firstPart.length() - 1, firstPart.length());
+		
+		try {
+			matchType = Enum.valueOf(MatchType.class, matchTypeCode);
+		} catch (RuntimeException e) {
+			throw new IllegalArgumentException("filter名称" + filterName + "没有按规则编写,无法得到属性比较类型.", e);
+		}
+		
+		try {
 			propertyClass = Enum.valueOf(PropertyType.class, propertyTypeCode).getValue();
 		} catch (RuntimeException e) {
 			throw new IllegalArgumentException("filter名称" + filterName + "没有按规则编写,无法得到属性值类型.", e);
 		}
-
+		
 		String propertyNameStr = StringUtils.substringAfter(filterName, "_");
 		Assert.isTrue(StringUtils.isNotBlank(propertyNameStr), "filter名称" + filterName + "没有按规则编写,无法得到属性名称.");
 		propertyNames = StringUtils.splitByWholeSeparator(propertyNameStr, PropertyFilter.OR_SEPARATOR);
-
-		this.matchValue = ConvertUtils.convertStringToObject(value, propertyClass);
+		
+		this.matchValue =null;
+		if (propertyClass == StatusEnum.class) {
+			matchValue = StatusEnum.valueOf(value);
+		} else{
+			matchValue = ConvertUtils.convertStringToObject(value, propertyClass);
+		}
 	}
 
 	/**

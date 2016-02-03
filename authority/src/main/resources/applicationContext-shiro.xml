@@ -17,7 +17,7 @@
 	</bean>
 	
 	<!-- Shiro Filter -->
-	<bean id="myCaptchaFilter" class="com.agama.authority.system.utils.FormAuthenticationCaptchaFilter"/>
+	<bean id="myCaptchaFilter" class="com.agama.authority.utils.FormAuthenticationCaptchaFilter"/>
 	
 	<!-- Shiro Filter -->
 	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
@@ -32,6 +32,8 @@
 		<property name="filterChainDefinitions">
 			<value>
 				/static/** = anon
+				/das/** = anon
+				/handset/** = anon
 				${adminPath}/login = authc
 				${adminPath}/** = user
 				/rest/**=authcBasic

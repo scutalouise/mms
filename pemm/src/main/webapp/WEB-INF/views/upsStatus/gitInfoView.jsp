@@ -19,7 +19,7 @@
 <script type="text/javascript">
 	$(function() {
 		var clientWidth = document.body.clientWidth;
-		$("#paneldiv").width(parseInt(clientWidth / 220) * 220);
+		$("#paneldiv").width(parseInt(clientWidth / 140) * 140);
 		$(".popover-options .pop").popover({
 			html : true,
 			trigger : "hover"
@@ -30,41 +30,51 @@
 	});
 	window.onresize = function() {
 		var clientWidth = document.body.clientWidth;
-		$("#paneldiv").width(parseInt(clientWidth / 220) * 220);
+		$("#paneldiv").width(parseInt(clientWidth / 140) * 140);
+	}
+	function showDetail(isDevice,gitId){
+		if(isDevice){
+			window.location.href="${ctx }/system/monitor/gitToDeviceDetail?gitIds="+gitId;
+		}
+	}
+	function showDevice(div){
+		showDetail($("#"+div.id).children(".isDevice").val(),$("#"+div.id).children(".gitInfoId").val());
 	}
 </script>
 <style type="text/css">
 .device-panel {
-	width: 200px;
-	height: 180px;
-	margin: 10px;
+	
+	height:100px;
+	margin: 5px;
 }
 
 .poptable {
 	font-size: 12px;
 	width: 100%;
 }
-
 .pop {
 	cursor: pointer;
 }
-
 a:ACTIVE {
 	text-decoration: none;
+}
+.device-panel:HOVER {
+	background: #F0F0F0;
 }
 </style>
 </head>
 <body>
-	<div class="easyui-panel" title="主机视图" data-options="fit: true">
+	<div class="easyui-panel" title="" data-options="fit: true">
 		<div style="text-align: center;">
-			<div style="display: inline-block; margin-top: 30px;" id="paneldiv">
+			<div style="display: inline-block; margin-top: 	10px;" id="paneldiv">
 				<c:forEach items="${gitInfoList }" var="gitInfo" varStatus="status">
 					<c:set var="isDevice" value="false"></c:set>
+					
 					<div
 						class="pull-left panel panel-default device-panel popover-options"
-						style="padding: 10px">
+						style="padding: 10px;" onclick="showDevice(this)" id="device_panel_${gitInfo.id }">
 						<div onmousemove="" class="pop" href="javascript:void(0)"
-							title="【${gitInfo.location }】外设列表" data-placement="bottom"
+							title="【${gitInfo.organizationName }】外设列表" data-placement="bottom"
 							data-container="body" data-toggle="popover"
 							data-content="
 							<table class='poptable'>
@@ -79,28 +89,58 @@ a:ACTIVE {
 								<c:if test="${deviceStateRecord.gitInfoId eq gitInfo.id }">
 								<c:set var="isDevice" value="true"></c:set>
 									<tr>
-										<td>${deviceStateRecord.deviceType}</td>
+										<td>
+									<c:if test="${deviceStateRecord.deviceInterfaceType eq 'UPS'}">
+									UPS
+									</c:if>
+									<c:if test="${deviceStateRecord.deviceInterfaceType eq 'TH'}">
+									温湿度
+									</c:if>
+									<c:if test="${deviceStateRecord.deviceInterfaceType eq 'WATER'}">
+									水浸
+									</c:if>
+									<c:if test="${deviceStateRecord.deviceInterfaceType eq 'SMOKE'}">
+									烟感
+									</c:if>
+									<c:if test="${deviceStateRecord.deviceInterfaceType eq 'AC'}">
+									空调
+									</c:if>
+										</td>
 										<td>${deviceStateRecord.count }</td>
-										<td>${deviceStateRecord.currentState=="error"?"异常":"正常"}</td>
+										<td>${deviceStateRecord.currentState=="error"?"异常":(deviceStateRecord.currentState=="warning"?"告警":"正常")}</td>
+										
+									
+										
+									
+										
+										
 								</c:if>
 							</c:forEach>
 							</tr>
-						</table>">
-							<img alt="" src="${ctx}/static/images/git.jpg" width="180px">
+							</table>">
+							<center>
+							<c:if test='${gitInfo.serverState=="unconnect" }'>
+							<span style="color: red;">链接丢失</span>
+							</c:if>
+							<c:if test='${gitInfo.serverState!="unconnect" }'>
+						<c:set var="currentState" value="${gitInfo.currentState}"></c:set>
+					        <c:if test='${currentState=="good" }'>
+					        <span style="color: green;">正常</span>
+					        </c:if>
+					         <c:if test='${currentState=="warning" }'>
+					        <span style="color: #FDD116;">报警</span>
+					        </c:if>
+					         <c:if test='${currentState=="error" }'>
+					        <span style="color: red;">异常</span>
+					        </c:if>
+					        </c:if></br>
+					       
+							<img alt="" src="${ctx}/static/images/git.png"  width="80px"></center>
 						</div>
 						IP：${gitInfo.ip}<br /> 名称：${gitInfo.name }<br />
 
-						<div style="text-align: center;">
-
-							<c:if test="${isDevice==true }">
-								<a
-									href="${ctx }/upsStatus/upsStatusView?gitInfoId=${gitInfo.id}">查看详情
-								</a>
-							</c:if>
-							<c:if test="${isDevice==false }">
-							没有挂接设备
-							</c:if>
-						</div>
+						 <input class="isDevice" type="hidden" value="${isDevice }">
+					        <input class="gitInfoId" type="hidden" value="${gitInfo.id }">
 
 					</div>
 					<script type="text/javascript">
@@ -112,7 +152,8 @@ a:ACTIVE {
 				</c:forEach>
 
 			</div>
-		</div>
+		</div><div style="height: 100px;float: left;"></div>
 	</div>
+	
 </body>
 </html>

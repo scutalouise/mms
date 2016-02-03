@@ -42,20 +42,20 @@ a {
 }
 
 .newState {
-	margin: 20px;
-	padding: 10px;
+	margin: 5px 10px 10px 10px;
+	padding: 10px 10px 10px 10px;
 }
 
-.upsStatus table {
+.status table {
 	width: 100%;
 	padding: 10px;
 }
 
-.upsStatus {
+.status {
 	margin: 20px;
 }
 
-.upsStatus .title {
+.status .title {
 	width: 100px;
 	text-align: right;
 	font-weight: bold;
@@ -64,6 +64,7 @@ a {
 </head>
 <body>
 	<div id="tab-tools">
+
 		<a href="javascript:void(0)" class="easyui-linkbutton"
 			style="margin-top: 15px;"
 			data-options="plain:true,iconCls:'icon-back'"
@@ -74,15 +75,17 @@ a {
 		tabHeight : 60,tools:'#tab-tools'">
 		<div title="当前状态" iconCls='icon-berlin-donate'
 			data-options='refreshable:false' tabWidth="100">
+		
 			<div class="newState">
+				<center><span style="font-size: 12px;"><span style="font-weight: 800;font-size: 14px;">名称:</span>${gitInfo.name }&nbsp;&nbsp;<span style="font-weight: 800;font-size: 14px;">IP地址:</span>${gitInfo.ip }</span></span></center>
 				<c:if test="${fn:length(upsStatusList)>0}">
 					<fieldset>
 						<legend>UPS状态信息</legend>
 						<c:forEach items="${upsStatusList }" var="upsStatus"
 							varStatus="status">
-							<div class="upsStatus">
+							<div class="status">
 								<fieldset>
-									<legend>【UPS-${upsStatus.deviceIndex }】状态</legend>
+									<legend>接口编号【${upsStatus.deviceIndex }】状态</legend>
 
 									<table cellpadding="5">
 										<tr>
@@ -276,6 +279,95 @@ a {
 						</c:forEach>
 					</fieldset>
 				</c:if>
+
+				<c:if test="${fn:length(thStatusList)>0 }">
+					<fieldset style="margin-top: 10px;">
+						<legend>温湿度状态信息</legend>
+						<c:forEach items="${thStatusList }" var="thStatus"
+							varStatus="status">
+							<div class="status">
+								<fieldset>
+									<legend>接口编号【${thStatus.deviceIndex }】状态</legend>
+									<table cellpadding="5">
+										<tr>
+										<td style="width: 80px;"><img alt=""  width="80" height="80"
+												src="${ctx }/static/images/th.png"></td>
+											<td class="title">名称:</td>
+											<td>${thStatus.name }</td>
+											<td class="title">温度:</td>
+											<td><span id="temperature_${status.index }">${thStatus.temperature }</span>℃</td>
+											<td class="title">湿度:</td>
+											<td><span id="humidity_${status.index }">${thStatus.humidity }</span>%</td>
+										</tr>
+									</table>
+								</fieldset>
+							</div>
+						</c:forEach>
+					</fieldset>
+				</c:if>
+
+				<c:if test="${fn:length(waterStatusList)>0}">
+					<fieldset style="margin-top: 10px;">
+						<legend>水浸状态信息</legend>
+						<c:forEach items="${waterStatusList }" var="waterStatus"
+							varStatus="status">
+							<div class="status">
+								<fieldset>
+									<legend>接口编号【${waterStatus.deviceIndex }】状态</legend>
+									<table cellpadding="5">
+										<tr>
+										<td style="width: 80px;"><img alt="" width="80" height="80"
+												src="${ctx }/static/images/water.png"></td>
+											<td class="title">名称:</td>
+											<td>${waterStatus.name }</td>
+											<td class="title">状态:</td>
+											<td>
+											<span id="waterCurrentStatus_${status.index }">
+												<c:if test="${waterStatus.currentState==0 }"><span style="color:green">正常</span></span></c:if>
+												<c:if test="${waterStatus.currentState==1 }"><span style="color:yellow">警告</span></span></c:if>
+												<c:if test="${waterStatus.currentState==2 }"><span style="color:red">异常</span></span></c:if>
+											</span>
+											</td>
+											
+										</tr>
+									</table>
+								</fieldset>
+							</div>
+						</c:forEach>
+					</fieldset>
+				</c:if>
+				
+				<c:if test="${fn:length(smokeStatusList)>0}">
+					<fieldset style="margin-top: 10px;">
+						<legend>烟感状态信息</legend>
+						<c:forEach items="${smokeStatusList }" var="smokeStatus"
+							varStatus="status">
+							<div class="status">
+								<fieldset>
+									<legend>接口编号【${smokeStatus.deviceIndex }】状态</legend>
+									<table cellpadding="5">
+										<tr>
+											<td style="width: 80px;"><img alt=""  width="80" height="80"
+												src="${ctx }/static/images/smoke.png"></td>
+											<td class="title">名称:</td>
+											<td>${smokeStatus.name }</td>
+											<td class="title">状态:</td>
+											<td>
+											<span id="smokeCurrentStatus_${status.index }">
+												<c:if test="${smokeStatus.currentState==0 }"><span style="color:green">正常</span></span></c:if>
+												<c:if test="${smokeStatus.currentState==1 }"><span style="color:yellow">警告</span></span></c:if>
+												<c:if test="${smokeStatus.currentState==2 }"><span style="color:red">异常</span></span></c:if>
+											</span>
+											</td>
+											
+										</tr>
+									</table>
+								</fieldset>
+							</div>
+						</c:forEach>
+					</fieldset>
+				</c:if>
+				
 			</div>
 
 		</div>

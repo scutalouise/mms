@@ -7,8 +7,8 @@ import com.agama.pemm.domain.AlarmLevel;
 
 public interface IAlarmLevelService extends IBaseService<AlarmLevel, Integer> {
 
-	void updateStatusByIds(String ids);
+	public void updateStatusByIds(String ids);
 
-	List<AlarmLevel> getListByStatus(Integer status);
+	public List<AlarmLevel> getListByStatus(Integer status);
 
 }

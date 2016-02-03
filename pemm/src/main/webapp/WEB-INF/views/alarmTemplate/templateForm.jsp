@@ -20,7 +20,7 @@
 					<td>模板名称:</td>
 					<td><form:hidden path="version" /> <form:hidden path="id" />
 						<form:hidden path="status" value="0"/> <form:input path="name"
-							class="easyui-validatebox" data-options="required:true" style="width:250px;"/></td>
+							class="easyui-validatebox" data-options="required:true,validType:['maxLength[20]']" style="width:250px;"/></td>
 				</tr>
 				<tr>
 					<td>是否启用:</td>
@@ -34,7 +34,7 @@
 				<tr>
 					<td>描述:</td>
 					<td><form:textarea path="remark" class="easyui-validatebox"
-							style="height: 60px; width: 250px;" /></td>
+							style="height: 60px; width: 250px;" data-options="validType:['maxLength[500]']"/></td>
 				</tr>
 
 			</table>

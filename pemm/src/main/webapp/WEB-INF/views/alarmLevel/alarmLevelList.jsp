@@ -23,16 +23,18 @@
 </head>
 <body>
 	<div id="tb" style="padding: 5px; height: auto">
-		<a href="javascript:void(0)" class="easyui-linkbutton"
-			iconCls="icon-add" plain="true" onclick="add();">添加</a> <span
-			class="toolbar-item dialog-tool-separator"></span> <a
-			href="javascript:void(0)" class="easyui-linkbutton"
-			iconCls="icon-remove" plain="true" data-options="disabled:false"
-			onclick="del()">删除</a> <span
-			class="toolbar-item dialog-tool-separator"></span> <a
-			href="javascript:void(0)" class="easyui-linkbutton"
-			iconCls="icon-edit" plain="true" onclick="upd()">修改</a> <span
-			class="toolbar-item dialog-tool-separator"></span>
+		<shiro:hasPermission name="sys:alarmLevel:add">
+			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="add();">添加</a> 
+			<span class="toolbar-item dialog-tool-separator"></span> 
+		</shiro:hasPermission>
+		<shiro:hasPermission name="sys:alarmLevel:delete">
+			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" data-options="disabled:false" onclick="del()">删除</a> 
+			<span class="toolbar-item dialog-tool-separator"></span> 
+		</shiro:hasPermission>
+		<shiro:hasPermission name="sys:alarmLevel:update">
+			<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="upd()">修改</a> 
+			<span class="toolbar-item dialog-tool-separator"></span>
+		</shiro:hasPermission>
 	</div>
 	<table id="dg"></table>
 	<div id="dlg"></div>

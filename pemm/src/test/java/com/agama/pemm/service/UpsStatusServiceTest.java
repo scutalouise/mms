@@ -25,14 +25,16 @@ public class UpsStatusServiceTest {
 	@Test
 	public void findAll() {
 		List<UpsStatus> upsStatusList = upsStatusService.getAll();
+		for (UpsStatus upsStatus : upsStatusList) {
+			
+		}
 
 	}
 
 	@Test
 	public void getUpsStatus() {
-		UpsStatus upsStatus = upsStatusService.collectUspStatus(ipAddress, 1,
-				45);
-		upsStatusService.save(upsStatus);
+		
+		
 
 	}
 
@@ -47,7 +49,7 @@ public class UpsStatusServiceTest {
 
 	@Test
 	public void saveUpsStatus() {
-		upsStatusService.saveUpsStatus();
+		
 	}
 
 }

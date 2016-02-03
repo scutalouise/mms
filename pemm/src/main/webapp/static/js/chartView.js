@@ -1,30 +1,47 @@
-var areaInfoId;
-
+var organizationId="";
+var deviceInterfaceType="";
 $(function() {
+	$("#tab_device").tabs({
+		onSelect:function(title){
+			if(title=="所有设备"){
+				deviceInterfaceType=null;
+			}else if(title=="UPS"){
+				deviceInterfaceType="UPS";
+			}else if(title=="温湿度"){
+				deviceInterfaceType="TH";
+			}else if(title=="水浸"){
+				deviceInterfaceType="WATER";
+			}else if(title=="烟感"){
+				deviceInterfaceType="SMOKE";
+			}
+			initChart(organizationId);
+		}
+	});
 	$("#beginDate").my97("setValue", getLastMonthYestdy(new Date()));
 	$("#endDate").my97("setValue", new Date().format("yyyy-MM-dd"));
 	
 	initDateFilter("beginDate", "endDate");
 	
-	$("#areaInfoTree").tree(
+	$("#organizationTree").tree(
 			{
 				method : "get",
-				url : ctx + "/system/area/tree",
+				url : ctx + "/system/organization/tree",
 				onBeforeExpand : function(node, params) {
 					$(this).tree("options").url = ctx
-							+ "/system/area/tree?pid=" + node.id
+							+ "/system/organization/tree?pid=" + node.id
 				},
 				onSelect : function(node) {
-					areaInfoId = node.id;
-					initChart(areaInfoId);
+					organizationId = node.id;
+					initChart(organizationId);
 				}
 			});
-	initChart(areaInfoId);
+	initChart(organizationId);
 
 	// 路径配置
 
 });
-function initChart(areaInfoId) {
+
+function initChart(organizationId) {
 
 	// 路径配置
 	require.config({
@@ -50,7 +67,8 @@ function initChart(areaInfoId) {
 				$.ajax({
 					url : ctx + '/chart/json',
 					data : {
-						areaInfoId : areaInfoId,
+						organizationId : organizationId,
+						deviceInterfaceType:deviceInterfaceType,
 						beginDate : $("#beginDate").my97("getValue"),
 						endDate : $("#endDate").my97("getValue")
 					},
@@ -89,7 +107,7 @@ function initChart(areaInfoId) {
 						backgroundColor : 'rgba(0,0,0,0)', // 工具箱背景颜色
 						borderColor : '#ccc', // 工具箱边框颜色
 						borderWidth : 0, // 工具箱边框线宽，单位px，默认为0（无边框）
-					//	padding : 5, // 工具箱内边距，单位px，默认各方向内边距为5，
+						padding : 15, // 工具箱内边距，单位px，默认各方向内边距为5，
 						showTitle : true,
 						show : true,
 						feature : {
@@ -132,13 +150,22 @@ function initChart(areaInfoId) {
 				            },
 							restore : {
 								show : true
+							},excelImport:{
+								show:true,
+								title:"导出Excel",
+								icon:ctx+"/static/images/export_excel.png",
+								onclick:function(){
+					
+									window.location.href=ctx+"/system/excel/exportAlarmRecord/"+$("#beginDate").my97("getValue")+"/"+$("#endDate").my97("getValue")+"?"+organizationId+"&"+deviceInterfaceType;
+									
+								}
 							},
 							saveAsImage : {
 								show : true
 							}
 						}
 					},
-					calculable : true,
+					
 					dataZoom : {
 
 						show : true,
@@ -186,6 +213,7 @@ function initChart(areaInfoId) {
 }
 
 function chart() {
-	initChart(areaInfoId);
+	
+	initChart(organizationId);
 
 }

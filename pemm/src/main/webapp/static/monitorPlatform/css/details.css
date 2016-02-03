@@ -1,0 +1,120 @@
+.metro-layout .content .items { width:80%;padding-left:20% }
+.metro-layout .box {background-position:right;background-repeat:no-repeat;background-size:30px;color:#363636; float: left; margin: 0.5em; padding: 0.5em; text-decoration: none; cursor: pointer;  }
+.metro-layout .box:hover { opacity: 0.85; filter: alpha(opacity=85); }
+.metro-layout .box span { left: 0.5em; top: 0.5em; font-size: 0.5em; font-weight: normal;  }
+.metro-layout .box img.icon {  left: 0; top: 0;  width:100%;height:100% }
+.metro-layout .box img.big { margin-left: -64px; margin-top: -64px; }
+.metro-layout .box img.cover { left: 0; top: 0; width: 100%;  }
+.metro-layout .box .computer { width:80px;height:80px }
+
+
+.metro-layout .box_1 {float: left; text-decoration: none;width:240px;overflow:hidden }
+.metro-layout .box_1 img.icon {  left: 0; top: 0;  width:100%;height:100% }
+.metro-layout .box_1 img.big { margin-left: -64px; margin-top: -64px; }
+.metro-layout .box_1 img.cover { left: 0; top: 0; width: 100%; }
+
+
+.widget2x4 {    
+    width: 230px;
+    height: 100%;
+}
+.website {
+    margin-left:20%;width:60%
+}
+        .website_span {
+            font-size:24px;font-weight:bold;color:#363636
+        }
+.details {
+}
+.listarea {
+    margin-top:20px;width:60%;height:100%;margin-left:20%
+}
+.listarea_1footer {
+    height:30px;
+    width:690px;
+    margin-bottom:30px;
+}
+.listarea_1computer {
+    text-align:left;margin-left:45px
+}
+.listarea_1_left {
+    width:240px;height:80px;z-index:9;position:relative;
+}
+.listarea_1_left img{width:60px;height:60px;float:right}
+.listarea_1_leftdiv {
+    float:left;padding-left:25px;text-align:center
+}
+
+.listarea_1_rightdiv {
+    float:left;text-align:center;padding-left:20px;width:160px
+}
+.listarea_right {
+    width:690px;height:260px;
+}
+@media handheld, only screen and (max-width: 1620px){
+    .listarea {
+        margin-top: 20px;
+        width: 84%;
+        height: 100%;
+        margin-left: 8%;
+    }
+    .metro-layout .box_1 {float: left; text-decoration: none;width:200px;overflow:hidden; }
+    .website {
+        margin-left:5%;width:90%;
+       
+    }
+        .website_span {
+            font-size:22px;font-weight:bold;color:#363636
+        }
+    .listarea_1 {
+        width: 100%;
+        overflow-x: auto;
+        overflow: auto;
+    }
+    .box .computer {
+        width: 40px;
+        height: 40px;
+    }
+    .details {
+        float: right;
+        margin-right: 3%;
+        width: 65%;
+        height: 100%;
+    }
+    .widget2x4 {
+        width: 180px;
+        height: 255px;
+    }
+    .listarea_1computer {
+        text-align: left;
+        margin-left: 35px;
+    }
+    .listarea_1footer {
+        margin-left: 0;
+        margin: 0 auto;
+    }
+    .listarea_right {
+        width: 620px;
+        height: 260px;
+      
+        margin: 0 auto;
+    }
+    .listarea_1_left {
+        width: 180px;
+        height: 80px;
+        z-index: 9;
+        position: relative;
+    }
+    .listarea_1_leftdiv {
+        float: left;
+        padding-left: 5px;
+        text-align: center;
+    }
+    .listarea_1_rightdiv {
+        float: left;
+        text-align: center;
+        padding-left: 10px;
+        width: 140px;
+    }
+    .listarea_1_left img{width:30px;height:30px;margin-top:20px}
+}

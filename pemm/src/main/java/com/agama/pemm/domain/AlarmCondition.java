@@ -5,7 +5,8 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import com.agama.pemm.bean.DeviceType;
+import com.agama.authority.entity.BaseDomain;
+import com.agama.common.enumbean.DeviceInterfaceType;
 
 /**
  * @Author:ranjunfeng
@@ -19,11 +20,12 @@ public class AlarmCondition extends BaseDomain{
 	 * long
 	 */
 	private static final long serialVersionUID = 9108222651131531502L;
+	private String name;
 	private Integer stayTime;// 持续时间
 	private Integer repeatCount;// 重复报警次数
 	private Integer intervalTime;// 重复报警的间隔时间
 	private Integer noticeAfter; // 报警消失后是否通知
-	private DeviceType deviceType;//动环设备类型
+	private DeviceInterfaceType deviceInterfaceType;//动环设备类型
 	private Integer status; // 删除状态(0:正常,1:删除)
 	private Integer enabled;
 	private Integer alarmTemplateId;
@@ -31,6 +33,16 @@ public class AlarmCondition extends BaseDomain{
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "alarmLevelId")
 	private AlarmLevel alarmLevel;
+	
+	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public Integer getStayTime() {
 		return stayTime;
 	}
@@ -65,12 +77,14 @@ public class AlarmCondition extends BaseDomain{
 
 	
 	
-	public DeviceType getDeviceType() {
-		return deviceType;
+	
+
+	public DeviceInterfaceType getDeviceInterfaceType() {
+		return deviceInterfaceType;
 	}
 
-	public void setDeviceType(DeviceType deviceType) {
-		this.deviceType = deviceType;
+	public void setDeviceInterfaceType(DeviceInterfaceType deviceInterfaceType) {
+		this.deviceInterfaceType = deviceInterfaceType;
 	}
 
 	public Integer getStatus() {

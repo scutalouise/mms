@@ -5,9 +5,9 @@ import java.util.List;
 import com.agama.common.dao.utils.Page;
 import com.agama.common.dao.utils.PropertyFilter;
 import com.agama.common.service.IBaseService;
-import com.agama.pemm.bean.DeviceType;
-import com.agama.pemm.domain.Device;
 import com.agama.pemm.domain.GitInfo;
+
+import com.agama.common.enumbean.DeviceType;
 
 public interface IGitInfoService extends IBaseService<GitInfo, Integer> {
 	/**
@@ -30,7 +30,7 @@ public interface IGitInfoService extends IBaseService<GitInfo, Integer> {
 	 * 
 	 * @param areaInfoIdStr
 	 */
-	public List<GitInfo> getListByAreaInfoIdStr(String areaInfoIdStr);
+	public List<GitInfo> getListByOrganizationIdStr(String organizationIdStr);
 
 	/**
 	 * 根据区域ID查询集合
@@ -59,7 +59,23 @@ public interface IGitInfoService extends IBaseService<GitInfo, Integer> {
 	 * @param deviceType
 	 * @return
 	 */
-	public List<GitInfo> getListByAreaInfoIdStrAndDeviceType(
+	public List<GitInfo> getListByOrganizationIdStrAndDeviceType(
 			String areaInfoIdStr, DeviceType deviceType);
+
+	/**
+	 * @Description: 根据网关Id字符串查询集合
+	 * @param gitIds
+	 * @return
+	 * @Since :2015年11月2日 下午5:27:32
+	 */
+	public List<GitInfo> getListByIds(String gitIds);
+
+	/**
+	 * @Description: 根据网关id集合查询网关挂接设备的状态信息
+	 * @param gitInfoIds
+	 * @return
+	 * @Since :2015年11月3日 下午6:12:56
+	 */
+	public List<GitInfo> getDeviceStatusByGitInfoIds(String[] gitInfoIds);
 
 }

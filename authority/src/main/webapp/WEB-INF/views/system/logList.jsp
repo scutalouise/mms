@@ -12,8 +12,8 @@
 		<form id="searchFrom" action="">
 			<input type="text" name="filter_LIKES_operationCode" class="easyui-validatebox" data-options="width:150,prompt: '操作编码'"/>
 			<input type="text" name="filter_LIKES_description" class="easyui-validatebox" data-options="width:150,prompt: '操作内容'"/>
-	        <input type="text" name="filter_GTD_createDate" class="easyui-my97" datefmt="yyyy-MM-dd HH:mm:ss" data-options="width:150,prompt: '操作开始日期'" />
-	        - <input type="text" name="filter_LTD_createDate" class="easyui-my97" datefmt="yyyy-MM-dd HH:mm:ss" data-options="width:150,prompt: '操作结束日期'"/>
+	        <input type="text" id="startDate" name="filter_GTD_createDate" class="easyui-my97" datefmt="yyyy-MM-dd HH:mm:ss" data-options="width:150,prompt: '操作开始日期'" />
+	        - <input type="text" id="endDate" name="filter_LTD_createDate" class="easyui-my97" datefmt="yyyy-MM-dd HH:mm:ss" data-options="width:150,prompt: '操作结束日期'"/>
 	        <a href="#" class="easyui-linkbutton" plain="true" iconCls="icon-search" onclick="cx()">查询</a>
 		</form>
         <shiro:hasPermission name="sys:log:delete">
@@ -70,6 +70,8 @@ $(function(){
     rowTooltip: true,
     toolbar:'#tb'
 });
+	
+	dateFilter('startDate','endDate','%y-%M-%d %H-%m-%s');
 });
 
 //删除
@@ -81,6 +83,7 @@ function del(id){
 					url:"${ctx}/system/log/delete/"+id,
 					success: function(data){
 						successTip(data,dg);
+						dg.treegrid('clearSelections');
 					}
 				});
 			} 
@@ -128,8 +131,13 @@ function cx(){
 
 //导出excel
 function exportExcel(){
-	var url = "${ctx}/system/log/exportExcel";
-	window.location.href = url;
+//	var url = "${ctx}/system/log/exportExcel";
+//	window.location.href = url;
+	var obj=$("#searchFrom").serializeObject();
+	console.info(obj);
+	$("#searchFrom")[0].action="${ctx}/system/log/exportExcel";
+	$("#searchFrom")[0].target='_self';
+	$("#searchFrom").submit();
 }
 
 </script>

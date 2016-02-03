@@ -20,34 +20,53 @@
 					<td>外设类型:</td>
 					<td><form:hidden path="id" />
 						<form:hidden path="status" value="0" />
-						<form:hidden path="version" /> <select name="deviceType"
-						id="deviceType" style="width: 135px;">
-							<c:forEach items="${deviceTypes }" var="deviceType">
-								<option value="${deviceType }">${deviceType }</option>
+						<form:hidden path="version" /> 
+						<select name="deviceInterfaceType"
+							id="deviceInterfaceType" style="width: 135px;">
+							
+							<c:forEach items="${deviceInterfaceTypes }" var="deviceInterfaceType">
+								<option value="${deviceInterfaceType }">${deviceInterfaceType.name }</option>
 							</c:forEach>
 
-					</select></td>
-					<td>所属模板:</td>
+						</select>
+					</td>
+					<td>报警条件名称:</td>
+					<td>
+					<form:input path="name" class="easyui-validatebox" data-options="required:true,validType:['maxLength[20]']"/>
+					</td>
+					
+					
+				</tr>
+				<tr>
+				<td>所属模板:</td>
 					<td><form:hidden path="alarmTemplateId" id="templateId" /> <form:input
 							class="easyui-validatebox" id="templateName"
 							path="alarmTemplateName" /></td>
-				</tr>
-				<tr>
 					<td>报警等级:</td>
 					<td><input name="alarmLevel.id" id="alarmLevelId"></td>
-					<td>异常持续报警时间:</td>
-					<td><input class="easyui-numberspinner" name="stayTime"
-						data-options="min:0,max:100,value:0,width:135,editable:false">&nbsp;(分钟)</td>
-				</tr>
+					</tr>
 				<tr>
+				<td>异常持续报警时间:</td>
+					<td>
+					<label id="other_stayTime">
+					<input class="easyui-numberspinner" name="stayTime" id="stayTime"
+						data-options="min:0,max:100,value:0,width:135,editable:true,required:true" missingMessage="该输入项为必输项">&nbsp;(分钟)</label>
+						
+							<label id="switchInput_stayTime">
+					<input name="stayTime" class="easyui-validatebox" data-options="disabled:true" value="0"/>&nbsp;(分钟)</label>
+					
+						</td>
+					
+				
 					<td>重复报警次数:</td>
-					<td><input class="easyui-numberspinner" name="repeatCount"
-						data-options="min:0,max:100,value:0,width:135,editable:false"></td>
-					<td>重复报警间隔时间:</td>
-					<td><input class="easyui-numberspinner" name="intervalTime"
-						data-options="min:0,max:100,value:0,width:135,editable:false">&nbsp;(小时)</td>
-				</tr>
+					<td><input class="easyui-numberspinner" name="repeatCount" id="repeatCount"
+						data-options="min:0,max:100,value:0,width:135,editable:true,required:true"  missingMessage="该输入项为必输项"></td>
+									</tr>
 				<tr>
+				<td>重复报警间隔时间:</td>
+					<td><input class="easyui-numberspinner" name="intervalTime" id="intervalTime"
+						data-options="min:0,max:100,value:0,width:135,editable:true,required:true"  missingMessage="该输入项为必输项">&nbsp;(小时)</td>
+				
 					<td>报警消失后是否通知:</td>
 					<td><select name="noticeAfter" id="noticeAfter"
 						class="easyui-combobox" data-options="panelHeight:49"
@@ -55,22 +74,44 @@
 							<option value="0">是</option>
 							<option value="1">否</option>
 					</select></td>
-					<td>是否启用：</td>
+					
+				</tr>
+				<tr>
+			 <td>是否启用：</td>
 					<td><select name="enabled" id="enabled"
 						class="easyui-combobox" data-options="panelHeight:49"
 						style="width: 135px;">
 							<option value="0">启用</option>
 							<option value="1">禁用</option>
-					</select></td>
+					</select></td> 
+					<td></td>
+					<td></td>
 				</tr>
 			</table>
 		</form:form>
 	</div>
 	<script type="text/javascript">
 		$(function() {
-			$("#deviceType").combobox({
+			
+			$("#deviceInterfaceType").combobox({
 				panelHeight : 100,
-				editable : false
+				editable : false,
+				onSelect:function(v){
+					if(v.value=="WATER"||v.value=="SMOKE"){
+					
+						$("#other_stayTime").hide();
+						$("#switchInput_stayTime").show();
+						
+					}else{
+						$("#other_stayTime").show();
+						$("#switchInput_stayTime").hide();
+						
+					}
+					$("#stayTime").numberspinner({
+						value:0
+					});
+					
+				}
 			});
 			$("#enabled").combobox({
 				panelHeight : 49
@@ -90,23 +131,46 @@
 
 			});
 			var action = "${action}";
+			
 			if (action == "add") {
-
+				$("#other_stayTime").show();
+				$("#switchInput_stayTime").hide();
 				$("#templateId").val(checkedTemplateId);
 				$("#templateName").val(checkedTemplateName);
-				$("#deviceType").combobox("select", "UPS");
+				$("#deviceInterfaceType").combobox("select", "UPS");
 			} else if (action == "update") {
-				$("#deviceType").combobox("select",
-						"${alarmCondition.deviceType}");
+			
+				$("#deviceInterfaceType").combobox("select",
+						"${alarmCondition.deviceInterfaceType}");
+				
 				$("#alarmLevelId").combobox("setValue",
 				"${alarmCondition.alarmLevel.id}");
-					$("#enabled").combobox("select", "${alarmCondition.enabled}");
+				  $("#enabled").combobox("select", "${alarmCondition.enabled}");
 				$("#noticeAfter").combobox("select", "${alarmCondition.noticeAfter}");
+				$("#stayTime").numberspinner({
+					value:"${alarmCondition.stayTime}"
+				});
+				
+				$("#repeatCount").numberspinner({
+					value:"${alarmCondition.repeatCount}"
+				});
+				$("#intervalTime").numberspinner({
+					value:"${alarmCondition.intervalTime}"
+				});
+			}
+			if("${alarmCondition.deviceInterfaceType}"=="WATER"||"${alarmCondition.deviceInterfaceType}"=="SMOKE"){
+				$("#other_stayTime").hide();
+				$("#switchInput_stayTime").show();
+				
+			}else{
+				$("#other_stayTime").show();
+				$("#switchInput_stayTime").hide();
 			}
 			$("#templateName").attr('readonly', 'readonly');
 			$("#templateName").css('background', '#eee')
 			//提交表单
 			$('#condition_mainform').form({
+				
 				onSubmit : function() {
 
 					var isValid = $(this).form('validate');

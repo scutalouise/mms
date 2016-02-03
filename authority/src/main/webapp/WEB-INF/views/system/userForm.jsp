@@ -48,11 +48,11 @@
 			</tr>
 			<tr>
 				<td>电话：</td>
-				<td><input type="text" name="phone" value="${user.phone }" class="easyui-numberbox"  data-options="width: 150"/></td>
+				<td><input type="text" name="phone" value="${user.phone }" class="easyui-numberbox"  data-options="width: 150,validType:'mobile'"/></td>
 			</tr>
 			<tr>
 				<td>描述：</td>
-				<td><textarea rows="3" cols="41" name="description" style="font-size: 12px;font-family: '微软雅黑'">${user.description}</textarea></td>
+				<td><textarea rows="3" class="easyui-validatebox" cols="41" name="description" style="font-size: 12px;font-family: '微软雅黑'" class="easyui-validatebox" data-options="validType:'length[0,500]'">${user.description}</textarea></td>
 			</tr>
 		</table>
 	</form>
@@ -64,13 +64,14 @@ var action="${action}";
 if(action=='create'){
 	$("input[name='gender'][value=1]").attr("checked",true); 
 	//用户名存在验证
+	$.fn.validatebox.defaults.rules.remote.message = "用户名已存在";
 	$('#loginName').validatebox({    
 	    required: true,    
 	    validType:{
-	    	length:[2,20],
+	    	length:[6,20],
 	    	remote:["${ctx}/system/user/checkLoginName","loginName"]
-	    },
-	    invalidMessage:"用户名已存在"
+	    }//,
+	    //invalidMessage:"用户名已存在"
 	});  
 }else if(action=='update'){
 	$("input[name='loginName']").attr('readonly','readonly');

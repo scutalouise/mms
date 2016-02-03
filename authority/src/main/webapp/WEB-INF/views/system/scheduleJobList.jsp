@@ -172,6 +172,7 @@ function del(){
 					if(data=='success'){
 						dg.datagrid('reload');
 						parent.$.messager.show({ title : "提示",msg: "操作成功！", position: "bottomRight" });
+						dg.treegrid('clearSelections');
 					}else{
 						parent.$.messager.alert(data);
 					}  
@@ -220,8 +221,9 @@ function startNow(){
 	parent.$.messager.confirm('提示', '确定要立即运行一次该任务？', function(data){
 		if (data){
 			$.ajax({
-				type:'get',
-				url:"${ctx}/system/scheduleJob/"+row.name+"/"+row.group+"/startNow",
+				type:'post',
+				url:"${ctx}/system/scheduleJob/startNow",
+				data:{name:row.name,group:row.group},
 				success: function(data){
 					if(data=='success'){
 						//dg.datagrid('reload');

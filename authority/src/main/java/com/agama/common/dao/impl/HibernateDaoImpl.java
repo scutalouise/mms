@@ -1,6 +1,7 @@
 package com.agama.common.dao.impl;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.internal.CriteriaImpl;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.transform.ResultTransformer;
+import org.hibernate.transform.Transformers;
 import org.springframework.util.Assert;
 
 import com.agama.common.dao.IBaseDao;
@@ -25,7 +27,8 @@ import com.agama.common.dao.utils.Page;
 import com.agama.common.dao.utils.PropertyFilter;
 import com.agama.common.dao.utils.PropertyFilter.MatchType;
 import com.agama.common.dao.utils.SimpleBaseDaoUtil;
-import com.agama.common.utils.Reflections;
+import com.agama.tool.utils.Reflections;
+import com.agama.tool.utils.string.StringUtils;
 
 
 /**
@@ -72,6 +75,71 @@ public class HibernateDaoImpl<T, PK extends Serializable> extends SimpleBaseDaoU
 		return findPage(page);
 	}
 
+	
+	/**
+	 * @Description:此处为执行sql语句查询，最后将查询的结果封装成一个冗余的bean对象；注意冗余的意义：例如：当User对象中包含了一个orgId，现在要查询到orgName,封装的User对象博阿寒orgName；
+	 * @param page
+	 * @param sql
+	 * @param values
+	 * @return
+	 * @Since :2016年2月1日 下午3:12:20
+	 */
+	public Page<T> findPageBySQL(final Page<T> page, final String sql, final Object... values) {
+		Assert.notNull(page, "page不能为空");
+		if (page.isAutoCount()) {
+			long totalCount = countSqlResult(sql, values);
+			page.setTotalCount(totalCount);
+		}
+		Query q = createSQLQuery(sql, values);
+		q = q.setResultTransformer(Transformers.aliasToBean(this.entityClass));
+		setPageParameterToQuery(q, page);
+		page.setResult(q.list());
+		return page;
+	}
+	/**
+	 * @Description:单独封装为处理sql查询：此处查询对象数量的sql语句封装；
+	 * @param orgSql
+	 * @return
+	 * @Since :2016年2月1日 下午3:10:39
+	 */
+	private String prepareCountSql(String orgSql) {
+		String fromSql = orgSql;
+		//select子句与order by子句会影响count查询,进行简单的排除.
+		fromSql = "from " + StringUtils.substringAfter(fromSql, "from");
+		fromSql = StringUtils.substringBefore(fromSql, "order by");
+		String countSql = "select count(*) " + fromSql;
+		return countSql;
+	}
+	/**
+	 * @Description:单独封装为处理sql处理：此处为对语句执行查询数量的操作；
+	 * @param sql
+	 * @param values
+	 * @return
+	 * @Since :2016年2月1日 下午3:11:08
+	 */
+	private long countSqlResult(final String sql, final Object... values) {
+		String countSql = prepareCountSql(sql);
+
+		try {
+			BigInteger count = findUniqueBySQL(countSql, values);
+			return count.intValue();
+		} catch (Exception e) {
+			throw new RuntimeException("sql can't be auto count, Sql is:" + countSql, e);
+		}
+	}
+	
+	/**
+	 * @Description:按SQL查询唯一对象.
+	 * @param sql
+	 * @param values
+	 * @return
+	 * @Since :2016年2月1日 下午3:46:13
+	 */
+	private <X> X findUniqueBySQL(final String sql, Object... values) {
+		return (X) createSQLQuery(sql, values).uniqueResult();
+	}
+	
+	
 	/* (non-Javadoc)
 	 * @see com.agama.authority.common.persistence.IBaseDao#findPage(com.agama.authority.common.persistence.Page, java.lang.String, java.lang.Object)
 	 */
@@ -137,7 +205,7 @@ public class HibernateDaoImpl<T, PK extends Serializable> extends SimpleBaseDaoU
 		page.setResult(result);
 		return page;
 	}
-
+	
 	/**
 	 * 执行count查询获得本次Hql查询所能获得的对象总数.
 	 * 
@@ -246,7 +314,7 @@ public class HibernateDaoImpl<T, PK extends Serializable> extends SimpleBaseDaoU
 	 * @param entity
 	 */
 	public void save(final T entity) {
-//		getSession().saveOrUpdate(entity);
+		// getSession().saveOrUpdate(entity);
 		getSession().save(entity);
 	}
 
@@ -461,6 +529,12 @@ public class HibernateDaoImpl<T, PK extends Serializable> extends SimpleBaseDaoU
 	@Override
 	public void update(T entity) {
 		getSession().update(entity);
+	}
+
+	@Override
+	public void merge(T entity) {
+		getSession().merge(entity);
+
 	}
 	
 	

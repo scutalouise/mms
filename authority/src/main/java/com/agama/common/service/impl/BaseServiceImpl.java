@@ -1,6 +1,5 @@
 package com.agama.common.service.impl;
 
-
 import java.io.Serializable;
 import java.util.List;
 
@@ -12,36 +11,37 @@ import com.agama.common.dao.utils.Page;
 import com.agama.common.dao.utils.PropertyFilter;
 import com.agama.common.service.IBaseService;
 
-public class BaseServiceImpl<T, PK extends Serializable> implements IBaseService<T,PK> {
+public class BaseServiceImpl<T, PK extends Serializable> implements IBaseService<T, PK> {
 
 	@Autowired
-	protected IBaseDao<T,PK> baseDao;
-	
+	protected IBaseDao<T, PK> baseDao;
+
 	@Override
+	@Transactional(readOnly = true)
 	public T get(PK id) {
 		return baseDao.find(id);
 	}
 
 	@Override
-	@Transactional(readOnly=false)
+	@Transactional(readOnly = false)
 	public void save(T entity) {
 		baseDao.save(entity);
 	}
 
 	@Override
-	@Transactional(readOnly=false)
+	@Transactional(readOnly = false)
 	public void update(T entity) {
 		baseDao.update(entity);
 	}
 
 	@Override
-	@Transactional(readOnly=false)
+	@Transactional(readOnly = false)
 	public void delete(T entity) {
 		baseDao.delete(entity);
 	}
 
 	@Override
-	@Transactional(readOnly=false)
+	@Transactional(readOnly = false)
 	public void delete(PK id) {
 		baseDao.delete(id);
 	}
@@ -64,6 +64,12 @@ public class BaseServiceImpl<T, PK extends Serializable> implements IBaseService
 	@Override
 	public Page<T> search(Page<T> page, List<PropertyFilter> filters) {
 		return baseDao.findPage(page, filters);
+	}
+
+	@Override
+	public void merge(T entity) {
+		baseDao.merge(entity);
+
 	}
 
 }

@@ -149,6 +149,7 @@ function lookP(roleId){
 //保存修改权限
 function save(){
 	var row = dg.datagrid('getSelected');
+	if(rowIsNull(row)) return;
 	var roleId=row.id;
 	parent.$.messager.confirm('提示', '确认要保存修改？', function(data){
 	if (data){
@@ -214,6 +215,7 @@ function del(){
 				url:"${ctx}/system/role/delete/"+row.id,
 				success: function(data){
 					successTip(data,dg);
+					dg.treegrid('clearSelections');
 				}
 			});
 			//dg.datagrid('reload'); //grid移除一行,不需要再刷新

@@ -3,13 +3,11 @@ package com.agama.pemm.utils;
 
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import java.util.logging.Logger;
 
 import org.snmp4j.CommunityTarget;
 import org.snmp4j.PDU;
@@ -27,7 +25,7 @@ import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 
-import com.agama.common.utils.DateUtils;
+import com.agama.tool.utils.date.DateUtils;
 
 
 
@@ -51,9 +49,10 @@ public class SNMPUtil {
 	 */
 	public void init(){
 		try {
-			TransportMapping transport = new DefaultUdpTransportMapping();
+			TransportMapping<?> transport = new DefaultUdpTransportMapping();
 			snmp = new Snmp(transport);
 			transport.listen();
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -91,6 +90,7 @@ public class SNMPUtil {
 		}else{
 			System.out.println("未查询到数据或查询超时！");
 		}
+		snmp.close();
 		return result;
 	}
 	
@@ -152,7 +152,7 @@ public class SNMPUtil {
 				pdu.remove(0);
 				pdu.add(new VariableBinding(recVB.getOid()));
 		}
-		
+		snmp.close();
 		return result ;
 	}
 	
@@ -189,6 +189,7 @@ public class SNMPUtil {
 		}else{
 			System.out.println("SET命令失败！");
 		}
+		snmp.close();
 	}
 
 }

@@ -103,6 +103,7 @@ function del(){
 				success: function(data){
 					if(successTip(data,dg))
 			    		dg.treegrid('reload');
+						$('#dg').treegrid('clearSelections');
 				}
 			});
 			//dg.datagrid('reload'); //grid移除一行,不需要再刷新

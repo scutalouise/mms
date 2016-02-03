@@ -19,9 +19,9 @@ html, body {
 <body>
 	<div class="easyui-layout" data-options="fit:true">
 		<div
-			data-options="region:'west',title:'区域导航',iconCls:'icon-standard-map',split:true,minWidth: 150, maxWidth: 400,width:180">
+			data-options="region:'west',title:'组织机构',iconCls:'icon-hamburg-world',split:true,minWidth: 150, maxWidth: 400,width:180">
 
-			<ul id="areaInfoTree"></ul>
+			<ul id="organizationTree"></ul>
 		</div>
 		<div data-options="region:'center'" style="overflow: hidden;">
 			<iframe frameborder="0" id="gitInfoList" style="margin: 0" width="100%" height="100%" src="${ctx }/chart/gitInfoView">

@@ -1,4 +1,4 @@
-﻿
+﻿var pwdWin;
 
 (function ($) {
 
@@ -11,7 +11,7 @@
         mainLayout = "#mainLayout", northPanel = "#northPanel", themeSelector = "#themeSelector",
         westLayout = "#westLayout", westCenterLayout = "#westCenterLayout", westFavoLayout = "#westFavoLayout",
         westSouthPanel = "#westSouthPanel", homePanel = "#homePanel",
-        btnContact = "#btnContact", btnFullScreen = "#btnFullScreen", btnExit = "#btnExit";
+        btnContact = "#btnContact", btnFullScreen = "#btnFullScreen", btnExit = "#btnExit",btnUpdatePwd="#btnUpdatePwd",btnDeviceView="#btnDeviceView",btnBackMain="#btnBackMain",btnBackHome="#btnBackHome",deviceBtnExit="#deviceBtnExit";
 
 
     //  按照指定的根节点菜单 id，加载其相应的子菜单树面板数据；该方法定义如下参数：
@@ -60,7 +60,36 @@
                     window.mainpage.setTheme(record[opts.valueField], true);
                 }
             });
-
+        $(btnUpdatePwd).click(function(){
+        	pwdWin=$("#dlg").dialog({   
+        	    title: '修改密码',    
+        	    width: 280,    
+        	    height: 180,    
+        	    href:ctx+'/system/user/updatePwd',
+        	    maximizable:true,
+        	    modal:true,
+        	    buttons:[{
+        			text:'确认',
+        			handler:function(){
+        				$("#mainform").submit(); 
+        			}
+        		},{
+        			text:'取消',
+        			handler:function(){
+        				pwdWin.panel('close');
+        			}
+        		}]
+        	});
+        });
+        $(btnDeviceView).click(function(){
+        	window.location.href=ctx+"/device/deviceView";
+        });
+        $(btnBackHome).click(function(){
+        	window.location.href=ctx+"/a";
+        }); 
+        $(btnBackMain).click(function(){
+        	window.location.href=ctx+"/monitorPlatform/index";
+        });
         $(btnFullScreen).click(function () {
             if ($.util.supportsFullScreen) {
                 if ($.util.isFullScreen()) {
@@ -88,10 +117,20 @@
             $.easyui.messager.confirm("操作提醒", "您确定要退出当前程序并关闭该网页？", function (c) {
                 if (c) {
                     window.onbeforeunload = null;
-                    location.href='a/logout';
+                    location.href=ctx+'/m/logout';
                 }
             });
         });
+        
+        $(deviceBtnExit).click(function () {
+            $.easyui.messager.confirm("操作提醒", "您确定要退出当前程序并关闭该网页？", function (c) {
+                if (c) {
+                    window.onbeforeunload = null;
+                    location.href=ctx+'/m/logout';
+                }
+            });
+        });
+        
     };
 
     window.mainpage.search = function (value, name) { $.easyui.messager.show($.string.format("您设置的主题为：value: {0}, name: {1}", value, name)); };
@@ -294,4 +333,5 @@
 
     window.mainpage.nav.refreshNav = function () { window.mainpage.instMainMenus(); };
 
+    
 })(jQuery);

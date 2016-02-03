@@ -1,0 +1,357 @@
+﻿body {
+    background-color:none;
+}
+#settings {
+    position: absolute;
+    z-index: 25;
+    cursor: pointer;
+    top: 10px;
+    left: -46px;
+    width: 36px;
+    height: 36px;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-size: 100% 100%;
+    background-image: url('/images/settings.png');
+}
+body.open #settings {
+    background-image: url('/images/cancel.png');
+}
+header {
+    z-index: 50;
+    width: 300px;
+    right: -300px;
+    cursor: default;
+    background-color: #BE213E;
+    background-image: none;
+}
+body.open header {
+    right: 0px;
+}
+#theme_picker {
+    margin: 10px 0px 10px 0px;
+    overflow: hidden;
+}
+#theme_picker > div {
+    position: relative;
+    overflow: hidden;
+    height: 36px;
+    cursor: pointer;
+}
+#theme_picker > div:hover,
+#theme_picker > div.selected {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+#theme_picker div.square {
+    width: 40px;
+    height: 20px;
+    margin: 7px 10px 0px 30px;
+    border: 1px solid #CCCCCC;
+    cursor: pointer;
+    background-size: cover;
+}
+#theme_picker > span {
+    display: block;
+    color: #333333;
+    margin-bottom: 5px;
+    margin-left: 30px;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+#theme_picker label {
+    position: absolute;
+    color: #FFFFFF;
+    left: 80px;
+    top: 0px;
+    height: 36px;
+    line-height: 36px;
+    text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.5);
+    text-transform: uppercase;
+    font-size: 0.8em;
+}
+#theme_picker div.default {
+    background: url('/images/colour.png');
+}
+#theme_picker div.blue {
+    background-color: #0097AA;
+}
+#theme_picker div.orange {
+    background-color: #F29500;
+}
+#theme_picker div.red {
+    background-color: #C23916;
+}
+#theme_picker div.green {
+    background-color: #94C849;
+}
+#theme_picker div.darkgreen {
+    background-color: #6FA014;
+}
+#theme_picker div.purple {
+    background-color: #91009B;
+}
+#theme_picker div.darkred {
+    background-color: #BE213E;
+}
+#theme_picker div.darkblue {
+    background-color: #3C7780;
+}
+#theme_picker div.yellow {
+    background-color: #D9B700;
+}
+#theme_picker div.grey {
+    background-color: #4C4C4C;
+}
+
+
+
+/*
+Pages
+*/
+div.inline_wrapper {
+    margin: 0px 20px 20px 20px;
+}
+img.inline_preview {
+    display: block;
+    background-color: #FFFFFF;
+    padding: 10px;
+    width: 610px;
+    max-width: 100%;
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+        -ms-box-sizing: border-box;
+         -o-box-sizing: border-box;
+            box-sizing: border-box;
+}
+div.feature {
+    width: 650px;
+    max-width: 100%;
+}
+div.feature strong {
+    display: block;
+    margin: 0px 20px;
+    padding: 10px;
+    color: #111111;
+    text-shadow: 0px 1px 0px rgba(255, 255, 255, 0.3);
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+div.preview_button {
+    width: 610px;
+    max-width: 100%;
+    padding: 20px 0px;
+    background-color: rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+div.preview_button a:first-child {
+    margin-right: 20px;
+}
+a.demo,
+a.demo:hover,
+a.download:hover {
+    background-color: #333333;
+}
+a.demo:active,
+a.download:active {
+}
+a.demo {
+    background-position: 10px -404px;
+}
+a.download {
+    background-position: 10px -701px;
+}
+
+div.settings {
+    overflow: hidden;
+    top: 0px;
+    background-color: #FFFFFF;
+    border: 1px solid #DDDDDD;
+    border-radius: 5px;
+    color: #000000;
+    text-shadow: 0px 1px 1px #FFFFFF;
+    z-index: 10;
+    margin: 0px 20px 20px 20px;
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+         -o-user-select: none;
+            user-select: none;
+}
+div.settings > div {
+    float: left;
+    position: relative;
+    padding: 10px;
+    text-align: center;
+    border-right: 1px solid #DDDDDD;
+    border-left: 1px solid #FFFFFF;
+    cursor: pointer;
+    width: 120px;
+    height: 100%;
+    border-radius: 5px;
+    -webkit-transition: all 0.1s;
+       -moz-transition: all 0.1s;
+        -ms-transition: all 0.1s;
+         -o-transition: all 0.1s;
+            transition: all 0.1s;
+}
+div.settings > div > span {
+    display: block;
+    margin: 10px auto 0px auto;
+}
+div.settings > div > select {
+    width: 90%;
+}
+div.settings > div.selected,
+div.settings > div:hover {
+    background-color: #A8240D;
+    color: #FFFFFF;
+    text-shadow: 1px 1px 1px #000000;
+}
+div.settings.blue > div.selected,
+div.settings.blue > div:hover {
+    background-color: #22A7CA;
+}
+div.settings > div:first-child {
+    border-left: none;
+}
+div.settings > div.selected:hover {
+    cursor: default;
+}
+
+/* settings */
+#demo {
+    margin-bottom: 10px;
+    clear: both;
+    overflow: hidden;
+}
+div.setting_options {
+    margin-left: 140px;
+}
+div.setting_label {
+    width: 140px;
+    float: left;
+}
+div.setting_options label {
+    width: 80px;
+    display: inline-block;
+}
+div.settings > div {
+    width: 100px;
+}
+
+/* contact */
+.contact_map {
+    padding: 0px !important;
+}
+.contact_map iframe {
+    display: block;
+}
+.contact label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+div.widget_blue,
+div.widget_blue div.main,
+div.widget_container.blue div.box,
+div.widget_container.blue div.box div.main {
+    background-color: #39A2DB;
+}
+
+div.widget_lightblue,
+div.widget_lightblue div.main,
+div.widget_container.lightblue div.box,
+div.widget_container.lightblue div.box div.main {
+    background-color: #02BCB7;
+}
+
+div.widget_orange,
+div.widget_orange div.main,
+div.widget_container.orange div.box,
+div.widget_container.orange div.box div.main {
+    background-color: #F38328;
+}
+
+div.widget_red,
+div.widget_red div.main,
+div.widget_container.red div.box,
+div.widget_container.red div.box div.main {
+    background-color: #DF4C59;
+}
+
+div.widget_green,
+div.widget_green div.main,
+div.widget_container.green div.box,
+div.widget_container.green div.box div.main {
+    background-color: #63BF5A;
+}
+
+div.widget_darkgreen,
+div.widget_darkgreen div.main,
+div.widget_container.darkgreen div.box,
+div.widget_container.darkgreen div.box div.main {
+    background-color: #08B51D;
+}
+
+div.widget_lightgreen,
+div.widget_lightgreen div.main,
+div.widget_container.lightgreen div.box,
+div.widget_container.lightgreen div.box div.main {
+    background-color: #F2FEE8;
+}
+
+div.widget_lightgreen_1,
+div.widget_lightgreen_1 div.main,
+div.widget_container.lightgreen_1 div.box,
+div.widget_container.lightgreen_1 div.box div.main {
+    background-color: #76e85c;
+}
+
+div.widget_purple,
+div.widget_purple div.main,
+div.widget_container.purple div.box,
+div.widget_container.purple div.box div.main {
+    background-color: #91009B;
+}
+
+div.widget_darkred,
+div.widget_darkred div.main,
+div.widget_container.darkred div.box,
+div.widget_container.darkred div.box div.main {
+    background-color: #BE213E;
+}
+
+div.widget_darkblue,
+div.widget_darkblue div.main,
+div.widget_container.darkblue div.box,
+div.widget_container.darkblue div.box div.main {
+    background-color: #3C7780;
+}
+
+div.widget_yellow,
+div.widget_yellow div.main,
+div.widget_container.yellow div.box,
+div.widget_container.yellow div.box div.main {
+    background-color: #FDD116;
+}
+
+div.widget_grey,
+div.widget_grey div.main,
+div.widget_container.grey div.box,
+div.widget_container.grey div.box div.main {
+    background-color: #4C4C4C;
+}
+
+div.widget_lightgrey,
+div.widget_lightgrey div.main,
+div.widget_container.lightgrey div.box,
+div.widget_container.lightgrey div.box div.main {
+    background-color: #CBCBCD;
+}
+
+div.widget_darkgray,
+div.widget_darkgray div.main,
+div.widget_container.darkgray div.box,
+div.widget_container.darkgray div.box div.main {
+    background-color: #404C5A;
+}

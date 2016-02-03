@@ -2,16 +2,16 @@
 $(function() {
 	
 
-	$("#areaInfoTree").tree({
+	$("#organizationTree").tree({
 	
-		url : ctx + "/system/area/tree",
+		url : ctx + "/system/organization/tree",
 		onBeforeExpand : function(node, params) {
-			$(this).tree("options").url = ctx + "/system/area/tree?pid=" + node.id
+			$(this).tree("options").url = ctx + "/system/organization/tree?pid=" + node.id
 
 		},
 		onSelect : function(node) {
 
-			$("#deviceList").attr("src",ctx+"/upsStatus/gitInfoView?areaInfoId="+node.id);
+			$("#deviceList").attr("src",ctx+"/upsStatus/gitInfoView?organizationId="+node.id);
 		
 		}
 	});

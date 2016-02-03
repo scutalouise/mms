@@ -1,12 +1,13 @@
 var dg;
-var areaInfoId;
+
+var organizationId;
 $(function() {
 	dg = $("#dg").datagrid({
 		method : "post",
 		url : ctx + "/device/json",
 		queryParams : {
 			filter_EQI_status : '0',
-			filter_EQI_areaInfoId : areaInfoId
+			filter_EQI_organizationId : organizationId
 		},
 		fit : true,
 		fitColumns : true,
@@ -22,19 +23,48 @@ $(function() {
 		columns : [ [ {
 			field : 'id',
 			checkbox : true
-		}, {
+		},{
+			field : "organizationName",
+			title : "所属机构",
+			sortable : true,
+			width : 60,
+			formatter : function(value,rowData) { 
+				return rowData.gitInfo.organizationName;
+			}
+		},  {
 			field : "gitInfo",
 			title : "所属主机",
 			sortable : true,
-			width : 80,
+			width : 50,
 			formatter : function(value, rowData, rowIndex) {
+			
 				return value.name
 			}
+		}, {
+			field : "deviceInterfaceType",
+			title : "设备类型",
+			sortable : true,
+			width : 50,
+			formatter : function(v) {
+				if(v!=null){
+					return v.name;
+				}
+				
+			}
+
 		}, {
 			field : "name",
 			title : "名称",
 			sortable : true,
 			width : 100
+		}, {
+			field : "alarmTemplateName",
+			title : "模板名称",
+			sortable : true,
+			width : 60,
+			formatter : function(v) {
+				return v;
+			}
 		}, {
 			field : "managerName",
 			title : "管理员",
@@ -58,14 +88,21 @@ $(function() {
 			align : "center",
 			width : 70,
 			formatter : function(value, rowData, rowIndex) {
-				return formatDate(value,"yyyy-MM-dd")
+				return formatDate(value, "yyyy-MM-dd")
 			}
 		}, {
 			field : "enabled",
 			title : "是否启用",
 			sortable : true,
 			align : "center",
-			width : 40
+			width : 40,
+			formatter : function(value) {
+				if (value == 1) {
+					return "是";
+				} else if (v == 0) {
+					return "否";
+				}
+			}
 		}, {
 			field : "remark",
 			title : "描述",
@@ -78,19 +115,21 @@ $(function() {
 		toolbar : '#tb'
 
 	});
-	$("#areaInfoTree").tree(
+	$("#organizationTree").tree(
 			{
-				method:"get",
-				url : ctx + "/system/area/tree",
+				method : "get",
+				url : ctx + "/system/organization/tree",
 				onBeforeExpand : function(node, params) {
 
-					$(this).tree("options").url = ctx + "/system/area/tree?pid=" + node.id
-				},onSelect:function(node){
-					dg.datagrid("reload",{
-						filter_EQI_areaInfoId : node.id,
-						filter_EQI_status : '0'
+					$(this).tree("options").url = ctx
+							+ "/system/organization/tree?pid=" + node.id
+				},
+				onSelect : function(node) {
+					dg.datagrid("reload", {
+						filter_EQI_status : '0',
+						organizationId : node.id
 					});
-					areaInfoId = node.id;
+					organizationId = node.id;
 
 				}
 			});
@@ -119,13 +158,13 @@ function scan() {
 	$.ajax({
 		type : "get",
 		url : ctx + "/device/scan",
+		data:{organizationId:organizationId},
 		success : function(result) {
 			displayLoadMask();
 			if (result.count > 0) {
-
-				parent.$.messager.confirm('提示', '扫描到' + result.count
-						+ '个UPS设备，是否确认添加？', function(data) {
+				parent.$.messager.confirm('提示', '扫描到' + result.count+'个设备，是否确认添加？', function(data) {
 					if (data) {
+						loadMask();
 						$.ajax({
 							type : "post",
 							url : ctx + "/device/create",
@@ -134,6 +173,7 @@ function scan() {
 								deviceIndexList : result.deviceIndexList
 							},
 							success : function(res) {
+								displayLoadMask();
 								successTip(res, dg);
 							}
 						});
@@ -176,6 +216,7 @@ function del() {
 				},
 				success : function(data) {
 					successTip(data, dg);
+					$('#dg').datagrid('clearSelections');
 				}
 			});
 		}
@@ -184,21 +225,25 @@ function del() {
 }
 function update() {
 	var row = dg.datagrid("getSelected");
-//	if (rowIsNull(row)) {
-//		return;
-//	}
+	// if (rowIsNull(row)) {
+	// return;
+	// }
 	var rows = $('#dg').datagrid('getSelections');
 	if (rows.length < 1) {
 		rowIsNull(null);
 		return;
-	}else if(rows.length>1){
-		parent.$.messager.show({ title : "提示",msg: "只能选择一条记录！", position: "bottomRight" });
+	} else if (rows.length > 1) {
+		parent.$.messager.show({
+			title : "提示",
+			msg : "只能选择一条记录！",
+			position : "bottomRight"
+		});
 		return;
 	}
 	d = $("#dlg").dialog({
 		title : "修改设备信息",
 		width : 500,
-		height : 360,
+		height : 410,
 		href : ctx + "/device/update/" + row.id,
 		maximizable : true,
 		modal : true,

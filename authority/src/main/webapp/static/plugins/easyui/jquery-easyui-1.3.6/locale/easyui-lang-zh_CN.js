@@ -29,6 +29,9 @@ if ($.fn.combobox){
 if ($.fn.combotree){
 	$.fn.combotree.defaults.missingMessage = '该输入项为必输项';
 }
+if($.fn.timespinner){
+	$.fn.timespinner.defaults.missingMessage = '该输入项为必输项';
+}
 if ($.fn.combogrid){
 	$.fn.combogrid.defaults.missingMessage = '该输入项为必输项';
 }

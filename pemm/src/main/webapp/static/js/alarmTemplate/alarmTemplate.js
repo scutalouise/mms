@@ -1,3 +1,5 @@
+	var checkedTemplateName;
+		var checkedTemplateId;
 var template_dg;
 var template_d;
 $(function() {
@@ -32,10 +34,11 @@ $(function() {
 		pageNumber : 1,
 		pageSize : 20,
 		pageList : [ 10, 20, 30, 40, 50 ],
-		singleSelect : false,
+		singleSelect : true,
 		columns : [ [ {
 			field : 'id',
-			checkbox : true
+			checkbox : true//,
+			//hidden:true
 		}, {
 			field : "name",
 			title : "模板名称",
@@ -61,7 +64,16 @@ $(function() {
 		enableHeaderClickMenu : true,
 		enableHeaderContextMenu : true,
 		enableRowContextMenu : false,
-		toolbar : '#template_tb'
+		toolbar : '#template_tb',
+		onSelect:function(rowIndex, rowData){
+			checkedTemplateName = rowData.name;
+			checkedTemplateId = rowData.id;
+			condition_dg.datagrid("options").url=ctx + "/system/alarmCondition/json";
+			condition_dg.datagrid("reload",{
+				filter_EQI_status : '0',
+				filter_EQI_alarmTemplateId:rowData.id
+			});
+		}
 	});
 });
 function addTemplate() {
@@ -147,6 +159,7 @@ function delTemplate(){
 				},
 				success : function(data) {
 					successTip(data, template_dg);
+					$('#template_dg').datagrid('clearSelections'); 
 				}
 			});
 		}

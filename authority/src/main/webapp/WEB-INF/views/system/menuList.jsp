@@ -51,6 +51,14 @@ $(function(){
         {field:'name',title:'名称',width:100},
         {field:'url',title:'资源路径',width:100},
         {field:'sort',title:'排序'},
+        {field:'code',title:"所属系统",width:50,formatter:function(v){
+        	if(v=="DH"){
+        		return "动力环境管理系统"
+        	}else if(v=="DS"){
+        		return "设备监控管理系统";
+        	}
+        	
+        }},
         {field:'description',title:'描述',width:100}
     ]],
     enableHeaderClickMenu: false,
@@ -106,6 +114,7 @@ function del(){
 				success: function(data){
 					if(successTip(data,dg))
 			    		dg.treegrid('reload');
+						dg.treegrid('clearSelections');
 				}
 			});
 			//dg.datagrid('reload'); //grid移除一行,不需要再刷新

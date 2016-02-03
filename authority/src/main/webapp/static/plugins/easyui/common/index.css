@@ -12,7 +12,7 @@ body { font-size: 12px; padding: 0; margin: 0; overflow: hidden; }
 .top-toolbar-topmost { top: 0px; height: 27px; border-top-width: 0px; border-bottom-width: 1px; }
 .top-toolbar #infobar { position: absolute; height: 26px; line-height: 26px; left: 10px; }
 .top-toolbar #searchbar { position: absolute; height: 26px; left: 400px; padding-top: 1px; }
-.top-toolbar #buttonbar { position: absolute; height: 26px; right: 5px; padding-top: 1px; text-align: right; }
+.top-toolbar #buttonbar { position: absolute; height: 26px; right: 5px; padding-top: 0px; text-align: right; }
 
 
 .tabs-container .tabs-header .tabs-scroller-left { border-top-width: 0; border-left-width: 0; }

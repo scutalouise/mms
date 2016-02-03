@@ -20,10 +20,15 @@
 	</div>
 	<div class="easyui-tabs" id="tab_device"
 		data-options="fit:true,tools:'#tab-tools',border:false">
-		<c:forEach items="${deviceList }" var="device">
+		<c:forEach items="${upsDeviceList }" var="device">
 			<div title="【UPS-${device.deviceIndex }】" iconCls=""
 				data-options="refreshable:false,content:'<iframe src=\'${ctx }/chart/upsChart?deviceId=${device.id }\'  height=\'100%\' width=\'100%\' frameborder=0></iframe>'">
 			</div>
+		</c:forEach>
+		<c:forEach items="${thDeviceList }" var="device">
+		   <div title="【TH-${device.deviceIndex }】" iconCls="" data-options="refreshable:false,content:'<iframe src=\'${ctx }/chart/thChart?deviceId=${device.id }\'  height=\'100%\' width=\'100%\' frameborder=0></iframe>'">
+		   
+		   </div>
 		</c:forEach>
 	</div>
 </body>

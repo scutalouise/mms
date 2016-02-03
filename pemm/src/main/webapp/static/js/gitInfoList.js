@@ -1,13 +1,13 @@
 var dg;
 var d;
-var areaInfoId;
+var organizationId;
 $(function() {
 	dg = $("#dg").datagrid({
 		method : "post",
 		url : ctx + "/gitInfo/json",
 		queryParams : {
 			filter_EQI_status : '0',
-			filter_EQI_areaInfoId : areaInfoId
+			filter_EQI_organizationId : organizationId
 		},
 		fit : true,
 		fitColumns : true,
@@ -23,6 +23,10 @@ $(function() {
 		columns : [ [ {
 			field : 'id',
 			checkbox : true
+		}, {
+			field : "organizationName",
+			title : "所属机构",sortable:true,
+			width:60
 		}, {
 			field : "name",
 			title : "名称",
@@ -76,11 +80,6 @@ $(function() {
 				return html;
 			}
 		}, {
-			field : "location",
-			title : "所属位置",
-			sortable : true,
-			width : 100
-		}, {
 			field : "remark",
 			title : "描述",
 			sortable : true,
@@ -118,23 +117,25 @@ $(function() {
 
 		}
 	});
-	$("#areaInfoTree").tree({
+	// 上级菜单
+	$("#organizationTree").tree(
+			{
 				method : "get",
-				url : ctx + "/system/area/tree",
+				url : ctx + "/system/organization/tree",
 				onBeforeExpand : function(node, params) {
 					$(this).tree("options").url = ctx
-							+ "/system/area/tree?pid=" + node.id
+							+ "/system/organization/tree?pid=" + node.id
 				},
 				onSelect : function(node) {
 					dg.datagrid("reload", {
 
 						filter_EQI_status : '0',
-						filter_EQI_areaInfoId : node.id
+						filter_EQI_organizationId : node.id
 					});
-					areaInfoId = node.id;
+					organizationId = node.id;
 				}
 			});
-	initDateFilter("beginDate","endDate");
+	initDateFilter("beginDate", "endDate");
 });
 
 function formatter(value, row, index) {
@@ -161,7 +162,7 @@ function createTooltip() {
 												var content = '<div id="tooltiptitle">内容信息</div>';
 												content += "<table  cellpadding='5'>"
 														+ "<tr>"
-														+ "<td class='gitInfo_title'>Ip地址：</td><td>"
+														+ "<td class='gitInfo_title'>IP地址：</td><td>"
 														+ row.ip
 														+ "</td>"
 														+ "<td class='gitInfo_title'>名称：</td><td>"
@@ -176,11 +177,13 @@ function createTooltip() {
 														+ "</tr>"
 														+ "<tr>"
 														+ "<td class='gitInfo_title'>购买时间：</td><td>"
-														+ (row.buyTime != null ? formatDate(row.buyTime, "yyyy-MM-dd")
+														+ (row.buyTime != null ? formatDate(
+																row.buyTime,
+																"yyyy-MM-dd")
 																: "")
 														+ "</td>"
-														+ "<td class='gitInfo_title'>位置：</td><td>"
-														+ row.location
+														+ "<td class='gitInfo_title'>所属机构：</td><td>"
+														+ row.organizationName
 														+ "</td>"
 														+
 
@@ -236,6 +239,7 @@ function del() {
 		rowIsNull(null);
 		return;
 	}
+	
 	parent.$.messager.confirm('提示', '删除后无法恢复，您确定要删除？', function(data) {
 
 		if (data) {
@@ -255,6 +259,7 @@ function del() {
 				},
 				success : function(data) {
 					successTip(data, dg);
+					$('#dg').datagrid('clearSelections');
 				}
 			});
 		}
@@ -263,16 +268,20 @@ function del() {
 
 function update() {
 	var row = dg.datagrid("getSelected");
-//	if (rowIsNull(row)) {
-//		return;
-//	}
-	
+	// if (rowIsNull(row)) {
+	// return;
+	// }
+
 	var rows = $('#dg').datagrid('getSelections');
 	if (rows.length < 1) {
 		rowIsNull(null);
 		return;
-	}else if(rows.length>1){
-		parent.$.messager.show({ title : "提示",msg: "只能选择一条记录！", position: "bottomRight" });
+	} else if (rows.length > 1) {
+		parent.$.messager.show({
+			title : "提示",
+			msg : "只能选择一条记录！",
+			position : "bottomRight"
+		});
 		return;
 	}
 	d = $("#dlg").dialog({

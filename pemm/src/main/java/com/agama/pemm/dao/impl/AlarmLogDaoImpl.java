@@ -2,10 +2,12 @@ package com.agama.pemm.dao.impl;
 
 import java.util.List;
 
+import org.hibernate.Query;
 import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Repository;
 
 import com.agama.common.dao.impl.HibernateDaoImpl;
+import com.agama.common.enumbean.DeviceInterfaceType;
 import com.agama.pemm.dao.IAlarmLogDao;
 import com.agama.pemm.domain.AlarmLog;
 
@@ -13,13 +15,16 @@ import com.agama.pemm.domain.AlarmLog;
 public class AlarmLogDaoImpl extends HibernateDaoImpl<AlarmLog, Integer>implements IAlarmLogDao {
 
 	@Override
-	public Object getAlarmNumAndTime(String areaInfoStr, String beginDate, String endDate) {
+	public Object getAlarmNumAndTime(String organizationIdIdStr,DeviceInterfaceType deviceInterfaceType, String beginDate, String endDate) {
 		StringBuffer hql = new StringBuffer(
 				"select new map (count(alarmType) as num,date_format(collectTime,'%Y-%m-%d') as collectTime) from AlarmLog where alarmType=2");
-		if (areaInfoStr != null) {
+		if (organizationIdIdStr != null) {
 			hql.append(
-					"and deviceId in (select id from Device where status=0 and gitInfo.id in ( select id from GitInfo where status=0 and areaInfoId in (")
-					.append(areaInfoStr).append(")))");
+					" and device.id in (select id from Device where status=0 and gitInfo.id in ( select id from GitInfo where status=0 and organizationId in (")
+					.append(organizationIdIdStr).append(")))");
+		}
+		if(deviceInterfaceType!=null){
+			hql.append(" and deviceInterfaceType=").append(deviceInterfaceType.ordinal());
 		}
 		if (beginDate != null) {
 			hql.append(" and date_format(collectTime,'%Y-%m-%d')>='").append(beginDate).append("'");
@@ -76,7 +81,57 @@ public class AlarmLogDaoImpl extends HibernateDaoImpl<AlarmLog, Integer>implemen
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AlarmLog> getAlarmLog() {
-		String hql = "SELECT al.id AS id, al.alarm_type AS runState, al.collect_time AS collectTime, al.content AS content, al.device_type AS deviceTypeIndex, d. NAME AS deviceName, g.ip AS gitInfoIp FROM Alarm_Log al RIGHT JOIN ( SELECT max(collect_Time) AS collectTime, device_id AS deviceId FROM alarm_Log WHERE STATUS = 0 GROUP BY deviceId ) a ON STATUS = 0 AND a.collectTime = al.collect_Time AND al.device_id = a.deviceId LEFT JOIN device d ON al.device_id = d.id LEFT JOIN git_info g ON g.id = d.git_info_id ORDER BY al.collect_Time";
+		String hql = "SELECT al.id AS id, al.alarm_type AS runState, al.collect_time AS collectTime, al.content AS content, al.device_interface_type AS deviceTypeIndex, d.NAME AS deviceName, g.organization_name AS organizationName FROM Alarm_Log al RIGHT JOIN (SELECT max(alog.collect_Time) AS collectTime, alog.device_id AS deviceId FROM alarm_Log alog, device d WHERE alog. STATUS = 0 AND d.id = alog.device_id AND d.current_state != 0 AND d. STATUS = 0 GROUP BY deviceId) a ON al.STATUS = 0 AND a.collectTime = al.collect_Time AND al.device_id = a.deviceId LEFT JOIN device d ON al.device_id = d.id LEFT JOIN git_info g ON g.id = d.git_info_id where d.status=0 and g.status=0 ORDER BY al.collect_Time";
+		return this.getSession().createSQLQuery(hql).setResultTransformer(Transformers.aliasToBean(AlarmLog.class))
+				.list();
+	}
+
+	@Override
+	public Object getAlarmNum(String organizationIdIdStr,Integer top,String beginDate,String endDate) {
+		StringBuffer hql=new StringBuffer("select new map(count(al.id) as num,d.name as name,d.deviceInterfaceType as deviceInterfaceType,g.organizationName as organizationName) from AlarmLog al,Device d,GitInfo g where al.device.id=d.id and d.gitInfo.id=g.id and g.status=0 and d.status=0 ");
+		if(organizationIdIdStr!=null){
+			hql.append("and g.organizationId in (").append(organizationIdIdStr).append(")");
+		}
+		if (beginDate != null) {
+			hql.append("and date_format(al.collectTime,'%Y-%m-%d')>='").append(beginDate).append("' ");
+		}
+		if (endDate != null) {
+			hql.append("and date_format(al.collectTime,'%Y-%m-%d')<='").append(endDate).append("' ");
+		}
+		hql.append("group by d.name, g.organizationName  ORDER BY count(al.id) desc ");
+		
+		Query query=getSession().createQuery(hql.toString());
+		query.setFetchSize(0);
+		query.setMaxResults(top);
+		return query.list();
+	}
+
+	@Override
+	public void updateStatusByGitInfoIds(String gitInfoIds, int status) {
+		StringBuffer hql=new StringBuffer("update AlarmLog set status=").append(status).append(" where status!=").append(status);
+		if(gitInfoIds!=null){
+			hql.append(" and device.id in (select id from Device where gitInfo.id in (").append(gitInfoIds).append("))");
+		}
+		this.batchExecute(hql.toString());
+	}
+
+	@Override
+	public void updateStatusDeviceIds(String deviceIds, int status) {
+		StringBuffer hql=new StringBuffer("update AlarmLog set status=").append(status).append(" where status!=").append(status);
+		if(deviceIds!=null){
+			hql.append(" and device.id in (").append(deviceIds).append(")");
+		}
+		this.batchExecute(hql.toString());
+		
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<AlarmLog> getAlarmLogforTop(Integer top) {
+		String hql = "SELECT al.id AS id, al.alarm_type AS runState, al.collect_time AS collectTime, al.content AS content, al.device_interface_type AS deviceTypeIndex, d.NAME AS deviceName, g.organization_name AS organizationName FROM Alarm_Log al RIGHT JOIN (SELECT max(alog.collect_Time) AS collectTime, alog.device_id AS deviceId FROM alarm_Log alog, device d WHERE alog. STATUS = 0 AND d.id = alog.device_id AND d.current_state != 0 AND d. STATUS = 0 GROUP BY deviceId) a ON al.STATUS = 0 AND a.collectTime = al.collect_Time AND al.device_id = a.deviceId LEFT JOIN device d ON al.device_id = d.id LEFT JOIN git_info g ON g.id = d.git_info_id where d.status=0 and g.status=0 ORDER BY al.collect_Time";
+		if(top!=null){
+			hql+=" limit 0,"+top;
+		}
 		return this.getSession().createSQLQuery(hql).setResultTransformer(Transformers.aliasToBean(AlarmLog.class))
 				.list();
 	}

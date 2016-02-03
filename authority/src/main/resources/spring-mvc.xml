@@ -53,7 +53,7 @@
             <mvc:mapping path="/*/*/create"/>
             <mvc:mapping path="/*/*/delete/*"/>
             <mvc:mapping path="/*/*/update"/>
-            <bean class="com.agama.authority.system.interceptor.LogInterceptor"></bean>
+            <bean class="com.agama.authority.interceptor.LogInterceptor"></bean>
         </mvc:interceptor>
     </mvc:interceptors>
 	

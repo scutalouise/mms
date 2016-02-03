@@ -36,19 +36,33 @@
 			<td><input id="sort" type="text" name="sort" value="${permission.sort }" class="easyui-numberbox" data-options="width: 180" /></td>
 		</tr>
 		<tr>
+			<td>所属系统：</td>
+			<td>
+			<select name="code" id="code">
+			
+			<option value="DH">动力环境监控系统</option>
+			<option value="DS">设备监控管理系统</option>
+			</select>
+			</td>		</tr>
+		<tr>
 			<td>描述：</td>
-			<td><textarea rows="3" cols="41" name="description">${permission.description}</textarea></td>
+			<td><textarea rows="3" class="easyui-validatebox" cols="41" name="description">${permission.description}</textarea></td>
 		</tr>
 	</table>
 	</form>
 </div> 
 <script type="text/javascript">
+$('#code').combobox({
+	panelHeight : 100,editable : false,required:true,width: 180
+})
 //父级权限
 var action="${action}";
+
 if(action=='create'){
 	$('#pid').val(parentPermId);
 }else if(action=='update'){
 	$('#pid').val(parentPermId);
+	$('#code').combobox("select","${permission.code}");
 }
 
 //上级菜单

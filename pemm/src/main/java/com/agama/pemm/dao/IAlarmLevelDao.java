@@ -1,15 +1,6 @@
 package com.agama.pemm.dao;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import org.hibernate.criterion.Criterion;
-
 import com.agama.common.dao.IBaseDao;
-import com.agama.common.dao.utils.Page;
-import com.agama.common.dao.utils.PropertyFilter;
-import com.agama.common.dao.utils.PropertyFilter.MatchType;
 import com.agama.pemm.domain.AlarmLevel;
 
 /**

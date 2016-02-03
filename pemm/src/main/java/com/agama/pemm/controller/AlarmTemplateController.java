@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,10 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.agama.authority.common.web.BaseController;
-import com.agama.authority.system.entity.User;
+
+
+
 import com.agama.common.dao.utils.Page;
 import com.agama.common.dao.utils.PropertyFilter;
+import com.agama.common.web.BaseController;
 import com.agama.pemm.domain.AlarmTemplate;
 import com.agama.pemm.service.IAlarmTemplateService;
 
@@ -35,6 +38,7 @@ public class AlarmTemplateController extends BaseController {
 		return "alarmTemplate/alarmTemplate";
 	}
 
+	@RequiresPermissions("sys:alarmTemplate:view")
 	@RequestMapping(value = "json", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> getData(HttpServletRequest request) {
@@ -44,19 +48,21 @@ public class AlarmTemplateController extends BaseController {
 		page = alarmTemplateService.search(page, filters);
 		return getEasyUIData(page);
 	}
-
+	@RequiresPermissions("sys:alarmTemplate:add")
 	@RequestMapping(value="addForm",method=RequestMethod.GET)
 	public String addForm(Model model) {
 		model.addAttribute("alarmTemplate", new AlarmTemplate());
 		model.addAttribute("action", "add");
 		return "alarmTemplate/templateForm";
 	}
+	@RequiresPermissions("sys:alarmTemplate:add")
 	@RequestMapping(value="add",method=RequestMethod.POST)
 	@ResponseBody
 	public String save(AlarmTemplate alarmTemplate){
 		alarmTemplateService.save(alarmTemplate);
 		return "success";
 	}
+	@RequiresPermissions("sys:alarmTemplate:update")
 	@RequestMapping(value="updateForm/{id}",method=RequestMethod.GET)
 	public String updateForm(@PathVariable("id") Integer id,Model model){
 		AlarmTemplate alarmTemplate=alarmTemplateService.get(id);
@@ -65,17 +71,31 @@ public class AlarmTemplateController extends BaseController {
 		return "alarmTemplate/templateForm";
 		
 	}
+	@RequiresPermissions("sys:alarmTemplate:update")
 	@RequestMapping(value="update",method=RequestMethod.POST)
 	@ResponseBody
 	public String update(@Valid AlarmTemplate alarmTemplate){
 		alarmTemplateService.update(alarmTemplate);
 		return "success";
 	}
+	@RequiresPermissions("sys:alarmTemplate:delete")
 	@RequestMapping(value="delete")
 	@ResponseBody
 	public String delete(String ids){
 		alarmTemplateService.updateStatusByIds(ids);
 		return "success";
 		
+	}
+	/**
+	 * @Description:获取所有启用的告警模板
+	 * @return
+	 * @Since :2015年9月29日 下午4:26:50
+	 */
+	@RequestMapping(value="getData",method=RequestMethod.GET)
+	@ResponseBody
+	public List<AlarmTemplate> getList(HttpServletRequest request){
+		List<PropertyFilter> filters = PropertyFilter
+				.buildFromHttpRequest(request);
+		return alarmTemplateService.search(filters);
 	}
 }

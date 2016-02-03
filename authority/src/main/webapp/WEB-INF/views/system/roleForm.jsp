@@ -27,7 +27,7 @@
 		</tr>
 		<tr>
 			<td>描述：</td>
-			<td><textarea rows="3" cols="41" name="description" style="font-size: 12px;font-family: '微软雅黑'">${role.description}</textarea></td>
+			<td><textarea rows="3" cols="41" name="description"  style="font-size: 12px;font-family: '微软雅黑'" class="easyui-validatebox" data-options="validType:['length[0,500]']">${role.description}</textarea></td>
 		</tr>
 	</table>
 	</form>
@@ -57,12 +57,14 @@ if(action=='update'){
 	$("#roleCode").css("background","#eee");
 }else{
 	//角色编码存在验证
+	$.fn.validatebox.defaults.rules.remote.message = "角色编码已存在";
 	$('#roleCode').validatebox({    
 	    required: true,    
 	    validType:{
+	    	length:[1,12],
 	    	remote:["${ctx}/system/role/checkRoleCode","roleCode"]
-	    },
-	    invalidMessage:"角色编码已存在"
+	    }//,
+	   // invalidMessage:"角色编码已存在"
 	});  
 }
 

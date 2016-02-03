@@ -4,56 +4,50 @@
 <head>
 <title></title>
 <%@ include file="/WEB-INF/views/include/easyui.jsp"%>
-<script type="text/javascript" src="${ctx}/static/plugins/jquery/jquery.form.js"></script>
 </head>
 <body>
 	<div style="padding: 5px">
 	<form id="mainform" action="${ctx }/system/user/updatePwd" method="post">
-	<table>
+	<table class="formTable">
 		<tr>
 			<td>原密码：</td>
 			<td>
 			<input type="hidden" name="id" value="${user.id }"/>
-			<input id="oldPassword" name="oldPassword" type="password" class="required"/>
+			<input id="oldPassword" name="oldPassword" type="password" class="easyui-validatebox" data-options="width: 150,required:'required',validType:['checkPwd'],novalidate:true" />
 			</td>
 		</tr>
 		<tr>
-			<td>密码：</td>
-			<td><input id="plainPassword" name="plainPassword" type="password" class="required" minlength="6" maxlength="20"/></td>
+			<td>新密码：</td>
+			<td><input id="plainPassword" name="plainPassword" type="password" class="easyui-validatebox" data-options="width: 150,required:'required',validType:'length[6,20]',novalidate:true"/></td>
 		</tr>
 		<tr>
 			<td>确认密码：</td>
-			<td><input id="confirmPassword" name="confirmPassword" type="password" class="required" equalTo="#plainPassword"/></td>
+			<td><input id="confirmPassword" name="confirmPassword" type="password" class="easyui-validatebox" data-options="width: 150,required:'required',validType:'equals[$(\'#plainPassword\').val()]',novalidate:true"/></td>
 		</tr>
-		<tr>
-			<td><input id="submit" type="submit" value="submit" style="display: none"/></td>
-			<td></td>
-		</tr>
+		
 	</table>
 	</form>
 </div>
 <script>
 $(function(){
-	$("#oldPassword").focus();
-	$("#mainform").validate({
-		rules: {
-			oldPassword: {
-				remote: "${ctx}/system/user/checkPwd"
+	
+	$("#oldPassword").keyup(function(){
+		$(this).validatebox("options").novalidate=true;
+	});
+	//提交表单
+	$('#mainform').form({    
+	    onSubmit: function(){    
+	    	var isValid = $(this).form('enableValidation').form('validate');
+			return isValid;	// 返回false终止表单提交
+	    },    
+	    success:function(data){  
+	    	if(data=='success'){
+				
+				$.messager.show({ title : "提示",width:250,msg: "密码修成功", position: "topCenter" });
+				
 			}
-		},
-		messages: {
-			oldPassword: {
-				remote: "原密码错误"
-			}
-		},
-		 submitHandler:function(form){
-				$("#mainform").ajaxSubmit(function(data){
-					 if(data=='success'){
-						 parent.$.messager.show({ title : "提示",msg: "操作成功！", position: "bottomRight" });
-							parent.d.panel('close');
-						}
-			   });
-        } 
+	    	pwdWin.panel('close');
+	    }    
 	});
 	
 });

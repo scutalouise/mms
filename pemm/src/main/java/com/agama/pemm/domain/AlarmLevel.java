@@ -3,10 +3,12 @@ package com.agama.pemm.domain;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 
+import com.agama.authority.entity.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 	
 /**
@@ -23,6 +25,7 @@ public class AlarmLevel extends BaseDomain{
 	private Integer isEmail;//是否邮件报警(0:是,1:否)
 	private Integer isSms;//是否短信(0:是,1:否)
 	private Integer isSound;//是否声音报警(0:是,1:否)
+	@Column(length=5000)
 	private String remark;
 	private Integer enabled;//是否启用(0:启用,1:禁用)
 	private Integer status;//删除状态(0:删除,1:正常)

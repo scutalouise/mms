@@ -1,11 +1,12 @@
+
 /*body{margin:0px;padding:0px; background-color: #ededed}*/
 body{margin:0px;padding:0px; background: url('../images/bg.png');/*background-size:cover;*/ }
 form{margin:0px;padding:0px;}
 /*.login_top{width: 100%;height: 150px;background-color: #0060A9;display: block;float:left;}*/
-.login_top{width: 100%;height: 150px;display: block;float:left;}
+.login_top{width: 100%;display: block;}
 .login_title{
-	width: 566px;height: 50px;display:block;margin: auto;
-	text-align: center;color:#fff;margin-top: 100px;line-height: 60px;font-family: "黑体";font-size: 48px;font-weight:bolder;
+	width: 666px;height: 51px;display:block;margin: auto;
+	text-align: center;color:#fff;/*margin-top: 100px;*/line-height: 51px;font-family: "黑体";font-size: 48px;font-weight:bolder;
 	/*background: url("../images/logo_ico.png");background-position: 20px 0px;background-repeat: no-repeat;*/
 	/*background: url("../images/artisan-b.png");background-position: 0px 0px;background-repeat: no-repeat;background-size: 56px 56px*/
 	}
@@ -25,11 +26,11 @@ form{margin:0px;padding:0px;}
 	}
 .login_main_ln{width:100%;height:45px;float:left;display:blcok;margin-top:5px;}
 .login_main_ln input{
-	width:230px;height: 45px;margin-left: 95px;text-indent: 45px;border:1px solid #bbb;font-size:17px;
-	background: url("../images/ln.png");background-repeat: no-repeat;background-position: left;line-height: 45px;background-size:44px 33px 
+	width:230px;height: 45px;margin-left: 95px;text-indent: 30px;border:1px solid #bbb;font-size:17px;
+	background: url("../images/ln.png");background-repeat: no-repeat;background-position: left;line-height: 45px;/**background-size:44px 33px **/
 	}
 .login_main_pw{width:100%;height:45px;float:left;display:blcok;margin-top:10px;}
-.login_main_pw input{width:230px;height: 45px;margin-left: 95px;text-indent: 45px;border:1px solid #bbb;font-size:14px;
+.login_main_pw input{width:230px;height: 45px;margin-left: 95px;text-indent: 30px;border:1px solid #bbb;font-size:14px;
 	background: url("../images/pw.png");background-repeat: no-repeat;background-position: left;;line-height: 45px;
 	}
 .login_main_yzm{width:100%;height:45px;float:left;display:blcok;margin-top:10px;}

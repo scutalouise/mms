@@ -1,3 +1,4 @@
+var dg
 $(function() {
 	var panelWidth = $(document).width() / 2;
 
@@ -12,44 +13,37 @@ $(function() {
 						width : panelWidth,
 						content : "<div  id='status_main' style='height: 100%;'></div>"
 					});
-	$("#home_panel")
-			.layout(
-					"add",
-					{
-						region : 'center',
-						split : true,
-						border : true,
-
-						width : panelWidth,
-						content : '<div class="easyui-tabs" id="tab_time" data-options="fit:true">'
-								+ '<div data-options="title:\'年\',refreshable:false" iconCls="">'
-								+ '<div id="year_main" style="height:100%;"></div></div>'
-								+ '<div data-options="title:\'月\',refreshable:false" iconCls=""><div id="month_main" style="height:100%;"></div></div>'
-								+ '<div data-options="title:\'日\',refreshable:false" iconCls=""><div id="day_main" style="height:100%;"></div></div>'
-								+ '</div>'
-					});
+	$("#home_panel").layout("add",{
+		region : 'center',
+		split : true,
+		border : true,
+		width : panelWidth,
+		content : '<div class="easyui-tabs" id="tab_time" data-options="fit:true">'
+				+ '<div data-options="title:\'年\',refreshable:false" iconCls=""><div id="year_main" style="height:100%;"></div></div>'
+				+ '<div data-options="title:\'月\',refreshable:false" iconCls=""><div id="month_main" style="height:100%;"></div></div>'
+				+ '<div data-options="title:\'日\',refreshable:false" iconCls=""><div id="day_main" style="height:100%;"></div></div>'
+				+ '</div>'
+	});
 
 	
 	initLineChart("year_main", ctx + '/system/home/yearLineChart?type=year');
 	initChart();
-	$("#tab_time").tabs(
-			{
-				onSelect : function(title) {
-					if (title == "年") {
-						initLineChart("year_main", ctx
-								+ '/system/home/yearLineChart?type=year');
-					} else if (title == "月") {
-						initLineChart("month_main", ctx
-								+ '/system/home/yearLineChart?type=month');
-					} else {
-						initLineChart("day_main", ctx
-								+ '/system/home/yearLineChart?type=day');
-					}
-				}
-			});
+	$("#tab_time").tabs({
+		onSelect : function(title) {
+			if (title == "年") {
+				initLineChart("year_main", ctx
+						+ '/system/home/yearLineChart?type=year');
+			} else if (title == "月") {
+				initLineChart("month_main", ctx
+						+ '/system/home/yearLineChart?type=month');
+			} else {
+				initLineChart("day_main", ctx
+						+ '/system/home/yearLineChart?type=day');
+			}
+		}
+	});
 
-	var dg = $("#dg").datagrid({
-
+	dg = $("#dg").datagrid({
 		title : "设备异常记录",
 		method : "post",
 		url : ctx + "/system/alarmLog/json",
@@ -59,7 +53,7 @@ $(function() {
 		border : false,
 		idField : "id",
 		striped : true,
-		pagination : false, 
+		pagination : true, 
 		rownumbers : true,
 		pageNumber : 1,
 		pageSize : 10, 
@@ -71,22 +65,28 @@ $(function() {
 			field : "deviceTypeIndex",
 			title : "设备类型",
 			width : 50,
-			sortable : true,formatter:function(v){
-				if(v==0){
-					return "UPS";
-				}
-			}
+			sortable : true,formatter:formatter
 		}, {
 			field : "deviceName",
 			title : "设备名称",
 			width:50,
 			sortable:true
-		}, {
-			field : "gitInfoIp",
-			title : "所属IP",
+		},{
+			field : "organizationName",
+			title : "所属网点",
 			width:50,
 			sortable:true
-		}, {
+		},{
+			field:"runState",title:"告警状态",
+			width:50,
+			sortable:true,formatter:function(v){
+				if(v==1){
+					return "警告";
+				}else{
+					return "异常";
+				}
+			}
+		},{
 			field : "collectTime",
 			title : "异常时间",
 			width:50,
@@ -95,12 +95,16 @@ $(function() {
 					return formatDate(v,"yyyy-MM-dd HH:mm:ss")
 				}
 			}
-		}, {
+		},{
 			field : "content",
 			title : "异常内容",
 			width:80,
-			sortable:true
-		}  ] ],
+			sortable:true,formatter:function(v){
+				if(v!=null){
+					return "<a title='"+v+"' href='javascript:void(0)'>"+v+"</a>"
+				}
+			}
+		}]],
 		headerContextMenu : [ {
 			text : "冻结该列", 
 			disabled : function(e, field) {
@@ -120,12 +124,68 @@ $(function() {
 		} ],
 		enableHeaderClickMenu : true,
 		enableHeaderContextMenu : true,
-		enableRowContextMenu : false
+		enableRowContextMenu : false,
+		onLoadSuccess:function(){
+			createTooltip();
+		},
+		rowStyler:function(index,row){
+			if(row.runState==1){
+				return "background:#fcf8e3";
+			}else{
+				return "background:#f2dede";
+			}
+		}
 		
 	});
 
 });
-
+function formatter(value, row, index) {
+	var v="";
+	if(value==0){
+		v="UPS设备";
+	}else if(value==1){
+		v="温湿度传感器"
+	}else if(value==2){
+		v="水浸设备";
+	}else if(value==3){
+		v="烟雾传感器";
+	}
+	return '<a data-p='
+			+ index
+			+ ' class="easyui-tooltip" style="z-index:10000" href="javascript:void(0)">'+v+'</a>';
+}
+//悬浮效果
+function createTooltip(){
+	dg.datagrid("getPanel").find(".easyui-tooltip").each(function(){
+		var index = parseInt($(this).attr('data-p'));
+		$(this)
+				.tooltip({
+					content : $('<div></div>'),
+					onUpdate : function(cc) {
+						var row = $('#dg').datagrid(
+						'getRows')[index];
+						var deviceType="";
+						switch(row.deviceTypeIndex){
+						case 0:
+							deviceType="UPS";
+							break;
+						}
+						var content="<div id='tooltiptitle'>异常信息</div><ul id='tooltipul'>";
+						content+="<li>设备类型:"+deviceType+"</li>";
+						content+="<li>所属ip:"+row.gitInfoIp+"</li>";
+						content+="<li>设备名称:"+row.deviceName+"</li>";
+						content+="<li>异常时间:"+formatDate(row.collectTime,"yyyy-MM-dd HH:mm:ss")+"</li>";
+						content+="<li style='width:700px'>异常信息:"+row.content+"</li>";
+						content+"</ul>";
+						cc.panel({
+							width : 730,
+							content : content
+						});
+					},
+					position : 'right'
+				})
+	});
+}
 function initLineChart(main, url) {
 
 	// 路径配置

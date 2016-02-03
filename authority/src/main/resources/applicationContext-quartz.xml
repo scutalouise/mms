@@ -47,8 +47,5 @@
 		</property>
 	</bean>
 	<!-- job的配置结束 -->
-
-	<!-- 工作的bean -->
-	<bean id="myJob" class="com.ty.tianyu.common.utils.MyJob" />
 	
 </beans>

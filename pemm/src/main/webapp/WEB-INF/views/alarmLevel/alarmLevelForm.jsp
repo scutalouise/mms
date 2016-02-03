@@ -20,11 +20,11 @@
 					<td style="width: 120px;"><form:hidden path="version" /> <form:hidden
 							path="id" />
 						<form:hidden path="status" /> <form:input path="name" id="name"
-							class="easyui-validatebox" data-options="required:true" /></td>
+							class="easyui-validatebox" data-options="required:true,validType:['maxLength[20]']" /></td>
 					<td width="100px">报警等级序号：</td>
 					<td width="120px"><form:input path="alarmSort"
 							style="width:135px;" class="easyui-numberspinner"
-							data-options="min:1,value:1,editable:false" /></td>
+							data-options="min:1,value:1,editable:true,required:true" missingMessage="该输入项为必输项" /></td>
 				</tr>
 				<tr>
 					<td>是否短信报警：</td>
@@ -56,7 +56,7 @@
 				</tr>
 				<tr>
 					<td>描述：</td>
-					<td colspan="3"><textarea name="remark"
+					<td colspan="3"><textarea name="remark" data-options="validType:['maxLength[500]']"
 							class="easyui-validatebox" style="height: 60px; width: 405px;">${alarmLevel.remark }</textarea></td>
 
 				</tr>
@@ -68,16 +68,20 @@
 	<script type="text/javascript">
 		$(function() {
 			$("#isEmail").combobox({
-				panelHeight : 49
+				panelHeight : 49,
+				editable:false
 			});
 			$("#isSms").combobox({
-				panelHeight : 49
+				panelHeight : 49,
+				editable:false
 			});
 			$("#isSound").combobox({
-				panelHeight : 49
+				panelHeight : 49,
+				editable:false
 			});
 			$("#enabled").combobox({
-				panelHeight : 49
+				panelHeight : 49,
+				editable:false
 			});
 
 			var action = "${action}";

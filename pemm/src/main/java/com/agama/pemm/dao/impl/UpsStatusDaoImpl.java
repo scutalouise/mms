@@ -4,15 +4,17 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import org.hibernate.transform.ResultTransformer;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Query;
 import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Repository;
 
 import com.agama.common.dao.impl.HibernateDaoImpl;
-import com.agama.pemm.bean.DeviceStateRecord;
-import com.agama.pemm.bean.DeviceType;
+import com.agama.common.enumbean.DeviceInterfaceType;
+import com.agama.common.enumbean.DeviceType;
 import com.agama.pemm.bean.UpsChartBean;
 import com.agama.pemm.dao.IUpsStatusDao;
+import com.agama.pemm.domain.Device;
 import com.agama.pemm.domain.UpsStatus;
 
 @Repository(value = "upsStatusDao")
@@ -63,23 +65,26 @@ public class UpsStatusDaoImpl extends HibernateDaoImpl<UpsStatus, Integer>
 		sql.append("s.buzzer_Status as buzzerStatus,");
 		sql.append("d.device_id as deviceId,");
 		sql.append("d.device_index as deviceIndex,");
-		sql.append("s.link_State as linkState ");
-		sql.append("from ups_status s right join (select device_index, device_id, collect_time from device,(select device_id,max(collect_time) as collect_time from ups_status  where device_id in (select id from device where device_type=")
-				.append(DeviceType.UPS.ordinal()).append(" and git_info_id=");
+		sql.append("s.link_State as linkState, ");
+		sql.append("d.current_State as currentState,");
+		sql.append("d.name as deviceName");
+		sql.append(" from ups_status s right join (select device_index, device_id, collect_time,current_state,name from device,(select device_id,max(collect_time) as collect_time from ups_status  where device_id in (select id from device where device_interface_type=")
+				.append(DeviceInterfaceType.UPS.ordinal()).append(" and git_info_id=");
 		sql.append(gitInfoId)
-				.append(")  group by device_id) t where device.id=t.device_id) d on d.device_id=s.device_id and d.collect_time=s.collect_time");
+				.append(")  group by device_id) t where device.id=t.device_id and device.status=0) d on d.device_id=s.device_id and d.collect_time=s.collect_time order by d.device_index asc");
 		return getSession()
 				.createSQLQuery(sql.toString())
 				.setResultTransformer(Transformers.aliasToBean(UpsStatus.class))
 				.list();
 
 	}
+	
 
 	@Override
 	public void updateStatusByIds(String ids) {
 		StringBuffer hql = new StringBuffer(
 				"update UpsStatus set status=1 where id in (").append(ids).append(
-				")");
+				") where status=0");
 		this.getSession().createQuery(hql.toString()).executeUpdate();
 		
 	}
@@ -87,7 +92,7 @@ public class UpsStatusDaoImpl extends HibernateDaoImpl<UpsStatus, Integer>
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<UpsChartBean> getUpsChartListbyDeviceId(Integer deviceId,
+	public List<UpsChartBean> getUpsChartListByDeviceId(Integer deviceId,
 			Date beginDate, Date endDate) {
 		SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		StringBuffer hql=new StringBuffer("select inputVoltage as inputVoltage,outputVoltage as outputVoltage,upsLoad as upsLoad,batteryVoltage as batteryVoltage,collectTime as collectTime ,upsType as upsType from UpsStatus where status=0");
@@ -103,6 +108,48 @@ public class UpsStatusDaoImpl extends HibernateDaoImpl<UpsStatus, Integer>
 		hql.append(" order by collectTime asc");
 		
 		return this.getSession().createQuery(hql.toString()).setResultTransformer(Transformers.aliasToBean(UpsChartBean.class)).list();
+	}
+
+
+	@Override
+	public void updateStatusByGitInfoIds(String gitInfoIds, int status) {
+		StringBuffer deviceHql=new StringBuffer("select id from Device where deviceType=").append(DeviceType.UPS.ordinal()).append(" and gitInfo.id in (").append(gitInfoIds).append(")");
+		List<Device> deviceList=find(deviceHql.toString());
+		
+	
+		if(deviceList.size()>0){
+			StringBuffer hql=new StringBuffer("update UpsStatus set status=").append(status).append(" where status!=").append(status);
+				
+			hql.append(" and device.id in (").append(StringUtils.join(deviceList.toArray(),",")).append(")");
+		
+			this.batchExecute(hql.toString());
+		
+		}
+	}
+
+
+	@Override
+	public void updateStatusDeviceIds(String deviceIds, int status) {
+		StringBuffer hql=new StringBuffer("update UpsStatus set status=").append(status).append(" where status!=").append(status);
+		if(deviceIds!=null){
+			hql.append(" and device.id in (").append(deviceIds).append(")");
+		}
+		this.batchExecute(hql.toString());
+	}
+
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public UpsStatus findNewData(Integer deviceId) {
+		String hql="from UpsStatus where status=0 and device.id="+deviceId+" order by collectTime desc";
+		Query query=this.getSession().createQuery(hql);
+		query.setFirstResult(0);
+		query.setFetchSize(1);
+		List<UpsStatus> list=query.list();
+		if(list!=null&&list.size()>0){
+			return list.get(0);
+		}
+		return null;
 	}
 
 }

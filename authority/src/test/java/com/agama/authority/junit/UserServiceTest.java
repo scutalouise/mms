@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.agama.authority.system.entity.User;
-import com.agama.authority.system.service.IUserService;
+import com.agama.authority.entity.User;
+import com.agama.authority.service.IUserService;
 import com.agama.common.dao.utils.Page;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -30,7 +30,7 @@ public class UserServiceTest {
 		page.setOrderBy(orderBy);
 		page.setOrder(order);
 		
-		page =  userService.getUsersByAreaInfoId(page, areaInfoId);
+//		page =  userService.getUsersByAreaInfoId(page, areaInfoId);
 //		System.out.println(userService);
 	}
 

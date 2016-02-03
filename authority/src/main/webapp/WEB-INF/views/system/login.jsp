@@ -11,8 +11,8 @@ request.setAttribute("error", error);
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-	<title>动力环境监控系统</title>
-	<meta http-equiv="X-UA-Compatible" content="IE=8"> 
+	<title>动态环境数据采集监控平台</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"> 
 	<link rel="shortcut icon" href="${ctx}/static/images/favicon.ico"/>
 	<script src="${ctx}/static/plugins/easyui/jquery/jquery-1.11.1.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="${ctx}/static/css/bglogin.css" />
@@ -27,43 +27,80 @@ request.setAttribute("error", error);
       if (top != window)   
       top.location.href = window.location.href;   
   	</script> 
+  	<script type="text/javascript">
+		$(function(){
+			var height = document.body.clientHeight;
+			$(".login_title").css("margin-top",(height-600)/2);
+			window.onresize=function(){
+				winResize();
+			}
+		})
+		function winResize(){
+			var height = document.body.clientHeight;
+			$(".login_title").css("margin-top",(height-600)/2);	
+		}
+		
+		function subLogin(){
+			if($("#username").val()==""){
+				$(".login_main_errortip").html("用户名不能为空");
+				$("#username").focus();
+				return false;
+			}else if($("#password").val()==""){
+				$(".login_main_errortip").html("密码不能为空");
+				$("#password").focus();
+				return false;
+			}else if($("#captcha").val()==""){
+				$(".login_main_errortip").html("验证码不能为空");
+				$("#captcha").focus();
+				return false;
+			}else{
+				return true;
+			}
+			
+		}
+	</script>
+	<style type="text/css">
+		html,body{
+			height:100%;
+		}
+	</style>
 </head>
-<body style="background-repeat: repeat;">
+<body style="background-repeat: repeat;overflow-y:hidden;min-width:1280px;min-height: 700px;">
 	<div style="width:1280px;min-width:768px;margin:auto;">
-		<div class="login_top" 	style="height:150px;">
-			<div class="login_title" style="height:50px;">
-				<span style="width:50px;"><img src="${ctx }/static/images/artisan-b.png" alt="" style="width:48px ;height:48px;position:relative;bottom:-6px;"/></span>
-				<span style="width:400px;position:relative;left:-20px;">动力环境监控系统</span>
+		<div class="login_top" >
+			<div class="login_title">
+				<span style="width:50px;float: left;margin-left: 10px;"><img src="${ctx }/static/images/artisan-b.png" alt="" style="width:48px ;height:50px;"/></span>
+				<span style="color:#6F6C6C;float: left;margin-left: 10px;" id="title">动力环境数据采集监控平台</span>
 			</div>
 		</div>
-		<div class="login_main_null" style="height:650px;">
-			<div style="float:right;width:600px;margin-top:50px;">
-				<form id="loginForm" action="${ctx}/a/login" method="post">
+		<div class="login_main_null" style="height:475px;">
+			<div style="float:right;width:600px;">
+				<form id="loginForm" action="${ctx}/a/login" method="post"  onsubmit="return subLogin()">
 					<div class="login_main" style="width:423px;height:366px;">
-						<div class="login_main_top"></div>
-						<div class="login_main_errortip">&nbsp;</div>
-						<div class="login_main_ln">
-							<input type="text" id="username" name="username" value="admin"/>
+						<div class="login_main_top" style="margin-top:40px;"></div>
+						<div class="login_main_errortip" style="margin-top:20px;">&nbsp;</div>
+						<div class="login_main_ln" >
+							<input type="text" id="username" name="username"/>
 						</div>
 						<div class="login_main_pw">
-							<input type="password" id="password" name="password" value="123456"/>
+							<input type="password" id="password" name="password" style="margin-top:20px;"/>
 						</div>
-						<div class="login_main_yzm">
+						<%-- <div class="login_main_yzm">
 							<div>
-							<input type="text" id="captcha" name="captcha"/>
-							<img alt="验证码" src="${ctx}/static/images/kaptcha.jpg" title="点击更换" id="img_captcha" onclick="javascript:refreshCaptcha();" style="height:45px;width:85px;float:right;margin-right:98px;"/>
+							<input type="text" id="captcha" name="captcha" />
+							<img alt="验证码" src="${ctx}/static/images/kaptcha.jpg"  title="点击更换" id="img_captcha" onclick="javascript:refreshCaptcha();" style="height:45px;width:85px;float:right;margin-right:98px;border:1px solid #B5B5B5; "/>
 							</div>
-						</div>
-						<div class="login_main_remb">
+						</div> --%>
+						<div class="login_main_remb" >
 							<input id="rm" name="rememberMe" type="hidden"/><!-- <label for="rm"><span>记住我</span></label> -->
 						</div>
-						<div class="login_main_submit">
+						<div class="login_main_submit" style="margin-top:20px;">
 							<button onclick=""></button>
 						</div>
 					</div>
 				</form>
 			</div>
-			<div style="float:right;width:600px;margin-top:75px;;height:500px;">
+			<div style="float:right;width:600px;margin-top:25px;height:450px;">
 				<div style="height:140px">
 					<div class="login_main_right rectangle" style="width:100px;background:#2ABADD;text-align:center"><img src="${ctx}/static/images/01.png" alt="" style="width:80px;height:80px;margin:auto;"/></div>
 					<div class="login_main_right rectangle" style="width:100px;margin-right:15px;background:#DE9804;text-align:center"><img src="${ctx}/static/images/02.png" alt="" style="width:80px;height:80px;"/></div>
@@ -81,8 +118,8 @@ request.setAttribute("error", error);
 				</div>
 			</div>
 		</div>
-		<div class="login_footer" style="clear:both;height:60px;margin-top:50px;width:inherit;text-align:center;position:absolute;font-size:13px;font-family: '微软雅黑','宋体',Arial, sans-serif;">
-			<p style="color:#fff;">版权所有©四川阿特申商贸有限公司<span style="padding: 0 20px">|</span>成都申控物联科技有限公司<span style="padding: 0 20px;">|</span >Version:&nbsp;&nbsp;<span style="font-weight:900;">SK_DHRS_NX0100</span></p>
+		<div class="login_footer" style="clear:both;height:60px;width:inherit;text-align:center;font-size:13px;font-family: '微软雅黑','宋体',Arial, sans-serif;">
+			<p style="color:#6F6C6C;">版权所有©成都申控物联科技有限公司<span style="padding: 0 20px;">|</span >Version:&nbsp;&nbsp;<span style="font-weight:900;">SK_DHRS_NX0100</span></p>
 		</div>
 	</div>
 	<c:choose>
@@ -93,12 +130,12 @@ request.setAttribute("error", error);
 		</c:when>
 		<c:when test="${error eq 'org.apache.shiro.authc.UnknownAccountException'}">
 			<script>
-				$(".login_main_errortip").html("帐号或密码错误，请重试");
+				$(".login_main_errortip").html("用户名或密码不正确，请重试");
 			</script>
 		</c:when>
 		<c:when test="${error eq 'org.apache.shiro.authc.IncorrectCredentialsException'}">
 			<script>
-				$(".login_main_errortip").html("用户名不存在，请重试");
+				$(".login_main_errortip").html("用户名或密码不正确，请重试");
 			</script>
 		</c:when>
 	</c:choose>

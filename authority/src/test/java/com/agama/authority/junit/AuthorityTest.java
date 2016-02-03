@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-import com.agama.authority.system.service.impl.UserServiceImpl;
+import com.agama.authority.service.impl.UserServiceImpl;
 
 @ContextConfiguration(locations = { "/applicationContext.xml" })
 public class AuthorityTest extends AbstractJUnit4SpringContextTests {

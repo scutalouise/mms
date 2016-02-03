@@ -48,7 +48,9 @@ $(function(){
     columns:[[    
         {field:'id',title:'id',hidden:true,width:100},    
         {field:'orgName',title:'机构名称',width:100},
-        {field:'orgCode',title:'机构代码',width:100}
+        {field:'orgCode',title:'机构代码',width:100},
+        {field:'longitude',title:'经度',width:100},
+        {field:'latitude',title:'纬度',width:100}
     ]],
     enableHeaderClickMenu: false,
     enableHeaderContextMenu: false,
@@ -103,6 +105,7 @@ function del(){
 				success: function(data){
 					if(successTip(data,dg))
 			    		dg.treegrid('reload');
+						dg.treegrid('clearSelections');
 				}
 			});
 			//dg.datagrid('reload'); //grid移除一行,不需要再刷新

@@ -36,8 +36,18 @@
         	<shiro:hasPermission name="sys:user:orgView">
         		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cologne-home" plain="true" onclick="userForOrg()">用户所属机构</a>
         	</shiro:hasPermission>
+        	<shiro:hasPermission name="sys:user:resetPwd">
+        		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cologne-home" plain="true" onclick="resetPwd()">初始化密码</a>
+        	</shiro:hasPermission>
+        	<shiro:hasPermission name="sys:user:transmit">
+        		<c:if test="${is_transmit == true }">
+ 		        	<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cologne-home" plain="true" onclick="cancelTransmit()">撤销权限移交</a>
+        		</c:if>
+        		<c:if test="${is_transmit == false }">
+	        		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cologne-home" plain="true" onclick="transmit()">权限移交</a>
+        		</c:if>
+        	</shiro:hasPermission>
         </div> 
-        
   </div>
 <table id="dg"></table> 
 <div id="dlg"></div>  
@@ -61,7 +71,7 @@ $(function(){
 	singleSelect:true,
     columns:[[    
         {field:'id',title:'id',hidden:true},    
-        {field:'loginName',title:'帐号',sortable:true,width:100},    
+        {field:'loginName',title:'用户名',sortable:true,width:100},    
         {field:'name',title:'昵称',sortable:true,width:100},
         {field:'gender',title:'性别',sortable:true,
         	formatter : function(value, row, index) {
@@ -116,6 +126,34 @@ function add() {
 		}]
 	});
 }
+function resetPwd(id){
+	var row = dg.datagrid('getSelected');
+	if(rowIsNull(row)) return;
+	parent.$.messager.confirm("提示","是否确认初始化密码？",function(data){
+		if(data){
+			$.ajax({
+				type:'get',
+				url:"${ctx}/system/user/resetPwd/"+row.id,
+				success: function(data){
+					var result=data.result;
+					var message=data.message;
+					
+					if(result=='success'){
+						if(dg!=null)
+							dg.datagrid('reload');
+						if(d!=null)
+							d.panel('close');
+						parent.$.messager.show({ title : "提示",width:350,msg: message, position: "topCenter" });
+						return true;
+					}else{
+						parent.$.messager.alert(messag);
+						return false;
+					}  
+				}
+			});
+		}
+	});
+}
 
 //删除
 function del(){
@@ -128,6 +166,7 @@ function del(){
 				url:"${ctx}/system/user/delete/"+row.id,
 				success: function(data){
 					successTip(data,dg);
+					dg.treegrid('clearSelections');
 				}
 			});
 		} 
@@ -236,6 +275,67 @@ function look(){
 function cx(){
 	var obj=$("#searchFrom").serializeObject();
 	dg.datagrid('load',obj); 
+}
+
+
+//权限移交
+function transmit(){
+	var row = dg.datagrid('getSelected');
+	if(rowIsNull(row)) return;
+	parent.$.messager.confirm("提示","是否确认权限移交？",function(data){
+		if(data){
+			$.ajax({
+				type:'get',
+				url:"${ctx}/system/user/transmit/"+row.id,
+				success: function(data){
+					var result=data.result;
+					var message=data.message;
+					
+					if(result=='success'){
+						if(dg!=null)
+							dg.datagrid('reload');
+						if(d!=null)
+							d.panel('close');
+						parent.$.messager.show({ title : "提示",width:350,msg: message, position: "topCenter" });
+						parent.window.mainpage.mainTabs.refCurrentTab();
+						return true;
+					}else{
+						parent.$.messager.alert(message);
+						return false;
+					}  
+				}
+			});
+		}
+	});
+}
+
+//权限移交撤销
+function cancelTransmit(){
+	parent.$.messager.confirm("提示","是否确认撤销权限移交？",function(data){
+		if(data){
+			$.ajax({
+				type:'get',
+				url:"${ctx}/system/user/cancelTransmit",
+				success: function(data){
+					var result=data.result;
+					var message=data.message;
+					
+					if(result=='success'){
+						if(dg!=null)
+							dg.datagrid('reload');
+						if(d!=null)
+							d.panel('close');
+						parent.$.messager.show({ title : "提示",width:350,msg: message, position: "topCenter" });
+						parent.window.mainpage.mainTabs.refCurrentTab();
+						return true;
+					}else{
+						parent.$.messager.alert(message);
+						return false;
+					}  
+				}
+			});
+		}
+	});
 }
 
 </script>

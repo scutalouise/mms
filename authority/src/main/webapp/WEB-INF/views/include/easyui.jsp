@@ -66,6 +66,7 @@
 
 <link rel="stylesheet" href="${ctx }/static/plugins/easyui/common/other.css"></link>
 <script type="text/javascript" src="${ctx }/static/js/dateutils.js"></script>
+<script type="text/javascript" src="${ctx }/static/js/validation.js"></script>
 <style type="text/css">
 iframe.panel-iframe {
 height: 100%;
@@ -81,8 +82,9 @@ $.ajaxSetup({
           //通过XMLHttpRequest取得响应头，sessionstatus           
           var sessionstatus=XMLHttpRequest.getResponseHeader("sessionstatus"); 
           if(sessionstatus=="timeout"){
+        	  /* alert("会话超时,请重新登陆！"); */
                //跳转的登录页面
-               window.location.replace('${ctx}/a/login');
+               window.location.replace('${ctx}/m/login');
        		}	
     }
 });
@@ -91,8 +93,57 @@ $.ajaxSetup({
  * 日期段初始化方法
  */
 function initDateFilter(beginDate,endDate){
+	if(beginDate != null && beginDate != undefined){
+		$("#"+beginDate).my97({
+			maxDate:'%y-%M-%d',
+			onShowPanel : function() {
+				var end_Date = $("#"+endDate).my97("getValue");
+				if (end_Date.length > 0) {
+					$("#"+beginDate).my97({
+						maxDate : end_Date
+					});
+				}
+			
+			},
+			onHidePanel : function() {
+				var begin_Date = $("#"+beginDate).my97("getValue");
+	
+				if (begin_Date.length > 0) {
+					$("#"+endDate).my97({
+						minDate : begin_Date
+					});
+				}
+			}
+	
+		});
+	}
+
+	if(endDate != null && endDate != undefined){
+		$("#"+endDate).my97({
+			maxDate:'%y-%M-%d',
+			onHidePanel : function() {
+				var end_Date = $("#"+endDate).my97("getValue");
+	
+				if (end_Date.length > 0) {
+					$("#"+beginDate).my97({
+						maxDate : end_Date
+					});
+				}
+			}
+	
+		});
+	}
+}
+
+
+/**
+ * 日期段初始化方法
+ *	%y	当前年	%M	当前月	%d	当前日	%ld	本月最后一天	%H	当前时	%m	当前分	%s	当前秒
+ *	{}	运算表达式,如:{%d+1}:表示明天
+ */
+function dateFilter(beginDate,endDate,fmt){
 	$("#"+beginDate).my97({
-		maxDate:'%y-%M-%d',
+		maxDate:fmt,
 		onShowPanel : function() {
 			var end_Date = $("#"+endDate).my97("getValue");
 			if (end_Date.length > 0) {
@@ -114,7 +165,7 @@ function initDateFilter(beginDate,endDate){
 
 	});
 	$("#"+endDate).my97({
-		maxDate:'%y-%M-%d',
+		maxDate:fmt,
 		onHidePanel : function() {
 			var end_Date = $("#"+endDate).my97("getValue");
 

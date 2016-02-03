@@ -1,13 +1,12 @@
 package com.agama.pemm.bean;
 
-import javax.persistence.Entity;
-
-import com.agama.pemm.domain.BaseDomain;
+import com.agama.common.domain.StateEnum;
+import com.agama.common.enumbean.DeviceInterfaceType;
 
 
 public class DeviceStateRecord{
 	private Integer gitInfoId;
-	private DeviceType deviceType;
+	private DeviceInterfaceType deviceInterfaceType;
 	private Long count;
 	private StateEnum currentState;
 	private String stateDetails;
@@ -17,11 +16,12 @@ public class DeviceStateRecord{
 	public void setGitInfoId(Integer gitInfoId) {
 		this.gitInfoId = gitInfoId;
 	}
-	public DeviceType getDeviceType() {
-		return deviceType;
+	
+	public DeviceInterfaceType getDeviceInterfaceType() {
+		return deviceInterfaceType;
 	}
-	public void setDeviceType(DeviceType deviceType) {
-		this.deviceType = deviceType;
+	public void setDeviceInterfaceType(DeviceInterfaceType deviceInterfaceType) {
+		this.deviceInterfaceType = deviceInterfaceType;
 	}
 	public Long getCount() {
 		return count;

@@ -15,11 +15,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.agama.common.dao.utils.Page;
 import com.agama.common.dao.utils.PropertyFilter;
 import com.agama.pemm.domain.GitInfo;
-import com.agama.pemm.service.IGitInfoService;
 import com.agama.pemm.utils.SNMPUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:applicationContext.xml"})
+@ContextConfiguration(locations = { "classpath*:applicationContext.xml"})
 public class GitInfoServiceTest {
 	private String ipAddress;
 	@Autowired
@@ -57,5 +56,9 @@ public class GitInfoServiceTest {
 		snmpUtil.walkByGet("192.168.2.22", oids);
 	}
 	
+	@Test
+	public void getListByAreaInfoIdStrAndDeviceType(){
+		
+	}
 
 }

@@ -14,10 +14,17 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
+import com.agama.authority.entity.BaseDomain;
+import com.agama.common.domain.StateEnum;
+import com.agama.common.enumbean.DeviceInterfaceType;
+import com.agama.common.enumbean.DeviceType;
 import com.agama.pemm.bean.DeviceStateRecord;
-import com.agama.pemm.bean.DeviceType;
-import com.agama.pemm.bean.StateEnum;
+import com.alibaba.fastjson.annotation.JSONCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 public class Device extends BaseDomain {
@@ -40,14 +47,20 @@ public class Device extends BaseDomain {
 	private int deviceIndex;
 	private StateEnum currentState; 
 	private String stateDetails; 
+	@Column(length=5000)
 	private String remark;
-	@ManyToOne( fetch = FetchType.EAGER)
+	@ManyToOne( fetch = FetchType.LAZY)
 	@JoinColumn(name = "gitInfoId")
+	@JsonIgnoreProperties({"id","buyTime","remark","serverState","currentState","upsStatusList","thStatusList","waterStatusList","smokeStatusList"})
 	private GitInfo gitInfo;   
 	
 	@OneToMany(mappedBy="device",cascade= {CascadeType.ALL} , fetch = FetchType.LAZY)
 	@JsonIgnore
 	private List<UpsStatus> upsStatuses;
+	
+	private Integer alarmTemplateId;
+	private String alarmTemplateName;
+	private DeviceInterfaceType deviceInterfaceType; //设备接口类型
 	
 	@Transient
 	private DeviceStateRecord deviceStateRecord;
@@ -183,6 +196,32 @@ public class Device extends BaseDomain {
 	public void setUpsStatuses(List<UpsStatus> upsStatuses) {
 		this.upsStatuses = upsStatuses;
 	}
+
+	public Integer getAlarmTemplateId() {
+		return alarmTemplateId;
+	}
+
+	public void setAlarmTemplateId(Integer alarmTemplateId) {
+		this.alarmTemplateId = alarmTemplateId;
+	}
+
+	public String getAlarmTemplateName() {
+		return alarmTemplateName;
+	}
+
+	public void setAlarmTemplateName(String alarmTemplateName) {
+		this.alarmTemplateName = alarmTemplateName;
+	}
+
+	public DeviceInterfaceType getDeviceInterfaceType() {
+		return deviceInterfaceType;
+	}
+
+	public void setDeviceInterfaceType(DeviceInterfaceType deviceInterfaceType) {
+		this.deviceInterfaceType = deviceInterfaceType;
+	}
+
+	
 	
 	
 

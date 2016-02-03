@@ -22,9 +22,9 @@ html, body {
 	<div class="easyui-layout" data-options="fit: true">
 
 		<div
-			data-options="region: 'west', title: '设备导航', iconCls: 'icon-standard-map', split: true, minWidth: 200, maxWidth: 400"
+			data-options="region: 'west', title: '主机机构', iconCls: 'icon-hamburg-world', split: true, minWidth: 200, maxWidth: 400"
 			style="width: 220px; padding: 1px;">
-			<ul id="areaInfoTree"></ul>
+			<ul id="organizationTree"></ul>
 		</div>
 		<div data-options="region: 'center'" style="overflow:hidden">
 

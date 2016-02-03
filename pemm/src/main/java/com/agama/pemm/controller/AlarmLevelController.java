@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.agama.authority.common.web.BaseController;
 import com.agama.common.dao.utils.Page;
 import com.agama.common.dao.utils.PropertyFilter;
+import com.agama.common.web.BaseController;
 import com.agama.pemm.domain.AlarmLevel;
 import com.agama.pemm.domain.GitInfo;
 import com.agama.pemm.service.IAlarmLevelService;
@@ -39,6 +40,7 @@ public class AlarmLevelController extends BaseController{
 	public String list(){
 		return "alarmLevel/alarmLevelList";
 	}
+	@RequiresPermissions("sys:alarmLevel:view")
 	@RequestMapping(value="json",method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String,Object> getData(Integer areaInfoId,HttpServletRequest request){
@@ -48,7 +50,7 @@ public class AlarmLevelController extends BaseController{
 		page = alarmLevelService.search(page, filters);
 		return getEasyUIData(page);
 	}
-	
+	@RequiresPermissions("sys:alarmLevel:add")
 	@RequestMapping(value="addForm",method=RequestMethod.GET)
 	public String addForm(Model model){
 		model.addAttribute("alarmLevel",new AlarmLevel());
@@ -57,6 +59,7 @@ public class AlarmLevelController extends BaseController{
 	
 		return "alarmLevel/alarmLevelForm";
 	}
+	@RequiresPermissions("sys:alarmLevel:add")
 	@RequestMapping(value="add",method=RequestMethod.POST)
 	@ResponseBody
 	public String  save(AlarmLevel alarmLevel){
@@ -65,6 +68,7 @@ public class AlarmLevelController extends BaseController{
 		return "success";
 		
 	}
+	@RequiresPermissions("sys:alarmLevel:delete")
 	@RequestMapping(value="delete")
 	@ResponseBody
 	public String delete(String ids){
@@ -72,7 +76,7 @@ public class AlarmLevelController extends BaseController{
 		return "success";
 		
 	}
-	
+	@RequiresPermissions("sys:alarmLevel:update")
 	@RequestMapping(value="updateForm/{id}",method=RequestMethod.GET)
 	public String updateForm(@PathVariable("id") Integer id,Model model){
 		AlarmLevel alarmLevel=alarmLevelService.get(id);
@@ -80,7 +84,7 @@ public class AlarmLevelController extends BaseController{
 		model.addAttribute("action", "update");
 		return "alarmLevel/alarmLevelForm";
 	}
-	
+	@RequiresPermissions("sys:alarmLevel:update")
 	@RequestMapping(value="update",method=RequestMethod.POST)
 	@ResponseBody
 	public String update(@Valid AlarmLevel alarmLevel){

@@ -100,6 +100,7 @@ function del(){
 				url:"${ctx}/system/dict/delete/"+row.id,
 				success: function(data){
 					successTip(data,dg);
+					dg.treegrid('clearSelections');
 				}
 			});
 		} 
