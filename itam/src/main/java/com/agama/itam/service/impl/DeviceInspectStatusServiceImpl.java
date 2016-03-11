@@ -15,9 +15,8 @@ import org.springframework.stereotype.Service;
 import com.agama.aws.dao.MongoDao;
 import com.agama.aws.helper.MongoQueryHelper;
 import com.agama.device.domain.DeviceInventory;
-import com.agama.device.domain.HostDevice;
 import com.agama.device.service.IDeviceInventoryService;
-import com.agama.device.service.IHostDeviceService;
+import com.agama.device.service.IDeviceService;
 import com.agama.itam.mongo.domain.DeviceInspectStatus;
 import com.agama.itam.service.IDeviceInspectStatusService;
 
@@ -32,7 +31,7 @@ public class DeviceInspectStatusServiceImpl implements IDeviceInspectStatusServi
 	@Autowired
 	private MongoDao mongoDao;
 	@Autowired
-	private IHostDeviceService hds;
+	private IDeviceService deviceService;
 	@Autowired
 	private IDeviceInventoryService diService;
 
@@ -79,14 +78,14 @@ public class DeviceInspectStatusServiceImpl implements IDeviceInspectStatusServi
 		return parseDetailsByList(list);
 	}
 
-	private List<Map<String, Object>> parseDetailsByList(List<DeviceInspectStatus> disList) {
+	private List<Map<String, Object>> parseDetailsByList(List<DeviceInspectStatus> disList) throws Exception {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 		for (DeviceInspectStatus dis : disList) {
 			Map<String, Object> map = new HashMap<String, Object>();
-			HostDevice hd = hds.getHostDeviceByIdentifier(dis.getIdentifier());
-			if (hd != null) {
-				map.put("name", hd.getName());
-				DeviceInventory di = diService.getDeviceInventoryByPurchaseId(hd.getPurchaseId());
+			Map<String, String> deviceMap = deviceService.getDeviceMapByIdentifier(dis.getIdentifier());
+			if (!deviceMap.isEmpty()) {
+				map.put("name", deviceMap.get("name"));
+				DeviceInventory di = diService.getDeviceInventoryByPurchaseId(Integer.parseInt(deviceMap.get("purchaseId")));
 				map.put("deviceType", di.getFirstDeviceType().getName() + "-" + di.getSecondDeviceType().getName());
 			} else {
 				map.put("name", "未知设备");
@@ -94,7 +93,7 @@ public class DeviceInspectStatusServiceImpl implements IDeviceInspectStatusServi
 			}
 			map.put("inspectedStatus", dis.getInspectDeviceStatus());
 			map.put("identifier", dis.getIdentifier());
-			list.add(map);	
+			list.add(map);
 		}
 		return list;
 	}

@@ -5,12 +5,14 @@
 <title></title>
 <%@ include file="/WEB-INF/views/include/easyui.jsp"%>
 <script src="${ctx}/static/plugins/My97DatePicker/WdatePicker.js" type="text/javascript"></script>
-</head>
+<script type="text/javascript" src="${ctx}/static/plugins/uploadify/jquery.uploadify.min.js"></script>
+<link rel="stylesheet" href="${ctx}/static/plugins/uploadify/uploadify.css"></link>
 <body>
 <div id="tb" style="padding:5px;height:auto">
         <div>
-        	<form id="searchFrom" action="">
-       	        <input type="text" name="filter_LIKES_name" class="easyui-validatebox" data-options="width:150,prompt: '昵称'"/>
+        	<form id="userSearchFrom" action="">
+       	        <input type="text" name="filter_LIKES_loginName" class="easyui-validatebox" data-options="width:150,prompt: '编号'"/>
+       	        <input type="text" name="filter_LIKES_name" class="easyui-validatebox" data-options="width:150,prompt: '姓名'"/>
        	        <input type="text" name="filter_LIKES_phone" class="easyui-validatebox" data-options="width:150,prompt: '电话'"/>
 		        <input type="text" id="startDate" name="filter_GTD_createDate" class="easyui-my97" datefmt="yyyy-MM-dd" data-options="width:150,prompt: '开始日期(创建)'" />
 		        - <input type="text" id="endDate" name="filter_LTD_createDate" class="easyui-my97" datefmt="yyyy-MM-dd" data-options="width:150,prompt: '结束日期(创建)'"/>
@@ -35,6 +37,7 @@
         	</shiro:hasPermission>
         	<shiro:hasPermission name="sys:user:orgView">
         		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cologne-home" plain="true" onclick="userForOrg()">用户所属机构</a>
+        		<span class="toolbar-item dialog-tool-separator"></span>
         	</shiro:hasPermission>
         	<shiro:hasPermission name="sys:user:resetPwd">
         		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cologne-home" plain="true" onclick="resetPwd()">初始化密码</a>
@@ -47,16 +50,23 @@
 	        		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cologne-home" plain="true" onclick="transmit()">权限移交</a>
         		</c:if>
         	</shiro:hasPermission>
+        	    <a href="javascript:void(0)" class="easyui-menubutton" plain="true" data-options="menu:'#exportExcel',iconCls:'icon-standard-page-excel'">Excel</a>
         </div> 
+        <div id="exportExcel">
+			<div data-options="iconCls:'icon-standard-page-excel'"  onclick="importExcel()">导入Excel</div>
+			<div data-options="iconCls:'icon-standard-page-excel'"  onclick="exportExcel()">导出Excel</div>
+		</div>
   </div>
-<table id="dg"></table> 
+<table id="dg"></table>
 <div id="dlg"></div>  
+<div id="importExcel"></div>
 <script type="text/javascript">
 var dg;
 var d;
+var importExcelDialog;
 $(function(){   
 	dg=$('#dg').datagrid({    
-	method: "get",
+	method: "post",
     url:'${ctx}/system/user/json', 
     fit : true,
 	fitColumns : true,
@@ -71,8 +81,8 @@ $(function(){
 	singleSelect:true,
     columns:[[    
         {field:'id',title:'id',hidden:true},    
-        {field:'loginName',title:'用户名',sortable:true,width:100},    
-        {field:'name',title:'昵称',sortable:true,width:100},
+        {field:'loginName',title:'用户编号',sortable:true,width:100},    
+        {field:'name',title:'用户姓名',sortable:true,width:100},
         {field:'gender',title:'性别',sortable:true,
         	formatter : function(value, row, index) {
        			return value==1?'男':'女';
@@ -273,7 +283,7 @@ function look(){
 
 //创建查询对象并查询
 function cx(){
-	var obj=$("#searchFrom").serializeObject();
+	var obj=$("#userSearchFrom").serializeObject();
 	dg.datagrid('load',obj); 
 }
 
@@ -338,6 +348,57 @@ function cancelTransmit(){
 	});
 }
 
+//导入excel页面跳转
+function importExcel(){
+	importExcelDialog = $("#dlg").dialog({   
+	    title: '用户信息excel文件上传',    
+	    width: 410,    
+	    height: 180,    
+	    href:'${ctx}/system/user/importExcel/',
+	    maximizable:true,
+	    modal:true,
+	    onLoad:function(){
+	    	$("#file_upload").uploadify({
+	            //指定swf文件
+	            'swf': '${ctx}/static/plugins/uploadify/uploadify.swf',
+	            //后台处理的页面
+	            'uploader': '${ctx}/system/user/import',
+	            'buttonClass' : 'some-class',
+	            'method'   : 'post',
+	            //按钮显示的文字
+	            'buttonText': '上传用户信息excel表',
+	            //显示的高度和宽度，默认 height 30；width 120
+	            'height': 15,
+	            'width': 120,
+	            //上传文件的类型  默认为所有文件    'All Files'  ;  '*.*'
+	            //在浏览窗口底部的文件类型下拉菜单中显示的文本
+	            'fileTypeDesc': '2003 Excel表格',
+	            //允许上传的文件后缀
+	            'fileTypeExts': '*.xls',
+	            //发送给后台的其他参数通过formData指定
+	            //'formData': { 'someKey': 'someValue', 'someOtherKey': 1 },
+	            //上传文件页面中，你想要用来作为文件队列的元素的id, 默认为false  自动生成,  不带#
+	            //'queueID': 'fileQueue',
+	            //选择文件后自动上传
+	            'auto': false,
+	            //设置为true将允许多文件上传
+	            'multi': false,
+	            'onUploadSuccess':function(file,data,response){
+	            	alert('The file ' + file.name + ' was successfully uploaded with a response of ' + response + ':' + data);
+	            	$('#'+file.id).find('.data').html('上传完毕');
+	            }
+	        });
+	    }
+	});
+}
+
+//导出excel
+function exportExcel(){
+	var obj=$("#userSearchFrom").serializeObject();
+	$("#userSearchFrom")[0].action="${ctx}/system/user/exportExcel";
+	$("#userSearchFrom")[0].target='_self';
+	$("#userSearchFrom").submit();
+}
 </script>
 </body>
 </html>

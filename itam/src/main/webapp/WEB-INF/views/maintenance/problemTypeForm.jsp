@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
 <title></title>
@@ -9,8 +10,9 @@
 <body>
 	<form id="mainform" action="${ctx }/maintenance/problemType/${action}" method="post">
       <table class="formTable" style="border-spacing:10px;">
+      
          <tr>
-            <td>设备类型名：</td>
+            <td>问题类型名称：</td>
             <td>
               <input name="id" type="hidden" value="${id }"/>
               <input name="name" id="name" class="easyui-validatebox" value="${problemType.name }" data-options="width:150,required:'required'"/><br/>
@@ -18,7 +20,7 @@
          </tr>
          
          <tr>
-			<td>设备类型：</td>
+			<td>适用设备类型：</td>
 			<td>
 				<input id="firstDeviceType" name="deviceType" value="${problemType.deviceType}" class="easyui-combobox" data-options="width:150,editable:false,required:'required'"/>
 			</td>
@@ -27,10 +29,10 @@
          <tr>
             <td>描述：</td>
             <td>
-                <textarea name="otherNote" class="easyui-validatebox" cols="19" rows="3" >${problemType.otherNote}</textarea>
+                <textarea name="otherNote" class="easyui-validatebox" data-options="width:150" rows="3" >${problemType.otherNote}</textarea>
             </td>           
          </tr>
-         
+        
       </table>
    </form>
    <script type="text/javascript">

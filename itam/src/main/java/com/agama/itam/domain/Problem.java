@@ -4,6 +4,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -32,23 +34,32 @@ public class Problem {
 	private Long id;
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date recordTime;
-	private String reportUser; // 问题上报人，可能为非系统用户
+	private String problemCode;
+	private String reportUser; 					// 问题上报人，可能为非系统用户
 	private String reportUserContact;
+	private Integer score;
 	private Integer recordUserId;
 	@Transient
 	private String recordUserName;
 	private Integer resolveUserId;
 	@Transient
 	private String resolveUserName;
+	private Date resolveTime;
 	private Integer problemTypeId;
 	@Transient
 	private String problemType;
-	private String identifier; // 设备唯一编号
+	private String identifier; 					// 设备唯一编号
+	@Transient
+	private String deviceName;
+	@Transient
+	private String orgName;
 	@Column(length = 2000)
 	private String description;
-	private boolean enableKnowledge; // 是否加入知识库
-	private ReportWayEnum reportWay; // （1.电话 2.口头报备 3. 知识库新增 4.手持机)
-	private ProblemStatusEnum enable; // （0：新问题，1:已分配，2：已响应，3：处理中，4，已解决，5：已关闭）
+	private boolean enableKnowledge; 			// 是否加入知识库
+	private boolean responsed; 					// 是否响应
+	private ReportWayEnum reportWay; 			// （1.电话报修  2.口头报备 3.手持机)
+	@Enumerated(EnumType.STRING)
+	private ProblemStatusEnum enable; 			// （0：新问题，1：打回，2:已分配，3：处理中，4，已解决，5：已关闭）
 	private StatusEnum status;
 
 	public Long getId() {
@@ -177,6 +188,54 @@ public class Problem {
 
 	public void setProblemType(String problemType) {
 		this.problemType = problemType;
+	}
+
+	public boolean isResponsed() {
+		return responsed;
+	}
+
+	public void setResponsed(boolean responsed) {
+		this.responsed = responsed;
+	}
+
+	public String getProblemCode() {
+		return problemCode;
+	}
+
+	public void setProblemCode(String problemCode) {
+		this.problemCode = problemCode;
+	}
+
+	public Integer getScore() {
+		return score;
+	}
+
+	public void setScore(Integer score) {
+		this.score = score;
+	}
+
+	public Date getResolveTime() {
+		return resolveTime;
+	}
+
+	public void setResolveTime(Date resolveTime) {
+		this.resolveTime = resolveTime;
+	}
+
+	public String getDeviceName() {
+		return deviceName;
+	}
+
+	public void setDeviceName(String deviceName) {
+		this.deviceName = deviceName;
+	}
+
+	public String getOrgName() {
+		return orgName;
+	}
+
+	public void setOrgName(String orgName) {
+		this.orgName = orgName;
 	}
 
 }

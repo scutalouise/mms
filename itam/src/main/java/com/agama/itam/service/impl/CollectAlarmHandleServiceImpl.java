@@ -90,7 +90,7 @@ public class CollectAlarmHandleServiceImpl implements
 			JSONObject jsonObject = JSONObject.parseObject(object.toString());
 			boolean dataStatus = jsonObject.getBooleanValue("dataStatus");
 			//正常数据
-			if (dataStatus) {
+			if (dataStatus){
 				String identifier = jsonObject.getString("identifier");
 				DeviceStatus deviceStatus=new DeviceStatus();
 				deviceStatus.setCheckTime(jsonObject.getDate("checkTime"));
@@ -218,12 +218,19 @@ public class CollectAlarmHandleServiceImpl implements
 		
 	}
 	public void dataHelper(CollectionDevice collectionDevice){
+		
 		//检测IP是否可达
 		boolean connect=PingUtils.pingByIp(collectionDevice.getIp());
 		//ip可达
 		if(connect){
+			
 			List<PeDevice> peDevices=peDeviceDao.getListByCollectionDeviceIdAndStatus(collectionDevice.getId(),StatusEnum.NORMAL);
 			for (PeDevice peDevice : peDevices) {
+				if(peDevice.getManagerId()==null){
+					Integer managerId=alarmConditionService.getUserId(peDevice.getIdentifier());
+					peDevice.setManagerId(managerId);
+					peDeviceDao.update(peDevice);
+				}
 				//UPS设备
 				if(peDevice.getDhDeviceType()==DeviceType.UPS){
 					upsStatusService.collectUpsStatus(collectionDevice.getIp(), peDevice.getDhDeviceIndex(),peDevice);

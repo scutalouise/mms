@@ -32,9 +32,9 @@
 		<property name="filterChainDefinitions">
 			<value>
 				/static/** = anon
-				/d/login = authc
-				/m/login = authc
-				/a/login = authc
+				/${adminPath}/login = authc
+				<!-- /m/login = authc
+				/a/login = authc -->
 				${adminPath}/** = user
 				/rest/**=authcBasic
 			</value>

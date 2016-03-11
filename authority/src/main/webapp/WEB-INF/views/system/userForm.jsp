@@ -11,7 +11,7 @@
 	<form id="mainform" action="${ctx }/system/user/${action}" method="post">
 		<table class="formTable">
 			<tr>
-				<td>用户名：</td>
+				<td>用户编号：</td>
 				<td>
 					<input type="hidden" name="id" value="${id }"/>
 					<input id="loginName" name="loginName" class="easyui-validatebox" data-options="width: 150" value="${user.loginName }"> 
@@ -28,8 +28,8 @@
 			</tr>
 			</c:if>
 			<tr>
-				<td>昵称：</td>
-				<td><input name="name" type="text" value="${user.name }" class="easyui-validatebox" data-options="width: 150,required:'required',validType:'length[3,20]'"/></td>
+				<td>用户姓名：</td>
+				<td><input name="name" type="text" value="${user.name }" class="easyui-validatebox" data-options="width: 150,required:'required',validType:'length[1,50]'"/></td>
 			</tr>
 			<tr>
 				<td>出生日期：</td>
@@ -38,8 +38,17 @@
 			<tr>
 				<td>性别：</td>
 				<td>
-				<input type="radio" id="man" name="gender" value="1"/><label for="man">男</label>
+				<input type="radio" id="man" name="gender" value="1"/><label for="man">男&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
 				<input type="radio" id="woman" name="gender" value="0"/><label for="woman">女</label>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				<input type="hidden" name="belong" value="INTERNAL"/>
+				<!-- 
+				<input type="radio" id="inner" name="belong" value="INTERNAL"/><label for="inner">内部人员</label>
+				<input type="radio" id="outer" name="belong" value="OUTER"/><label for="outer">外部人员</label>
+				 -->
 				</td>
 			</tr>
 			<tr>

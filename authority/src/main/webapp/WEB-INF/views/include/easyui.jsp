@@ -177,7 +177,50 @@ function dateFilter(beginDate,endDate,fmt){
 		}
 
 	});
+ }	
+	/**
+	 * 日期段初始化方法
+	 */
+	function initDate(beginDate,endDate){
+		if(beginDate != null && beginDate != undefined){
+			$("#"+beginDate).my97({
+				maxDate:'%y-%M-%d',
+				onShowPanel : function() {
+					var end_Date = $("#"+endDate).my97("getValue");
+					if (end_Date.length > 0) {
+						$("#"+beginDate).my97({
+							maxDate : end_Date
+						});
+					}
+				
+				},
+				onHidePanel : function() {
+					var begin_Date = $("#"+beginDate).my97("getValue");
+					if (begin_Date.length > 0) {
+						$("#"+endDate).my97({
+							minDate : begin_Date
+						});
+					}
+				}
+		
+			});
+		}
 
-}
+		if(endDate != null && endDate != undefined){
+			$("#"+endDate).my97({
+				onHidePanel : function() {
+					var end_Date = $("#"+endDate).my97("getValue");
+		
+					if (end_Date.length > 0) {
+						$("#"+beginDate).my97({
+							maxDate : end_Date
+						});
+					}
+				} 
+		
+			});
+		}
+	}
+
 </script>
 <meta http-equiv="X-UA-Compatible" content="IE=edge"> 

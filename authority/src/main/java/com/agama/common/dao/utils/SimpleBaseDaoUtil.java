@@ -115,17 +115,162 @@ public class SimpleBaseDaoUtil<T, PK extends Serializable> {
 		}
 		return c;
 	}
-	
-	
+
+	/**
+	 * @Description:单独封装为处理sql查询：此处查询对象数量的sql语句封装；
+	 * @param orgHql
+	 * @return
+	 * @Since :2016年3月9日 上午9:43:55
+	 */
 	protected String prepareCountHql(String orgHql) {
 		String fromHql = orgHql;
 		//select子句与order by子句会影响count查询,进行简单的排除.
 		fromHql = "from " + StringUtils.substringAfter(fromHql, "from");
 		fromHql = StringUtils.substringBefore(fromHql, "order by");
-
 		String countHql = "select count(*) " + fromHql;
 		return countHql;
 	}
+	
+	/**
+	 * @Description:单独封装为处理sql查询：此处查询对象数量的sql语句封装；
+	 * @param orgSql
+	 * @return
+	 * @Since :2016年2月1日 下午3:10:39
+	 */
+	protected String prepareCountSql(String orgSql) {
+		String fromSql = orgSql;
+		//select子句与order by子句会影响count查询,进行简单的排除.
+		fromSql = "from " + StringUtils.substringAfter(fromSql, "from");
+		fromSql = StringUtils.substringBefore(fromSql, "order by");
+		String countSql = "select count(*) " + fromSql;
+		return countSql;
+	}
+	
+	/**
+	 * @Description:根据propertyFilter封装成hql；
+	 * @param queryString
+	 * @param propertyFilters
+	 * @return
+	 * @Since :2016年3月4日 下午2:59:34
+	 */
+	/*protected String prepareQuery(final String queryString, final List<PropertyFilter> propertyFilters) {
+		//实例SQL："selcet fjsfjsl,* from  a, b where sfsdf and sdfsdf and dfsf order by dxdsf " 
+		String hqlPrefix = StringUtils.substringBefore(queryString, "where");
+		String hqlSuffix = StringUtils.substringAfter(queryString, "where");
+		String returnHql = "";
+		int size = propertyFilters.size();
+		String andOperator = size >0?" and " : "";
+		if(queryString.contains("where")){//包含where语句时,主要判断是否包含order by 
+			hqlPrefix += " where ";
+			if(hqlSuffix.contains("order by")){//包含order by 语句；在order前面加条件
+				String tempOrderByHqlPrefix = StringUtils.substringBefore(hqlSuffix, "order by");
+				String tempOrderByHqlSufffix = StringUtils.substringAfter(hqlSuffix, "order by");
+				for(PropertyFilter filter : propertyFilters){
+					tempOrderByHqlPrefix += andOperator + buildOperator(filter);//处理中间的连接符；
+				}
+				hqlSuffix = tempOrderByHqlPrefix + " order by " + tempOrderByHqlSufffix;
+			}else{//不包含order by 语句；直接在where后面加条件；
+				for(PropertyFilter filter : propertyFilters){
+					hqlSuffix += andOperator + buildOperator(filter);//处理中间的连接符；
+				}
+			}
+			returnHql = hqlPrefix + hqlSuffix;
+		}else{//没有包含where语句时的处理；
+			if(hqlSuffix.contains("order by")){//包含order by 语句；根据是否有条件存在分别加上条件
+				String tempOrderByHqlPrefix = StringUtils.substringBefore(hqlSuffix, "order by");
+				String tempOrderByHqlSufffix = StringUtils.substringAfter(hqlSuffix, "order by");
+				for(int i=0;i<size;i++){
+					if(i==0){
+						tempOrderByHqlPrefix += " where " +  buildOperator(propertyFilters.get(i));
+					}else{
+						tempOrderByHqlPrefix += andOperator + buildOperator(propertyFilters.get(i));
+					}
+				}
+				returnHql = tempOrderByHqlPrefix + " order by " + tempOrderByHqlSufffix;
+			}else{//不包含order by 语句,直接根据是否有条件存在分别加上条件
+				returnHql = queryString;
+				for(int i=0;i<size;i++){
+					if(i==0){
+						returnHql += " where " +  buildOperator(propertyFilters.get(i));
+					}else{
+						returnHql += andOperator + buildOperator(propertyFilters.get(i));
+					}
+				}
+			}
+		}
+		return returnHql;
+	}*/
+	
+	protected String prepareQuery(final String queryString, final List<PropertyFilter> propertyFilters) {
+		//实例SQL："selcet fjsfjsl,* from  a, b where sfsdf and sdfsdf and dfsf order by dxdsf " 
+		int size = propertyFilters.size();
+		String returnHql = "";
+		//判断是否存在查询条件。1.无则不做任何处理，直接返回原hql；2.有，则需进一步判断处理
+		if (size > 0) {
+			String hqlPrefix = StringUtils.substringBefore(queryString, "where");
+			String hqlSuffix = StringUtils.substringAfter(queryString, "where");
+			String andOperator = " and ";
+			hqlPrefix += " where ";
+			//判断原hql是否存在where条件。1.有，则直接在hqlPrefix后追加PropertyFilter的条件
+			//						  2.无，则需要进一步对hql其它关键词进行判断
+			if (queryString.contains("where") ) { //eg: select * from User where id = 5 order by name desc;
+				for(PropertyFilter filter : propertyFilters){
+					hqlPrefix += buildOperator(filter) + andOperator;//处理中间的连接符；
+				}
+				returnHql = hqlPrefix + hqlSuffix;
+			} else { // 此处可能存在order by, group by等多种关键语句需要进行判断
+				// 在原hql中没有where的情况下，判断是否存在order by语句。
+				//		1.无。则直接在hqlPrefix后拼接PropertyFilter条件参数
+				//		2.有。则对原hql进行进一步拆分处理
+				if (!queryString.contains("order by")) { // eg: select * from User;
+					for(PropertyFilter filter : propertyFilters){
+						hqlPrefix += buildOperator(filter) + andOperator;//处理中间的连接符；
+					}
+					returnHql = hqlPrefix + " 1 = 1 ";
+				} else { // eg: select * from User order by name desc;
+					String orderPrefix = StringUtils.substringBefore(queryString, "order by");
+					String orderSuffix = StringUtils.substringAfter(queryString, "order by");
+					orderPrefix += " where ";
+					for(PropertyFilter filter : propertyFilters){
+						orderPrefix += buildOperator(filter) + andOperator;//处理中间的连接符；
+					}
+					returnHql = orderPrefix + " 1 = 1 order by " + orderSuffix;
+				}
+			}
+		} else {
+			returnHql = queryString;
+		}
+		return returnHql;
+	}
+
+	/**
+	 * 按属性条件PropertyFilter参数,拼接创建sql操作符与字符串,辅助函数.
+	 */
+	private String buildOperator(final PropertyFilter propertyFilter) {
+		Assert.notNull(propertyFilter);
+		String fragment = "";
+		switch (propertyFilter.getMatchType()) {//根据MatchType构造操作符与
+		case EQ:
+			fragment = propertyFilter.getPropertyName() + "='" + propertyFilter.getMatchValue() +"' ";
+			break;
+		case LIKE:
+			fragment = propertyFilter.getPropertyName() + " like '%" + propertyFilter.getMatchValue() +"%' ";
+			break;
+		case LE:
+			fragment = propertyFilter.getPropertyName() + " <='" + propertyFilter.getMatchValue() +"' ";
+			break;
+		case LT:
+			fragment = propertyFilter.getPropertyName() + " <'" + propertyFilter.getMatchValue() +"' ";
+			break;
+		case GE:
+			fragment = propertyFilter.getPropertyName() + " >='" + propertyFilter.getMatchValue() +"' ";
+			break;
+		case GT:
+			fragment = propertyFilter.getPropertyName() + " >'" + propertyFilter.getMatchValue() +"' ";
+		}
+		return fragment;
+	}
+	
 	
 	/**
 	 * 按属性条件参数创建Criterion,辅助函数.
@@ -180,12 +325,6 @@ public class SimpleBaseDaoUtil<T, PK extends Serializable> {
 	}
 	
 	/**
-	 * 
-	 * 与find()函数可进行更加灵活的操作.
-	 * @param queryString 查询
-	 * @param values 
-	 */
-	/**
 	 * 根据查询HQL与参数列表创建Query对象.
 	 * @param queryString 
 	 * @param values 数量可变的参数,按顺序绑定.
@@ -197,12 +336,11 @@ public class SimpleBaseDaoUtil<T, PK extends Serializable> {
 		if (values != null) {
 			for (int i = 0; i < values.length; i++) {
 				query.setParameter(String.valueOf(i), values[i]);
-//				query.setParameter(i, values[i]);
 			}
 		}
 		return query;
 	}
-
+	
 	/**
 	 * 根据查询HQL与参数列表创建Query对象.
 	 * 与find()函数可进行更加灵活的操作.

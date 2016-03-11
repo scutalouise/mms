@@ -76,4 +76,5 @@ public class DeviceController extends BaseController {
 		return "details/alarmTemplateList";
 	}
 	
+	
 }

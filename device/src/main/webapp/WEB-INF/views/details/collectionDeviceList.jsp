@@ -28,11 +28,13 @@
 	            <span class="toolbar-item dialog-tool-separator"></span>
 	            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="userForCollectionDevice()">网点管理员</a>
 	            <span class="toolbar-item dialog-tool-separator"></span>
-	            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="roleForCollectionDevice()">设备运维角色</a>
-	            <span class="toolbar-item dialog-tool-separator"></span>
 	            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="userDefineTypeCollection()">自定义分类</a>
 	            <span class="toolbar-item dialog-tool-separator"></span>
 	            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-print" plain="true" onclick="collection_QR()">二维码</a>
+	       		
+	       		<span class="toolbar-item dialog-tool-separator"></span>
+	            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-standard-drive-burn" plain="true" id="collectionScrapped" onclick="collectionScrapped()">设备报废</a>
+	       		
 	       </div> 
 	</div>
 <!---------------------------------------- toolsBar End ---------------------------------------->	
@@ -43,7 +45,10 @@
 <script type="text/javascript">
 var collectionDevice_datagrid;
 var collectionDevice_dialog;
-$(function(){   
+$(function(){  
+	$("#collectionScrapped").css({
+		visibility : "hidden"
+	});
 	collectionDevice_datagrid=$('#collectionDevice_datagrid').datagrid({    
 		method: "post",
 	    url:'${ctx}/device/collectionDevice/json', 
@@ -60,9 +65,10 @@ $(function(){
 		pageList : [ 10, 20, 30, 40, 50 ],
 		singleSelect:true,
 	    columns:[[    
-	        {field:'id',title:'id',hidden:true},    
+	        {field:'id',title:'id',hidden:true}, 
+	        {field:'name',title:'设备名称',sortable:true,width:100},   
 	        {field:'identifier',title:'识别码',sortable:true,width:100},    
-	        {field:'manufactureDate',title:'生产日期',sortable:true,width:100,formatter: function(value,row,index){
+	        {field:'manufactureDate',title:'采购日期',sortable:true,width:100,formatter: function(value,row,index){
 	        	return formatDate(value,"yyyy-MM-dd")
 	        }},
 	        {field:'enable',title:'是否可用',sortable:true,width:50,
@@ -77,6 +83,12 @@ $(function(){
         	}},
 	        {field:'model',title:'型号',sortable:true,width:100},
 	        {field:'ip',title:'IP地址',sortable:true,width:100},
+	        
+	        {field:'deviceUsedState',title:"设备状态",sortable:true,width:50,align:"center",formatter:function(v){
+	        	if(v!=null){
+	        		return v.value;
+	        	}
+	        }},
 	        {field:'updateTime',title:'最近更新时间',sortable:true,width:100}
 	    ]],
 	    headerContextMenu: [
@@ -92,7 +104,18 @@ $(function(){
 	    enableHeaderClickMenu: true,
 	    enableHeaderContextMenu: true,
 	    enableRowContextMenu: false,
-	    toolbar:'#collectionDevice_toolBar'
+	    toolbar:'#collectionDevice_toolBar',
+	    onSelect:function(rowIndex,rowData){
+	    	if(rowData.deviceUsedState.value=="坏件"){
+	    		$("#collectionScrapped").css({
+					visibility : "visible"
+				});
+	    	}else{
+	    		$("#collectionScrapped").css({
+					visibility : "hidden"
+				});
+	    	}
+	    }
 	});
 	
 	initDateFilter("startDate","endDate");
@@ -238,36 +261,6 @@ function userForCollectionDevice(){
 		});
 }
 
-//弹窗设置运维角色
-function roleForCollectionDevice(){
-	var row = collectionDevice_datagrid.datagrid('getSelected');
-	if(rowIsNull(row)) return;
-	$.ajaxSetup({type : 'GET'});
-	collectionDevice_dialog=$("#collectionDevice_dialog").dialog({   
-	    title: '采集器设备运维角色设置',    
-	    width: 580,    
-	    height: 350,  
-	    href:'${ctx}/device/details/roles',
-	    maximizable:true,
-	    modal:true,
-	    onClose:function(){
-	    	appendAndRemoveCollection("collectionDevice_dialog");
-	    },
-	    buttons:[{
-			text:'确认',
-			handler:function(){
-				saveDeviceRole(collectionDevice_datagrid,"${ctx}/device/collectionDevice/setDeviceRole");//执行保存运维角色的操作
-				collectionDevice_dialog.panel('close');
-			}
-		},{
-			text:'取消',
-			handler:function(){
-				collectionDevice_dialog.panel('close');
-			}
-		}]
-	});
-}
-
 //弹窗设置自定义分类
 function userDefineTypeCollection(){
 	var row = collectionDevice_datagrid.datagrid('getSelected');
@@ -305,6 +298,48 @@ function appendAndRemoveCollection(divId){
 	$("#" +divId + "").dialog("destroy").remove(); //直接摧毁、移除
 	$("<div id='"+ divId +"'></div> ").appendTo($('body'))//新加入一个
 }
+
+
+function collectionScrapped(){
+	var collectionDeviceIdList=[];
+	
+	//所选的的主机设备
+	var data=collectionDevice_datagrid.datagrid('getSelections');
+	if(data.length==0){
+		parent.$.messager.show({ title : "提示",msg: "请选择需要报废的设备！", position: "topCenter" });
+		return;
+	}
+	for(var i=0;i<data.length;i++){
+		/* if(data[i].obtainState.id==0){
+			parent.$.messager.show({ title : "提示",msg: "设备需要退回后才能报废！", position: "topCenter" });
+			return;
+		} */
+		collectionDeviceIdList.push(data[i].id);
+	}
+	parent.$.messager.confirm('提示', '确定要报废设备吗？', function(data){
+		if (data){
+			$.ajax({
+				type:"post",
+				data:JSON.stringify(collectionDeviceIdList),
+				contentType:'application/json;charset=utf-8',	//必须
+				url:"${ctx}/device/collectionDevice/scrappedCollectionDevice",
+				success:function(data){
+					if(data=='success'){
+						parent.$.messager.show({ title : "提示",msg: "操作成功！", position: "bottomRight" });
+						$("#collectionScrapped").css({
+							visibility : "hidden"
+						});
+						collectionDevice_datagrid.datagrid('reload'); 
+					}else{
+						$.easyui.messager.alert(data);
+					}
+					
+				}
+			});
+		}
+	});
+}
+
 </script>
 </body>
 </html>

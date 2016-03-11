@@ -27,18 +27,24 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 
 
+
+
+
 import com.agama.authority.service.IOrganizationService;
 import com.agama.common.dao.utils.Page;
 import com.agama.common.dao.utils.PropertyFilter;
 import com.agama.common.web.BaseController;
+import com.agama.common.enumbean.AirConditioningRunState;
 import com.agama.common.enumbean.DeviceInterfaceType;
 import com.agama.common.enumbean.DeviceType;
+import com.agama.pemm.dao.IAcStatusDao;
 import com.agama.pemm.domain.Device;
 import com.agama.pemm.domain.GitInfo;
 import com.agama.pemm.protocol.snmp.AcOidInfo;
 import com.agama.pemm.protocol.snmp.SwitchInputOidInfo;
 import com.agama.pemm.protocol.snmp.ThOidInfo;
 import com.agama.pemm.protocol.snmp.UpsOidInfo;
+import com.agama.pemm.service.IAcStatusService;
 import com.agama.pemm.service.IDeviceOperationService;
 import com.agama.pemm.service.IDeviceService;
 import com.agama.pemm.service.IGitInfoService;
@@ -65,6 +71,8 @@ public class DeviceController extends BaseController {
 	private IDeviceOperationService deviceOperationService;
 	@Autowired
 	private IOrganizationService organizationService;
+	@Autowired
+	private IAcStatusService acStatusService;
 
 	@RequestMapping(value = "deviceView", method = RequestMethod.GET)
 	public String deviceView() {
@@ -84,16 +92,15 @@ public class DeviceController extends BaseController {
 	@RequiresPermissions("sys:device:view")
 	@RequestMapping(value = "json", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String, Object> getData(Integer organizationId,
+	public Map<String, Object> getData(Integer organizationId,String deviceType,
 			HttpServletRequest request) {
 		Page<Device> page = getPage(request);
-		List<PropertyFilter> filters = PropertyFilter
-				.buildFromHttpRequest(request);
+		
 		String organizationIdStr = organizationService
 				.getOrganizationIdStrById(organizationId);
-
-		page = deviceService.searchListByOrganizationIdStr(organizationIdStr,
-				page, filters);
+	
+		page = deviceService.searchListByOrganizationIdStr(organizationIdStr,deviceType,
+				page);
 		return getEasyUIData(page);
 
 	}
@@ -227,7 +234,7 @@ public class DeviceController extends BaseController {
 				e.printStackTrace();
 				log.error(e.getMessage());
 			}
-
+ 
 		}
 		map.put("gitInfoIdList", list);
 		map.put("deviceIndexList", deviceIndexList);
@@ -314,6 +321,18 @@ public class DeviceController extends BaseController {
 	public boolean upsClose(Integer deviceId){
 		deviceService.upsClose(deviceId);
 		return true;
+	}
+	
+	@RequestMapping(value="closeOrOpenofAc",method=RequestMethod.POST)
+	@ResponseBody
+	public Integer closeOrOpenofAc(Integer type,Integer deviceIndex,String ip){
+		
+		acStatusService.closeOrOpenOfAc(ip, deviceIndex, type);
+		if(type==1){
+			return AirConditioningRunState.RUN.getId();
+		}else{
+			return AirConditioningRunState.SHUTDOWN.getId();
+		}
 	}
 	
 	

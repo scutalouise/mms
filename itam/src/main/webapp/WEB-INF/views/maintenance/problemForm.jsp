@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 <html>
 <head>
 <title></title>
@@ -12,7 +14,7 @@
          <tr>
             <td>设备编号：</td>
             <td>
-              <input name="id" type="hidden" value="${id }"/>
+              <input name="id" type="hidden" value="${problem.id }"/>
               ${problem.identifier }
             </td>           
          </tr>
@@ -20,14 +22,7 @@
          <tr>
 			<td>问题类型：</td>
 			<td>
-				<input id="problemType" name="problemTypeId" value="${problem.problemTypeId}" class="easyui-combobox" data-options="width:150,editable:false,required:'required'"/>
-			</td>
-		</tr>
-		
-		<tr>
-			<td>问题状态：</td>
-			<td>
-				<input id="enable" name="enable" value="${problem.enable}" class="easyui-combobox" data-options="width:150,editable:false,required:'required'"/>
+				<input id="problemTypeform" name="problemTypeId" value="${problem.problemTypeId}" class="easyui-combobox" data-options="width:150,editable:false,required:'required'"/>
 			</td>
 		</tr>
          
@@ -55,7 +50,7 @@
          <tr>
             <td>描述：</td>
             <td>
-                <textarea name="description" class="easyui-validatebox" cols="19" rows="3" >${problem.description}</textarea>
+                <textarea name="description" class="easyui-validatebox" data-options="width:150" rows="3" >${problem.description}</textarea>
             </td>           
          </tr>
          
@@ -64,17 +59,10 @@
    <script type="text/javascript">
 		var identifier = "${problem.identifier}";
 		$(function(){
-			 $('#problemType').combobox({
+			 $('#problemTypeform').combobox({
 				  method:"get",
 				  url:'${ctx}/maintenance/problemType/identifier/' + identifier,
 				  valueField:'id',
-				  textField:'name'
-			  });
-			 
-			 $('#enable').combobox({
-				  method:"get",
-				  url:'${ctx}/maintenance/problem/enable/handle/false/search/false',
-				  valueField:'problemStatus',
 				  textField:'name'
 			  });
 			 

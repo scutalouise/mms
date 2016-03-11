@@ -22,7 +22,8 @@ $(function() {
 		method : "post",
 		url : ctx + "/system/alarmTemplate/json",
 		queryParams : {
-			filter_EQE_status : 'NORMAL'
+			filter_EQ_StatusEnum_status : 'NORMAL',
+			filter_EQ_TemplateTypeEnum_templateType:"MONITORINGALARM" //告警类型为监控告警
 		},
 		fit : true,
 		fitColumns : true,
@@ -82,7 +83,7 @@ function addTemplate() {
 		title : "添加报警模板",
 		width : 400,
 		height : 250,
-		href : ctx + "/system/alarmTemplate/addForm",
+		href : ctx + "/system/alarmTemplate/addForm/MONITORINGALARM",
 		maximizable : true,
 		modal : true,
 		buttons : [ {

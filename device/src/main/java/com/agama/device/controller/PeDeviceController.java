@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,15 +20,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.agama.authority.entity.Role;
-import com.agama.authority.service.IRoleService;
+import com.agama.authority.entity.User;
 import com.agama.common.dao.utils.Page;
 import com.agama.common.dao.utils.PropertyFilter;
 import com.agama.common.enumbean.DeviceInterfaceType;
 import com.agama.common.enumbean.DeviceType;
+import com.agama.common.enumbean.DeviceUsedStateEnum;
 import com.agama.common.enumbean.EnabledStateEnum;
 import com.agama.common.enumbean.FirstDeviceType;
+import com.agama.common.enumbean.ObtainWayEnum;
 import com.agama.common.enumbean.StatusEnum;
+import com.agama.common.enumbean.UsingStateEnum;
 import com.agama.common.web.BaseController;
 import com.agama.device.domain.DevicePurchase;
 import com.agama.device.domain.PeDevice;
@@ -47,9 +51,6 @@ public class PeDeviceController extends BaseController {
 	
 	@Autowired
 	private IDevicePurchaseService devicePurchaseService;
-	
-	@Autowired
-	private IRoleService roleService;
 
 	/**
 	 * @Description:动环设备页面
@@ -72,11 +73,37 @@ public class PeDeviceController extends BaseController {
 	@ResponseBody
 	public Map<String, Object> getData(HttpServletRequest request) {
 		Page<PeDevice> page = getPage(request);
-		List<PropertyFilter> filters = PropertyFilter.buildFromHttpRequest(request);
-		// 新增过滤掉，状态为删除状态的记录；
-		PropertyFilter propertyFilter = new PropertyFilter("EQE_status", String.valueOf(StatusEnum.NORMAL));
-		filters.add(propertyFilter);
-		page = peDeviceService.search(page, filters);
+		String type=request.getParameter("type");
+		if(type==null){
+			List<PropertyFilter> filters = PropertyFilter.buildFromHttpRequest(request);
+			filters.add(new PropertyFilter("EQ_StatusEnum_status", StatusEnum.NORMAL.toString()));// 新增过滤掉，状态为删除状态的记录；
+			page = peDeviceService.search(page, filters);
+		}else{
+			String organizationId=request.getParameter("orgId");
+			DeviceUsedStateEnum deviceUsedState=DeviceUsedStateEnum.USED;
+			String deviceUsedStateStr=request.getParameter("deviceUsedState");
+			ObtainWayEnum obtainWay=ObtainWayEnum.ORGANIZATION;
+			String way=request.getParameter("way");
+			if(way!=null){
+				obtainWay=ObtainWayEnum.valueOf(way.toUpperCase());//领用方式 
+			}
+			if(deviceUsedStateStr!=null){
+				deviceUsedState=DeviceUsedStateEnum.valueOf(deviceUsedStateStr); //入库
+			}
+			User user=null;
+			if(obtainWay==ObtainWayEnum.PERSONAL){
+				user=(User)request.getSession().getAttribute("user");
+			}
+			//type为审核中的状态
+			if(type.equals("audit")){
+				deviceUsedState=DeviceUsedStateEnum.AUDIT;
+			}else if(type.equals("waitRepair")){
+				deviceUsedState=DeviceUsedStateEnum.WAITREPAIR;
+			}else if(type.equals("badParts")){
+				deviceUsedState=DeviceUsedStateEnum.BADPARTS;
+			}
+			page=peDeviceService.searchObtainPeDeviceList(page,organizationId,StatusEnum.NORMAL,deviceUsedState,user);
+		}
 		return getEasyUIData(page);
 	}
 	
@@ -119,6 +146,7 @@ public class PeDeviceController extends BaseController {
 		return "details/peDeviceForm";
 	}
 	
+	
 	/**
 	 * @Description:执行新增动环设备的操作
 	 * @param peDevice
@@ -135,6 +163,11 @@ public class PeDeviceController extends BaseController {
 			synchronized (peDevice) {
 				peDevice.setIdentifier(FirstDeviceType.PEDEVICE.getValue() + DateUtils.formatDate(new Date(), "yyMMddHHmmSSS"));// 唯一识别码的生成
 			}
+			peDevice.setOrganizationId(devicePurchaseService.get(peDevice.getPurchaseId()).getOrgId());
+			peDevice.setOrganizationName(devicePurchaseService.get(peDevice.getPurchaseId()).getOrgName());
+			peDevice.setDeviceUsedState(DeviceUsedStateEnum.PUTINSTORAGE);
+			peDevice.setScrappedState(UsingStateEnum.NO);
+			peDevice.setSecondmentState(UsingStateEnum.NO);
 			peDeviceService.save(peDevice);
 		}
 		return "success";
@@ -167,13 +200,20 @@ public class PeDeviceController extends BaseController {
 	public String updateForm(@PathVariable("id") Integer id, Model model) {
 		PeDevice peDevice = peDeviceService.get(id);
 		DevicePurchase devicePurchase = devicePurchaseService.get(peDevice.getPurchaseId());
-		Role role = roleService.get(peDevice.getRoleId());
-		peDevice.setRoleName(role.getName());
 		peDevice.setPurchaseName(devicePurchase.getName());
 		model.addAttribute("peDevice", peDevice);
 		model.addAttribute("action", "update");
 		return "details/peDeviceForm";
 	}
+	@RequestMapping(value = "relevanceCollection/{type}/{id}", method = RequestMethod.GET)
+	public String relevanceCollectionForm(@PathVariable("type") String type,@PathVariable("id") Integer id, Model model){
+		PeDevice peDevice = peDeviceService.get(id);
+		model.addAttribute("type",type);
+		model.addAttribute("peDevice", peDevice);
+		model.addAttribute("action", "update");
+		return "obtain/relevanceCollectionForm";
+	}
+	
 	
 	/**
 	 * @Description:执行更新的具体操作
@@ -187,6 +227,17 @@ public class PeDeviceController extends BaseController {
 	public String update(@Valid @ModelAttribute @RequestBody PeDevice peDevice, Model model) {
 		peDevice.setUpdateTime(new Date());
 		peDeviceService.update(peDevice);
+		return "success";
+	}
+	@RequestMapping(value = "saveRelevanceCollection", method = RequestMethod.POST)
+	@ResponseBody
+	public String relevanceCollectionSave(@Valid PeDevice peDevice, Model model) {
+		PeDevice pd=peDeviceService.get(peDevice.getId());
+		pd.setCollectDeviceId(peDevice.getCollectDeviceId());
+		pd.setDhDeviceType(peDevice.getDhDeviceType());
+		pd.setDhDeviceInterfaceType(peDevice.getDhDeviceInterfaceType());
+		pd.setDhDeviceIndex(peDevice.getDhDeviceIndex());
+		peDeviceService.update(pd);
 		return "success";
 	}
 	
@@ -245,7 +296,77 @@ public class PeDeviceController extends BaseController {
 		peDeviceService.update(peDevice);// 根据提交过来的告警模板id进行设置；
 		return "success";
 	}
+	@RequestMapping(value="choosePeDeviceList",method=RequestMethod.GET)
+	public String choosePeDeviceList(){
+		return "obtain/choosePeDeviceList";
+	}
+	@RequestMapping("obtainPeDevice/{way}/{type}")
+	@ResponseBody
+	public String obtainPeDevice(@PathVariable("way") String way,@PathVariable("type") String type,String orgId,@RequestBody List<Integer> peDeviceIdList,HttpSession session){
+		ObtainWayEnum obtainWay=ObtainWayEnum.valueOf(way.toUpperCase());
+		Integer organizationId=null;
+		if(orgId!=null){
+			organizationId=Integer.parseInt(orgId);
+		}
+		User user=null;
+		if(obtainWay==ObtainWayEnum.PERSONAL){
+			user=(User)session.getAttribute("user");
+		}
+		peDeviceService.peDeviceObtain(organizationId,type,peDeviceIdList,user);
+		return "success";
+	} 
+	@RequestMapping("backPeDevice")
+	@ResponseBody
+	public String backHostDevice(@RequestBody List<Integer> peDeviceIdList){
+		peDeviceService.backPeDevice(peDeviceIdList);
+		return "success";
+		
+	}
+	@RequestMapping("peDeviceAudit/{type}")
+	@ResponseBody
+	public String peDeviceAudit(@PathVariable("type") Integer type,@RequestBody List<Integer> peDeviceIdList){
+		peDeviceService.peDeviceAudit(type,peDeviceIdList);
+		return "success";
+	}
 	
+	
+	@RequiresPermissions("sys:auditDevice:badparts")
+	@RequestMapping("badparts")
+	@ResponseBody
+	public String badparts(@RequestBody List<Integer> peDeviceIdList){
+		peDeviceService.updateDeviceUsedStateByDeviceIdList(peDeviceIdList,DeviceUsedStateEnum.BADPARTS);
+		return "success";
+	}
+	@RequiresPermissions("sys:auditDevice:putInstorage")
+	@RequestMapping("putInstorage")
+	@ResponseBody
+	public String putInstorage(@RequestBody List<Integer> peDeviceIdList){
+		peDeviceService.updateDeviceUsedStateByDeviceIdList(peDeviceIdList,DeviceUsedStateEnum.PUTINSTORAGE);
+		return "success";
+	}
+	
+	@RequiresPermissions("sys:auditDevice:scrap")
+	@RequestMapping("scrap")
+	@ResponseBody
+	public String scrap(@RequestBody List<Integer> peDeviceIdList){
+		peDeviceService.updateDeviceUsedStateByDeviceIdList(peDeviceIdList,DeviceUsedStateEnum.SCRAP);
+		return "success";
+	}
+	
+	@RequiresPermissions("sys:auditDevice:waitExternalMaintenance")
+	@RequestMapping("waitExternalMaintenance")
+	@ResponseBody
+	public String waitExternalMaintenance(@RequestBody List<Integer> peDeviceIdList){
+		peDeviceService.updateDeviceUsedStateByDeviceIdList(peDeviceIdList,DeviceUsedStateEnum.WAITEXTERNALMAINTENANCE);
+		return "success";
+	}
+	
+	@RequestMapping("scrappedPeDevice")
+	@ResponseBody
+	public String scrappedPeDevice(@RequestBody List<Integer> peDeviceIdList){
+		peDeviceService.scrappedPeDevice(peDeviceIdList);
+		return "success";
+	}
 	/**
 	 * @Description:在处理动环设备前，将数据库对象加载到内存，以备利用；
 	 * @param id

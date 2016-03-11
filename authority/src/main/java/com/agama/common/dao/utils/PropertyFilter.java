@@ -10,8 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.util.Assert;
 
 import com.agama.authority.utils.ServletUtils;
-import com.agama.common.enumbean.ProblemStatusEnum;
-import com.agama.common.enumbean.StatusEnum;
 import com.agama.tool.utils.ConvertUtils;
 import com.agama.tool.utils.string.StringUtils;
 
@@ -38,9 +36,8 @@ public class PropertyFilter {
 		L(Long.class),
 		N(Double.class),
 		D(Date.class),
-		B(Boolean.class),
-		E(StatusEnum.class),
-		PROBLEMSTATUS(ProblemStatusEnum.class);
+		B(Boolean.class);
+		
 
 		private Class<?> clazz;
 
@@ -69,7 +66,8 @@ public class PropertyFilter {
 	 */
 	public PropertyFilter(String filterName, String value) {
 		String[] strArray = filterName.split("_");
-		if (strArray.length == 3) {
+		//对传过来的filterName进行判断:LIKES_r.table_name;LIKES_StatusEnum_name；属于哪一种类型；对r.table_name与StatusEnum_name进行判断；甄别出类型或者是查询sql字符串语句里使用到的命名、引用；
+		if (strArray.length == 3 && !strArray[1].contains(".")) {
 			constructEnumProperty(filterName, value);
 		} else {
 			constructBuiltIn(filterName, value);
@@ -128,12 +126,8 @@ public class PropertyFilter {
 		Assert.isTrue(StringUtils.isNotBlank(propertyNameStr), "filter名称" + filterName + "没有按规则编写,无法得到属性名称.");
 		propertyNames = StringUtils.splitByWholeSeparator(propertyNameStr, PropertyFilter.OR_SEPARATOR);
 		
-		this.matchValue =null;
-		if (propertyClass == StatusEnum.class) {
-			matchValue = StatusEnum.valueOf(value);
-		} else{
-			matchValue = ConvertUtils.convertStringToObject(value, propertyClass);
-		}
+		this.matchValue = ConvertUtils.convertStringToObject(value, propertyClass);
+		
 	}
 
 	/**

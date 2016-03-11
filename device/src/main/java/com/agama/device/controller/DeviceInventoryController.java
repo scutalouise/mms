@@ -1,6 +1,5 @@
 package com.agama.device.controller;
 
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.agama.common.dao.utils.Page;
-import com.agama.common.dao.utils.PropertyFilter;
 import com.agama.common.web.BaseController;
 import com.agama.device.domain.DeviceInventory;
 import com.agama.device.service.IDeviceInventoryService;
@@ -41,8 +39,7 @@ public class DeviceInventoryController extends BaseController {
 	@ResponseBody
 	public Map<String, Object> getData(HttpServletRequest request) {
 		Page<DeviceInventory> page = getPage(request);
-		List<PropertyFilter> filters = PropertyFilter.buildFromHttpRequest(request);
-		page = deviceInventoryService.search(page, filters);
+		page = deviceInventoryService.getPageByHql(page);
 		return getEasyUIData(page);
 	}
 }

@@ -1,11 +1,10 @@
 package com.agama.device.service.impl;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.agama.common.dao.utils.Page;
 import com.agama.common.service.impl.BaseServiceImpl;
 import com.agama.device.dao.IDeviceInventoryDao;
 import com.agama.device.domain.DeviceInventory;
@@ -35,5 +34,22 @@ public class DeviceInventoryServiceImpl extends BaseServiceImpl<DeviceInventory,
 	@Override
 	public DeviceInventory getDeviceInventoryByPurchaseId(int purchaseId) {
 		return deviceInventoryDao.getDeviceInventoryByPurchaseId(purchaseId);
+	}
+
+	@Override
+	public Page<DeviceInventory> getPageByHql(Page<DeviceInventory> page) {
+		
+		StringBuffer hql = new StringBuffer( 
+				"select new DeviceInventory("
+				+ "d.id as id,d.quantity as quantity,d.scrapQuantity as scrapQuantity, "
+				+ "d.freeQuantity as freeQuantity,d.firstDeviceType as firstDeviceType, "
+				+ "d.secondDeviceType as secondDeviceType,d.brandId as brandId, "
+				+ "b.name as brandName,d.otherNote as otherNote) "
+			    + "from DeviceInventory d,Brand b "
+			    + "where d.brandId=b.id ");//查询语句
+		
+       hql.append("order by d.firstDeviceType,d.secondDeviceType ");
+       
+       return deviceInventoryDao.findPage(page, hql.toString());
 	}
 }

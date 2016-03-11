@@ -27,21 +27,41 @@
 		<tr>
 			<td>问题状态：</td>
 			<td>
-				<input id="enable" name="enable" value="${problem.enable}" class="easyui-combobox" data-options="width:150,editable:false,required:'required'"/>
+				<select id="enable" name="enable" class="easyui-validatebox" style="width:150px">
+					<option value="HANDLING" selected="selected">处理中</option>
+					<option value="RESOLVED">已解决</option>
+				</select>
+			</td>
+		</tr>
+		
+		<tr id="change-td" style="display:none;">
+			<td>是否换修：</td>
+			<td>
+				<select id="change" name="change" class="easyui-combobox" style="width:150px">
+					<option value="false" selected="selected">否</option>
+					<option value="true">是</option>
+				</select>
+			</td>
+		</tr>
+		
+		<tr id="change-device" style="display:none;">
+			<td>选择设备：</td>
+			<td>
+				<input name="changeDeviceIdentifier" id="changeDevice" class="easyui-combobox" data-options="width:150,editable:false"/>
 			</td>
 		</tr>
          
-		<tr>
+		<!-- <tr>
             <td>附件地址：</td>
             <td>
               <input name="attachment" id="attachment" class="easyui-validatebox" value="" data-options="width:150"/>
             </td>           
-		</tr>
+		</tr> -->
 
          <tr>
             <td>描述：</td>
             <td>
-                <textarea name="description" class="easyui-validatebox" cols="20" rows="5" ></textarea>
+                <textarea name="description" class="easyui-validatebox" data-options="width:150" rows="5" ></textarea>
             </td>           
          </tr>
          
@@ -50,17 +70,47 @@
    <script type="text/javascript">
 		$(function(){
 			 
-			 $('#enable').combobox({
+			$("#enable").combobox({
+				onSelect : function(sec) {
+					var value = sec.value;
+					if (value == "RESOLVED") {
+						$("#change-td").show();
+					} else {
+						$("#change-td").hide();
+						$("#change-device").hide();
+					}
+				}
+			});
+			
+			$("#change").combobox({
+				onSelect : function(sec) {
+					var value = sec.value;
+					if (value == "true") {
+						$("#change-device").show();
+					} else {
+						$("#change-device").hide();
+					}
+				}
+			});
+			
+			$('#changeDevice').combobox({
 				  method:"get",
-				  url:'${ctx}/maintenance/problem/enable/handle/true/search/false',
-				  valueField:'problemStatus',
+				  url:'${ctx}/maintenance/handling/obtainUser/devices',
+				  valueField:'identifier',
 				  textField:'name'
-			  });
+			});
 			 
 			 $('#mainform').form({    
-				    onSubmit: function(){    
-				    	var isValid = $(this).form('validate');
-						return isValid;	// 返回false终止表单提交
+				    onSubmit: function(){
+				    	var device = $("#changeDevice").combobox("getValue");
+				    	if ($("#enable").combobox("getValue") == "RESOLVED" && $("#change").combobox("getValue") == "true" 
+				    			&& (device == null || device == "")) {
+				    		parent.$.messager.alert("警告：","换修必须要选择替换的新设备！");
+				    		return false;
+				    	} else {
+					    	var isValid = $(this).form('validate');
+							return isValid;	// 返回false终止表单提交
+				    	}
 				    },    
 				    success:function(data){   
 				    	successTip(data,dg,dlg);

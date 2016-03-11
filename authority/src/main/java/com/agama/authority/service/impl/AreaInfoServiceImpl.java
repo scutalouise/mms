@@ -1,21 +1,26 @@
 package com.agama.authority.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
-import javax.transaction.Transactional;
 
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.agama.authority.dao.IAreaInfoDao;
 import com.agama.authority.dao.IOrganizationDao;
 import com.agama.authority.entity.AreaInfo;
 import com.agama.authority.service.IAreaInfoService;
-import com.agama.authority.service.IOrganizationService;
+import com.agama.common.dao.IRecycleDao;
+import com.agama.common.dao.utils.EntityUtils;
 import com.agama.common.domain.StateEnum;
 import com.agama.common.domain.TreeBean;
+import com.agama.common.entity.Recycle;
+import com.agama.common.enumbean.RecycleEnum;
+import com.agama.common.enumbean.StatusEnum;
 import com.agama.common.service.impl.BaseServiceImpl;
 
 @Service("areaInfoService")
@@ -27,7 +32,11 @@ public class AreaInfoServiceImpl extends BaseServiceImpl<AreaInfo, Integer>
 	private IAreaInfoDao areaInfoDao;
 	@Autowired
 	private IOrganizationDao organizationDao;
-
+	@Autowired
+	private IRecycleDao recycleDao;
+	@Autowired
+	private EntityUtils entityUtils;
+	
 	@Override
 	public List<TreeBean> getTreeByPid(Integer pid) {
 		// TODO Auto-generated method stub
@@ -101,6 +110,55 @@ public class AreaInfoServiceImpl extends BaseServiceImpl<AreaInfo, Integer>
 		}
 		
 		return areaInfoList;
+	}
+
+	/**
+	 * 提供支持回收站的删除操作；
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public void delete(Integer id, Integer opUserId) {
+		/**
+		 * 删除操作的步骤：
+		 * 一.组合要删除记录的记录信息，进行保存，即保存删除记录到Recycle
+		 * 二.修改当前实体删除的逻辑状态
+		 * 三.修改列表查询中筛选的条件，将逻辑删除的记录排除掉；
+		 */
+		List<AreaInfo> list = recursiveAreaInfosByPid(id);
+		list.add(0, areaInfoDao.find(id));//需要包含当前级别；
+		List<Integer>  ids = new ArrayList<Integer>();
+		if(list.size() > 0){
+			Recycle recycle = new Recycle();
+			for(AreaInfo areaInfo : list){
+				ids.add(areaInfo.getId());
+				areaInfo.setStatus(StatusEnum.DELETED);//此处要确认是使用Id还是name，还是使用string本身
+				areaInfoDao.update(areaInfo);
+			}
+			
+			recycle.setContent(ids.toString());
+			recycle.setIsRecovery(RecycleEnum.NO);
+			recycle.setOpTime(new Date());
+			recycle.setOpUserId(opUserId);
+			recycle.setTableName(entityUtils.getTableNameByEntity(AreaInfo.class.getName()));
+			recycle.setTableRecordId(entityUtils.getIdNameByEntityName(AreaInfo.class.getName()));
+			recycleDao.save(recycle);
+		}
+	}
+	
+	/**
+	 * @Description:根据pid查找所有的AreaInfo区域信息；
+	 * @param pid
+	 * @return
+	 * @Since :2016年2月26日 上午10:21:58
+	 */
+	private List<AreaInfo> recursiveAreaInfosByPid(Integer pid) {
+		List<AreaInfo> list = new ArrayList<AreaInfo>();
+		List<AreaInfo> areaInfoList = areaInfoDao.findListByPid(pid);
+		for (AreaInfo areaInfo : areaInfoList) {
+			list.add(areaInfo);
+			list.addAll(recursiveAreaInfosByPid(areaInfo.getId()));
+		}
+		return list;
 	}
 
 }

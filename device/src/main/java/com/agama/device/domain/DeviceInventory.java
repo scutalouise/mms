@@ -1,32 +1,89 @@
 package com.agama.device.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.Transient;
+import javax.persistence.Version;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import com.agama.authority.entity.BaseDomain;
 import com.agama.common.enumbean.FirstDeviceType;
 import com.agama.common.enumbean.SecondDeviceType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @DynamicInsert
 @DynamicUpdate
-public class DeviceInventory extends BaseDomain {
+public class DeviceInventory implements Serializable {
 
-	private static final long serialVersionUID = -7648518458616886563L;
+	private static final long serialVersionUID = 1296318501886858516L;
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(updatable = false, nullable = false)
+	private Integer id;
+	@Version
+	@JsonIgnore
+	private Integer version;
+	@Column(nullable = false)
 	private int quantity;
+	@Column(nullable = false)
 	private int scrapQuantity;
+	@Column(nullable = false)
 	private int freeQuantity;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	private FirstDeviceType firstDeviceType;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	private SecondDeviceType secondDeviceType;
+	@Column(nullable = false)
 	private int brandId;
+	@Transient
 	private String brandName;
 	private String otherNote;
 
-	@Column(nullable = false)
+	public DeviceInventory() {
+		
+	}
+	
+	public DeviceInventory(Integer id, int quantity, int scrapQuantity, int freeQuantity,
+			FirstDeviceType firstDeviceType, SecondDeviceType secondDeviceType, int brandId, String brandName,
+			String otherNote) {
+		this.id = id;
+		this.quantity = quantity;
+		this.scrapQuantity = scrapQuantity;
+		this.freeQuantity = freeQuantity;
+		this.firstDeviceType = firstDeviceType;
+		this.secondDeviceType = secondDeviceType;
+		this.brandId = brandId;
+		this.brandName = brandName;
+		this.otherNote = otherNote;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public Integer getVersion() {
+		return version;
+	}
+
+	public void setVersion(Integer version) {
+		this.version = version;
+	}
+
 	public int getQuantity() {
 		return quantity;
 	}
@@ -35,7 +92,6 @@ public class DeviceInventory extends BaseDomain {
 		this.quantity = quantity;
 	}
 
-	@Column(nullable = false)
 	public int getScrapQuantity() {
 		return scrapQuantity;
 	}
@@ -44,7 +100,6 @@ public class DeviceInventory extends BaseDomain {
 		this.scrapQuantity = scrapQuantity;
 	}
 
-	@Column(nullable = false)
 	public int getFreeQuantity() {
 		return freeQuantity;
 	}
@@ -53,7 +108,6 @@ public class DeviceInventory extends BaseDomain {
 		this.freeQuantity = freeQuantity;
 	}
 
-	@Column(nullable = false)
 	public FirstDeviceType getFirstDeviceType() {
 		return firstDeviceType;
 	}
@@ -62,7 +116,6 @@ public class DeviceInventory extends BaseDomain {
 		this.firstDeviceType = firstDeviceType;
 	}
 
-	@Column(nullable = false)
 	public SecondDeviceType getSecondDeviceType() {
 		return secondDeviceType;
 	}
@@ -71,7 +124,6 @@ public class DeviceInventory extends BaseDomain {
 		this.secondDeviceType = secondDeviceType;
 	}
 
-	@Column(nullable = false)
 	public int getBrandId() {
 		return brandId;
 	}
@@ -80,7 +132,6 @@ public class DeviceInventory extends BaseDomain {
 		this.brandId = brandId;
 	}
 
-	@Transient
 	public String getBrandName() {
 		return brandName;
 	}

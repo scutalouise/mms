@@ -62,7 +62,7 @@
 				</prop>
 			</props>
 		</property>
-		<property name="packagesToScan" value="com.agama.authority,com.agama.device.domain" /><!-- 
+		<property name="packagesToScan" value="com.agama.authority,com.agama.device.domain,com.agama.common.entity" /><!-- 
 			如果多个，用“,”分隔 -->
 	</bean>
 

@@ -76,6 +76,7 @@ function isPC() {
 			left=left>0?left:0;
 			$(this).css({"margin-left":left});
 		});
+		
 	}
 	function refresh() {
 
@@ -319,7 +320,7 @@ function isPC() {
 		if(r){
 			$.ajax({
 				method:"post",
-				url:ctx+"/device/upsClose",
+				url:"${ctx}/device/upsClose",
 				data:{deviceId:deviceId},success:function(data){
 					if(data){
 						alert("操作成功,UPS将在1分钟后关机！");
@@ -329,6 +330,23 @@ function isPC() {
 		}
 	}
 
+	function closeOrOpenOfAc(ip,type,deviceIndex){ 
+		
+		$.ajax({
+			method:"post",
+			url:"${ctx}/device/closeOrOpenofAc",
+			data:{ip:ip,type:type,deviceIndex:deviceIndex},
+			success:function(data){
+				if(data==1){
+					$("#switch").html("开     机");
+					
+				}else{
+					$("#switch").html("关    机");
+				}
+				$("#switch").attr("onClick","closeOrOpenOfAc('"+ip+"',"+type+","+deviceIndex+")");
+			}
+		});
+	}
 	
 </script>
 </head>
@@ -720,16 +738,58 @@ function isPC() {
 							<!-- 空调 -->
 							
 							
-							<div style="clear: left;padding-top: 30px;">
-								<!-- <div style="border:2px solid #cccaca;border-radius:5px;">
-								11111
-								</div> -->
-								<c:forEach></c:forEach>
+							
+							<div class="air-condition">
+							
+							<c:forEach items="${gitInfo.acStatusList }" var="acStatus"
+									varStatus="varAcStatus">
+							
+							
+							
+                       		<div class="xiangxi_air-condition_1">
+                            <div class="xiangxi_air-condition_2">
+                                <h4>空调信息：${acStatus.name }</h4>
+                                <h5>当前运行情况：异常</h5>
+                                <hr style="border: 1px solid #4FC0E8">
+                                <div class="xiangxi_air-condition_2_1">
+                                    <div class="xiangxi_air-condition_2_1_1">
+                                        <img src="${ctx }/static/monitorPlatform/images/air-condition/air-condition.png"
+                                           style="width:208px;height:80px;">
+                                        <button type="button" id="switch" class="btn btn-info " onclick="closeOrOpenOfAc('${gitInfo.ip}',${acStatus.runStateOrdinal },${acStatus.deviceIndex })">
+                                        	<c:if test="${acStatus.runStateOrdinal==1 }">开　机</c:if>
+                                        	<c:if test="${acStatus.runStateOrdinal!=1 }">关    机</c:if>
+                                        </button>
+                                        <button type="button" class="btn btn-info ">设　置</button>
+                                    </div>
+                                </div>
+                                <div class="xiangxi_air-condition_2_1">
+                                    <div class="xiangxi_air-condition_2_2_2">
+                                        <div class="xiangxi_air-condition_2_2_2_1">
+                                            <h5>室外温度：${acStatus.outdoorTemperature }℃</h5>
+                                            <h5>当前温度：${acStatus.indoorTemperature }℃</h5>
+                                            <h5>当前湿度：${acStatus.indoorHumidity }%</h5>
+                                        </div>
+                                        <hr style="border: 1px solid #4FC0E8">
+                                    </div>
+                                </div>
+                                <div class="xiangxi_air-condition_2_3">
+                                    <div class="xiangxi_air-condition_2_3_1">
+                                        <button type="button" class="btn btn-info ">制　冷</button>
+                                        <button type="button" class="btn btn-info ">制　热</button>
+                                        <button type="button" class="btn btn-info ">加　湿</button>
+                                        <button type="button" class="btn btn-info ">去　湿</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        </c:forEach>
+                         </div>
+								
 							
 							</div>
 							
 							
-						</div>
+						
 					</c:forEach>
 
 

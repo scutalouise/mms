@@ -22,7 +22,7 @@ public class ProblemTypeDaoImpl extends HibernateDaoImpl<ProblemType, Serializab
 
 	@Override
 	public List<ProblemType> getListByDeviceType(FirstDeviceType deviceType) throws Exception {
-		String hql = "from ProblemType where deviceType = " + deviceType.ordinal() + " and status = " + StatusEnum.NORMAL.ordinal();
+		String hql = "from ProblemType where deviceType = '" + deviceType + "' and status = " + StatusEnum.NORMAL.ordinal();
 		return (List<ProblemType>)getSession().createQuery(hql).list();
 	}
 

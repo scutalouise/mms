@@ -38,7 +38,7 @@
 var dg;
 $(function(){   
 	dg=$('#dg').datagrid({    
-	method: "get",
+	method: "post",
     url:'${ctx}/system/dict/json', 
     fit : true,
 	fitColumns : true,

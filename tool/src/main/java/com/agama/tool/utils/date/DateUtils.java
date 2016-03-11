@@ -38,12 +38,16 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 	 */
 	public static String formatDate(Date date, Object... pattern) {
 		String formatDate = null;
-		if (pattern != null && pattern.length > 0) {
-			formatDate = DateFormatUtils.format(date, pattern[0].toString());
+		if (date != null) {
+			if (pattern != null && pattern.length > 0) {
+				formatDate = DateFormatUtils.format(date, pattern[0].toString());
+			} else {
+				formatDate = DateFormatUtils.format(date, "yyyy-MM-dd");
+			}
+			return formatDate;
 		} else {
-			formatDate = DateFormatUtils.format(date, "yyyy-MM-dd");
+			return "";
 		}
-		return formatDate;
 	}
 
 	/**
@@ -217,10 +221,4 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
 		cal.add(Calendar.DATE, +days);
 		return cal.getTime();
 	}
-
-	public static String getCurrentDate() {
-		SimpleDateFormat df = new SimpleDateFormat("yyMMddHHmm");
-		return df.format(new Date());
-	}
-
 }

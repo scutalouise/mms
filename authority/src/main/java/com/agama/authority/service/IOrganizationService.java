@@ -26,5 +26,13 @@ public interface IOrganizationService extends IBaseService<Organization, Integer
 	public List<Organization> getOrganizationListByGitIds(String gitIds);
 
 	public Organization getOrganizationByOrgCode(String orgCode);
+	
+	/**
+	 * @Description:添加支持回收站的逻辑删除；
+	 * @param id
+	 * @param opUserId
+	 * @Since :2016年2月25日 下午4:31:14
+	 */
+	public void delete(Integer id, Integer opUserId) ;
 
 }

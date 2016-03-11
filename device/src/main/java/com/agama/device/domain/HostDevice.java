@@ -16,58 +16,101 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.agama.authority.entity.BaseDomain;
 import com.agama.common.domain.StateEnum;
+import com.agama.common.enumbean.DeviceUsedStateEnum;
 import com.agama.common.enumbean.EnabledStateEnum;
+import com.agama.common.enumbean.MaintainWayEnum;
 import com.agama.common.enumbean.OSEnum;
 import com.agama.common.enumbean.StatusEnum;
+import com.agama.common.enumbean.UsedEnum;
+import com.agama.common.enumbean.UsingStateEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @DynamicInsert
 @DynamicUpdate
-public class HostDevice extends BaseDomain {
+public class HostDevice  extends BaseDomain  {
 
 	private static final long serialVersionUID = -7596999854576529443L;
+	@Column(nullable = false)
 	private EnabledStateEnum enable;
+	@Column(nullable = false)
 	private StatusEnum status;
+	@Column(nullable = false, length = 32)
 	private String identifier;
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@Temporal(TemporalType.DATE)
 	private Date manufactureDate;
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@Temporal(TemporalType.DATE)
 	private Date warrantyDate;
 	private String name;
 	private String remark;
+	@Column(length = 50)
 	private String model;
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08:00")
+	@Column(nullable = false)
 	private Date updateTime;
 	private Integer managerId;
 	@Transient
 	private String managerName;// 管理人员名字；
-	private Integer roleId;
-	@Transient
-	private String roleName;// 角色名；
+	@Column(nullable = false)
 	private Integer purchaseId;
 	@Transient
 	private String purchaseName;// 购买批次名
+	@Column(nullable = false)
 	private Integer organizationId;
 	@Transient
 	private String organizationName;// 所在组织名；
 	private Integer userDeviceTypeId;
 	@Transient
 	private String userDeviceTypeName;// 自定义分类名；
+	@Column(length = 15)
 	private String ip;
+	@Column(length = 200)
 	private String authorizationCode;
 	private OSEnum oSType;
+	
+	@Transient
+	private Integer oSTypeValue;
 	private Integer oSBits;
+	@Column(length = 100)
 	private String cpu;
+	@Column(length = 100)
 	private String harddisk;
+	@Column(length = 100)
 	private String motherboard;
+	@Column(length = 100)
 	private String memory;
 	private Integer alarmTemplateId;
 	@Transient
 	private String alarmTemplateName;// 告警模板名；
 	@Enumerated(EnumType.STRING)
 	private StateEnum currentState;// 设备当前状态
+	@Enumerated(EnumType.STRING)
+	private UsedEnum obtainState; // 是否领用
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH-mm-ss")
+	private Date obtainTime;
+	@Enumerated(EnumType.STRING)
+	private UsingStateEnum secondmentState; //是否是借调
+	
+	@Enumerated(EnumType.STRING)
+	private UsingStateEnum scrappedState; //报废状态
+	
+	
+	@Enumerated(EnumType.STRING)
+	private DeviceUsedStateEnum deviceUsedState; //设备使用状态
+	private String deviceUsedStateValue;
+	private Integer obtainUserId;//领用人id
+	@Transient
+	private String obtainUserName; //领用人名称
+	
+	private Integer maintainOrgId;          //运维组织ID
+	@Transient
+	private String maintainOrgName;         //运维组织名称，临时的字段
+	@Enumerated(EnumType.STRING)
+	private MaintainWayEnum maintainWay;    //运维方式
+	
 
-	@Column(nullable = false)
 	public EnabledStateEnum getEnable() {
 		return enable;
 	}
@@ -76,7 +119,6 @@ public class HostDevice extends BaseDomain {
 		this.enable = enable;
 	}
 
-	@Column(nullable = false)
 	public StatusEnum getStatus() {
 		return status;
 	}
@@ -85,7 +127,6 @@ public class HostDevice extends BaseDomain {
 		this.status = status;
 	}
 
-	@Column(nullable = false, length = 32)
 	public String getIdentifier() {
 		return identifier;
 	}
@@ -94,7 +135,6 @@ public class HostDevice extends BaseDomain {
 		this.identifier = identifier;
 	}
 
-	@Temporal(TemporalType.DATE)
 	public Date getManufactureDate() {
 		return manufactureDate;
 	}
@@ -103,7 +143,6 @@ public class HostDevice extends BaseDomain {
 		this.manufactureDate = manufactureDate;
 	}
 
-	@Temporal(TemporalType.DATE)
 	public Date getWarrantyDate() {
 		return warrantyDate;
 	}
@@ -128,7 +167,6 @@ public class HostDevice extends BaseDomain {
 		this.remark = remark;
 	}
 
-	@Column(length = 50)
 	public String getModel() {
 		return model;
 	}
@@ -137,8 +175,6 @@ public class HostDevice extends BaseDomain {
 		this.model = model;
 	}
 
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+08:00")
-	@Column(nullable = false)
 	public Date getUpdateTime() {
 		return updateTime;
 	}
@@ -155,15 +191,6 @@ public class HostDevice extends BaseDomain {
 		this.managerId = managerId;
 	}
 
-	public Integer getRoleId() {
-		return roleId;
-	}
-
-	public void setRoleId(Integer roleId) {
-		this.roleId = roleId;
-	}
-
-	@Column(nullable = false)
 	public Integer getPurchaseId() {
 		return purchaseId;
 	}
@@ -172,7 +199,6 @@ public class HostDevice extends BaseDomain {
 		this.purchaseId = purchaseId;
 	}
 
-	@Column(nullable = false)
 	public Integer getOrganizationId() {
 		return organizationId;
 	}
@@ -189,7 +215,6 @@ public class HostDevice extends BaseDomain {
 		this.userDeviceTypeId = userDeviceTypeId;
 	}
 
-	@Column(length = 15)
 	public String getIp() {
 		return ip;
 	}
@@ -198,7 +223,6 @@ public class HostDevice extends BaseDomain {
 		this.ip = ip;
 	}
 
-	@Column(length = 200)
 	public String getAuthorizationCode() {
 		return authorizationCode;
 	}
@@ -223,7 +247,6 @@ public class HostDevice extends BaseDomain {
 		this.oSBits = oSBits;
 	}
 
-	@Column(length = 100)
 	public String getCpu() {
 		return cpu;
 	}
@@ -232,7 +255,6 @@ public class HostDevice extends BaseDomain {
 		this.cpu = cpu;
 	}
 
-	@Column(length = 100)
 	public String getHarddisk() {
 		return harddisk;
 	}
@@ -241,7 +263,6 @@ public class HostDevice extends BaseDomain {
 		this.harddisk = harddisk;
 	}
 
-	@Column(length = 100)
 	public String getMotherboard() {
 		return motherboard;
 	}
@@ -250,7 +271,6 @@ public class HostDevice extends BaseDomain {
 		this.motherboard = motherboard;
 	}
 
-	@Column(length = 100)
 	public String getMemory() {
 		return memory;
 	}
@@ -268,16 +288,6 @@ public class HostDevice extends BaseDomain {
 		this.managerName = managerName;
 	}
 
-	
-	public String getRoleName() {
-		return roleName;
-	}
-
-	public void setRoleName(String roleName) {
-		this.roleName = roleName;
-	}
-
-	
 	public String getPurchaseName() {
 		return purchaseName;
 	}
@@ -311,7 +321,6 @@ public class HostDevice extends BaseDomain {
 	public void setAlarmTemplateName(String alarmTemplateName) {
 		this.alarmTemplateName = alarmTemplateName;
 	}
-
 	
 	public Integer getAlarmTemplateId() {
 		return alarmTemplateId;
@@ -329,4 +338,104 @@ public class HostDevice extends BaseDomain {
 		this.currentState = currentState;
 	}
 
+	public UsedEnum getObtainState() {
+		return obtainState;
+	}
+
+	public void setObtainState(UsedEnum obtainState) {
+		this.obtainState = obtainState;
+	}
+
+	public Date getObtainTime() {
+		return obtainTime;
+	}
+
+	public void setObtainTime(Date obtainTime) {
+		this.obtainTime = obtainTime;
+	}
+
+	public UsingStateEnum getSecondmentState() {
+		return secondmentState;
+	}
+
+	public void setSecondmentState(UsingStateEnum secondmentState) {
+		this.secondmentState = secondmentState;
+	}
+
+	public UsingStateEnum getScrappedState() {
+		return scrappedState;
+	}
+
+	public void setScrappedState(UsingStateEnum scrappedState) {
+		this.scrappedState = scrappedState;
+	}
+
+	public Integer getObtainUserId() {
+		return obtainUserId;
+	}
+
+	public void setObtainUserId(Integer obtainUserId) {
+		this.obtainUserId = obtainUserId;
+	}
+
+	public String getObtainUserName() {
+		return obtainUserName;
+	}
+
+	public void setObtainUserName(String obtainUserName) {
+		this.obtainUserName = obtainUserName;
+	}
+
+	public DeviceUsedStateEnum getDeviceUsedState() {
+		return deviceUsedState;
+	}
+
+	public void setDeviceUsedState(DeviceUsedStateEnum deviceUsedState) {
+		this.deviceUsedState = deviceUsedState;
+	}
+
+
+	public Integer getoSTypeValue() {
+		return oSTypeValue;
+	}
+
+	public void setoSTypeValue(Integer oSTypeValue) {
+		this.oSTypeValue = oSTypeValue;
+	}
+
+	public String getDeviceUsedStateValue() {
+		return deviceUsedStateValue;
+	}
+
+	public void setDeviceUsedStateValue(String deviceUsedStateValue) {
+		this.deviceUsedStateValue = deviceUsedStateValue;
+	}
+
+	
+	
+	
+	
+	public Integer getMaintainOrgId() {
+		return maintainOrgId;
+	}
+
+	public void setMaintainOrgId(Integer maintainOrgId) {
+		this.maintainOrgId = maintainOrgId;
+	}
+
+	public String getMaintainOrgName() {
+		return maintainOrgName;
+	}
+
+	public void setMaintainOrgName(String maintainOrgName) {
+		this.maintainOrgName = maintainOrgName;
+	}
+
+	public MaintainWayEnum getMaintainWay() {
+		return maintainWay;
+	}
+
+	public void setMaintainWay(MaintainWayEnum maintainWay) {
+		this.maintainWay = maintainWay;
+	}
 }

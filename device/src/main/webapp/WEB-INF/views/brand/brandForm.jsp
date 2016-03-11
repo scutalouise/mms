@@ -11,14 +11,14 @@
 	<form id="mainform" action="${ctx }/device/brand/${action}" method="post">
       <table class="formTable" style="border-spacing:10px;">        
          <tr>
-            <td>一级设备类型：</td>
+            <td>设备类型：</td><!-- 原一级设备类型 -->
             <td>
                <input name="firstDeviceType" id="firstDeviceType" class="easyui-combobox" value="${brand.firstDeviceType }" data-options="width:150,required:'required',editable:false"/>
             </td>           
          </tr>
          
          <tr>
-            <td>二级设备类型：</td>
+            <td>设备名称：</td><!-- 原二级设备类型 -->
             <td>
               <input name="secondDeviceType" id="secondDeviceType" class="easyui-combobox" value="${brand.secondDeviceType }" data-options="width:150,required:'required',editable:false"/>
             </td>           

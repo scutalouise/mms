@@ -20,6 +20,15 @@ public class AcStatus extends BaseDomain{
 	 * long
 	 */
 	private static final long serialVersionUID = 1L;
+	@Transient
+	private String name;
+	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
 	private Double indoorTemperature;//室内温度
 	private Double indoorHumidity;//室内湿度
 	private Double outdoorTemperature;//室外温度
@@ -28,6 +37,15 @@ public class AcStatus extends BaseDomain{
 	@Transient
 	private Integer runStateOrdinal;
 	private AirConditioningUnitState unitState; //机组状态
+	
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name="deviceId")
+	private Device device;
+	private Integer actionIndex;//动作
+	private Integer alarmIndex;//报警
+	private Date collectTime; //获取数据时间
+	@Transient
+	private Integer deviceId;
 	@Transient
 	private Integer unitStateOrdinal;
 	@Transient
@@ -39,13 +57,7 @@ public class AcStatus extends BaseDomain{
 	public void setUnitStateOrdinal(Integer unitStateOrdinal) {
 		this.unitStateOrdinal = unitStateOrdinal;
 	}
-	private Integer actionIndex;//动作
-	private Integer alarmIndex;//报警
-	private Date collectTime; //获取数据时间
 	
-	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="deviceId")
-	private Device device;
 	public Double getIndoorTemperature() {
 		return indoorTemperature;
 	}
@@ -115,6 +127,12 @@ public class AcStatus extends BaseDomain{
 	}
 	public void setDeviceIndex(Integer deviceIndex) {
 		this.deviceIndex = deviceIndex;
+	}
+	public Integer getDeviceId() {
+		return deviceId;
+	}
+	public void setDeviceId(Integer deviceId) {
+		this.deviceId = deviceId;
 	} 
 	
 	

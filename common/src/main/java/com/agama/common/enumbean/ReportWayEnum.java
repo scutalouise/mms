@@ -14,10 +14,10 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * @Since :2016年1月22日 下午2:41:33
  */
 public enum ReportWayEnum implements JsonSerializable {
-	PHONE(1, "电话"),
+	PHONE(1, "电话报修"),
 	DICTATION(2, "口头报备"), 
-	KNOWLEDGE_BASE(3, "知识库新增"), 
-	HANDSET(4, "手持机");
+	HANDSET(3, "手持机"),
+	AUTOCHECK(4,"系统自动巡检");
 
 	private int value;
 	private String text;

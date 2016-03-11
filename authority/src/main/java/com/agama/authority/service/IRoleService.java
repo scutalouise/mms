@@ -14,4 +14,12 @@ public interface IRoleService extends IBaseService<Role, Integer> {
 	
 	public Role getRoleByCode(String roleCode);
 	
+	/**
+	 * @Description:提供支持回收站的逻辑删除操作；
+	 * @param id
+	 * @param opUserId
+	 * @Since :2016年2月25日 下午5:06:42
+	 */
+	public void delete(Integer id, Integer opUserId);
+	
 }

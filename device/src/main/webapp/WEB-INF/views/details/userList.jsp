@@ -38,7 +38,7 @@ if(tabIndex == 0){
 //console.info("userSelect_datagrid:"+userSelect_datagrid);
 $(function(){
 	deviceUser_datagrid=$('#deviceUser_datagrid').datagrid({    
-		method: "get",
+		method: "post",
 	    url:'${ctx}/system/user/json', 
 	    fit : true,
 		fitColumns : true,

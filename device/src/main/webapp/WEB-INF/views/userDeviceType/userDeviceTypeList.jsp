@@ -83,10 +83,10 @@ function add(){
 				  type:'get',
 				  url:'${ctx}/device/userDeviceType/delete/'+row.id,
 				  success:function(data){
-					  if(data=='success'){
-							parent.$.messager.show({ title : "提示",msg: "操作成功！", position: "bottomRight" });
-							dg.treegrid('reload');
-					 }
+					  if(successTip(data,dg)){
+				    		dg.treegrid('reload');
+				    		dg.treegrid('clearSelections');
+					  }
 				  }
 			  });
 		  }

@@ -51,6 +51,57 @@
 .listarea_right {
     width:690px;height:260px;
 }
+
+
+.air-condition{
+    clear: left;
+    padding-top: 20px;
+    width: 60%;
+    height: 100%;
+    margin-left: 20%; 
+}
+.btn-info{
+    margin-right: 20px;
+    margin-top: 10px;
+}
+.xiangxi_air-condition_1 {
+    clear: left;
+    height: 280px;
+    width: 690px;
+    /*margin-bottom: 30px;*/
+    border: 2px solid #cccaca;
+}
+.xiangxi_air-condition_2 {
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: 20px;
+}
+.xiangxi_air-condition_2_1 {
+    width: 200px;
+    height: 85px;
+    margin-top: 10px;
+    float: left;
+}
+.xiangxi_air-condition_2_1_1{
+    float: left;
+}
+.xiangxi_air-condition_2_2_2{
+    text-align: left;
+    padding-top: 5px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+.xiangxi_air-condition_2_2_2_1{
+    margin-left: 40px;
+}
+.xiangxi_air-condition_2_3{
+    width: 210px;
+    height: 150px;
+    float: left;
+    margin-top: 30px;
+}
+
+
 @media handheld, only screen and (max-width: 1620px){
     .listarea {
         margin-top: 20px;
@@ -117,4 +168,38 @@
         width: 140px;
     }
     .listarea_1_left img{width:30px;height:30px;margin-top:20px}
+    
+    
+   
+    .air-condition {
+        margin-top: 20px;
+        width: 84%;
+        height: 100%;
+        margin-left: 8%;
+    }
+    .xiangxi_air-condition_1{
+        margin-top: 20px;
+        width: 620px;
+        height: 260px;
+        margin: 0 auto;
+    }
+    .xiangxi_air-condition_2 {
+        margin-left: 1%;
+        margin-right: 1%;
+        margin-top: 20px;
+    }
+    .xiangxi_air-condition_2_1 {
+        width: 190px;
+        height: 85px;
+        margin-top: 10px;
+    }
+    .xiangxi_air-condition_2_2_2_1 {
+        margin-left: 30px;
+    }
+    .xiangxi_air-condition_2_3{
+        width: 210px;
+        height: 85px;
+        float: left;
+        margin-top: 20px;
+    }
 }

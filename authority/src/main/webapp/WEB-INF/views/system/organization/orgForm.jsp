@@ -44,13 +44,13 @@
 		<tr>
 			<td>机构层级：</td>
 			<td>
-			<input name="orgLevel" type="text" value="${organization.orgLevel }" class="easyui-validatebox"  data-options="required:true,validType:['length[0,3]','integer']" />
+			<input name="orgLevel" type="text" value="${organization.orgLevel }" class="easyui-validatebox"  data-options="required:false,validType:['length[0,3]','integer']" />
 			</td>
 		</tr>
 		<tr>
 			<td>排序码：</td>
 			<td>
-			<input name="orgSort" type="text" value="${organization.orgSort }" class="easyui-validatebox"  data-options="required:true,validType:['length[0,3]','integer']" />
+			<input name="orgSort" type="text" value="${organization.orgSort }" class="easyui-validatebox"  data-options="required:false,validType:['length[0,3]','integer']" />
 			</td>
 		</tr>
 		<tr>
@@ -65,6 +65,18 @@
 			<input name="latitude" type="text" value="${organization.latitude }" class="easyui-validatebox"  data-options="validType:'Number'" />
 			</td>
 		</tr>
+		<tr>
+			<td>地址：</td>
+			<td>
+			<input name="address" type="text" value="${organization.address }" class="easyui-validatebox"  data-options="validType:['length[0,50]']" />
+			</td>
+		</tr>
+		<tr>
+			<td>联系方式：</td>
+			<td>
+			<input name="contact" type="text" value="${organization.contact }" class="easyui-validatebox"  data-options="validType:['length[0,50]']" />
+			</td>
+		</tr>
 	</table>
 	</form>
 </div>
@@ -74,7 +86,7 @@ $(function(){
 	//上级菜单
 	$('#pid').combotree({
 		width:180,
-		method:'GET',
+		method:'post',
 	    url: '${ctx}/system/organization/json',
 	    idField : 'id',
 	    textFiled : 'orgName',

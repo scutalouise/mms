@@ -1,5 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
 <title></title>
@@ -11,23 +11,24 @@
 <div id="tb" style="padding: 5px;height: auto;">
    <div>
 		<form id="searchForm" action="">
-       	        <input type="text" id="identifierFind" name="identifier" class="easyui-validatebox" data-options="width:150,prompt: '设备编号'"/>
+       	        <input type="text" id="identifierFind" name="problemCode" class="easyui-validatebox" data-options="width:150,prompt: '问题编号'"/>
        	        <input type="text" id="problemTypeFind" name="problemTypeId" class="easyui-validatebox" data-options="width:150,prompt: '问题类型'"/>
        	        <input type="text" id="enableFind" name="enable" class="easyui-validatebox" data-options="width:150,prompt: '状态'"/>
 		        <input type="text" id="startDate" name="recordTime" class="easyui-my97" datefmt="yyyy-MM-dd" data-options="width:150,prompt: '开始日期(登记)'" />
 		        - <input type="text" id="endDate" name="recordEndTime" class="easyui-my97" datefmt="yyyy-MM-dd" data-options="width:150,prompt: '结束日期(登记)'"/>
 		        <span class="toolbar-item dialog-tool-separator"></span>
 		        <a href="javascript(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="cx()">查询</a>
-		        <!-- <span class="toolbar-item dialog-tool-separator"></span>
-		        <a href="javascript(0)" class="easyui-linkbutton" iconCls="icon-mini-refresh" plain="true" onclick="rt()">重置</a> -->
 			</form>
      <shiro:hasPermission name="maintenance:handling:update">
     	 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="add();">更新处理描述</a>
-    	 <span class="toolbar-item dialog-tool-separator"></span>
      </shiro:hasPermission>
      <shiro:hasPermission name="maintenance:handling:search">
-         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="view();">处理历史记录</a>
          <span class="toolbar-item dialog-tool-separator"></span>
+         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="view();">处理历史记录</a>
+     </shiro:hasPermission>
+     <shiro:hasPermission name="maintenance:handling:callback">
+         <span class="toolbar-item dialog-tool-separator"></span>
+         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="callback();">打回</a>
      </shiro:hasPermission>
    </div>
 </div>
@@ -56,13 +57,28 @@
 		        	  title:'id',
 		        	  hidden:true
 		        }, {
+		        	field:'problemCode',
+		        	title:'问题编号',
+		        	sortable:true,
+		        	width:100
+		        }, {
 		        	field:'problemType',
 		        	title:'问题类型',
 		        	sortable:true,
 		        	width:100
 		        }, {
+		        	field:'deviceName',
+		        	title:'设备名称',
+		        	sortable:true,
+		        	width:100
+		        }, {
 		        	field:'identifier',
 		        	title:'设备编号',
+		        	sortable:true,
+		        	width:100
+		        }, {
+		        	field:'orgName',
+		        	title:'所属网点',
 		        	sortable:true,
 		        	width:100
 		        }, {
@@ -103,7 +119,7 @@
 		  });
 		
 		$.ajax({
-			url:'${ctx}/maintenance/problemType/json',
+			url:'${ctx}/maintenance/problemType/list',
 			type : "get",
 			dataType : "json",
 			success : function(data) {
@@ -122,7 +138,7 @@
 		$('#enableFind').combobox({
 			  method:"get",
 			  url:'${ctx}/maintenance/problem/enable/handle/true/search/true',
-			  valueField:'value',
+			  valueField:'problemStatus',
 			  textField:'name'
 		  });
 		
@@ -138,13 +154,13 @@
 			  title:'更新问题处理过程',
 			  iconCls:'icon-edit',
 			  width:350,
-			  height:300,
+			  height:350,
 			  href:'${ctx}/maintenance/handling/create/problemId/' + row.id,
 			  modal:true,
 			  buttons:[{
 				  text:'确认',
 				  handler:function(){
-					  $('#mainform').submit();
+					 $('#mainform').submit();
 				  }
 			   },
 			   {
@@ -180,6 +196,30 @@
 			var obj=$("#searchForm").serializeObject();
 			dg.datagrid('load',obj); 
 		}
+	  
+	  function callback(){
+		  var row=dg.datagrid('getSelected');
+		  if(rowIsNull(row)) return;
+			  parent.$.messager.confirm('提示','您确定要打回吗？',function(data){
+				  if(data){
+					  $.ajax({
+						  type:'post',
+						  url:'${ctx}/maintenance/handling/create',
+						  data : {
+							  		"problemId" : row.id,
+									"enable" : "CALLBACK",
+									"description" : "打回问题"
+								},
+						  success:function(data){
+							  if(data=='success'){
+									parent.$.messager.show({ title : "提示",msg: "操作成功！", position: "bottomRight" });
+									dg.datagrid('reload');
+							 }
+						  }
+					  });
+				  }
+			  });
+	  }
 	  
 	  /* function reset(){
 		  $("#identifierFind").val("");

@@ -149,6 +149,7 @@ public class SwitchInputStatusServiceImpl implements ISwitchInputStatusService {
 						AlarmOptionType.valueOf(peDevice.getDhDeviceInterfaceType().toString()));
 		// 报警内容
 		StringBuffer alarmContent = new StringBuffer();
+		StringBuffer alarmRuleType=new StringBuffer();
 		for (AlarmRule alarmRule : alarmRules) {
 			// 状态
 			Map<String, Object> waterImmersionStateMap = checkSwitchInputState(
@@ -161,12 +162,16 @@ public class SwitchInputStatusServiceImpl implements ISwitchInputStatusService {
 			}
 			alarmContent.append(waterImmersionStateMap.get("alarmContent")
 					.toString());
+			alarmRuleType.append(waterImmersionStateMap.get("alarmRuleType"));
 
 		}
 		if(alarmContent.indexOf("、")>0){
 			alarmContent=new StringBuffer(alarmContent.substring(0,alarmContent.length()-1));
-		}		alarmResultMap.put("runState", runState);
+			alarmRuleType=new StringBuffer(alarmRuleType.substring(0,alarmRuleType.length()-1));
+		}		
+		alarmResultMap.put("runState", runState);
 		alarmResultMap.put("alarmContent", alarmContent.toString());
+		alarmResultMap.put("alarmRuleType", alarmRuleType.toString());
 		return alarmResultMap;
 	}
 

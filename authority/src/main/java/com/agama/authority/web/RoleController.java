@@ -27,8 +27,11 @@ import com.agama.authority.entity.Role;
 import com.agama.authority.entity.User;
 import com.agama.authority.service.IRolePermissionService;
 import com.agama.authority.service.IRoleService;
+import com.agama.authority.utils.UserUtil;
 import com.agama.common.dao.utils.Page;
 import com.agama.common.dao.utils.PropertyFilter;
+import com.agama.common.enumbean.EnabledStateEnum;
+import com.agama.common.enumbean.StatusEnum;
 import com.agama.common.web.BaseController;
 
 /**
@@ -54,33 +57,6 @@ public class RoleController extends BaseController{
 	public String list(){
 		return "system/roleList";
 	}
-/*	
-	*//**
-	 * @Description:角色名要求不重复
-	 * @param roleName
-	 * @return
-	 * @Since :2015年9月9日 下午4:01:13
-	 *//*
-	@RequestMapping(value="checkRoleName/{roleCode}")
-	@ResponseBody
-	public String checkRoleName(String name,@PathVariable("roleCode") String roleCode){
-		Role role = roleService.getRoleByName(name) ;
-		if(null == role){
-			return "true";
-		}else{
-			if(roleCode.equals(role.getRoleCode())){
-				return "true";
-			}else{
-				return "false";
-			}
-		}
-//		if(roleService.getRoleByName(name) == null){
-//			return "true";
-//		}else{
-//			return "false";
-//		}
-	}
-	*/
 	
 	/**
 	 * @Description:角色名要求不重复
@@ -129,6 +105,8 @@ public class RoleController extends BaseController{
 	public Map<String, Object> getData(HttpServletRequest request) {
 		Page<Role> page=getPage(request);
 		List<PropertyFilter> filters = PropertyFilter.buildFromHttpRequest(request);
+		filters.add(new PropertyFilter("EQ_StatusEnum_status",StatusEnum.NORMAL.toString()));//过滤掉，状态为删除状态并且不可用的记录；
+		filters.add(new PropertyFilter("EQ_EnabledStateEnum_enable",EnabledStateEnum.ENABLED.toString()));//过滤掉，状态为禁用的记录；
 		page = roleService.search(page, filters);
 		return getEasyUIData(page);
 	}
@@ -250,7 +228,7 @@ public class RoleController extends BaseController{
 	@RequestMapping(value = "delete/{id}")
 	@ResponseBody
 	public String delete(@PathVariable("id") Integer id) {
-		roleService.delete(id);
+		roleService.delete(id, UserUtil.getCurrentUser().getId());
 		return "success";
 	}
 	

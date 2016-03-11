@@ -1,5 +1,8 @@
 package com.agama.authority.service.impl;
 
+import java.util.Date;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -7,7 +10,15 @@ import org.springframework.transaction.annotation.Transactional;
 import com.agama.authority.dao.IUserDao;
 import com.agama.authority.entity.User;
 import com.agama.authority.service.IUserService;
+import com.agama.common.dao.IRecycleDao;
+import com.agama.common.dao.utils.EntityUtils;
 import com.agama.common.dao.utils.Page;
+import com.agama.common.dao.utils.PropertyFilter;
+import com.agama.common.entity.Recycle;
+import com.agama.common.enumbean.EnabledStateEnum;
+import com.agama.common.enumbean.InternalEnum;
+import com.agama.common.enumbean.RecycleEnum;
+import com.agama.common.enumbean.StatusEnum;
 import com.agama.common.service.impl.BaseServiceImpl;
 import com.agama.tool.utils.date.DateUtils;
 import com.agama.tool.utils.security.Digests;
@@ -24,6 +35,12 @@ public class UserServiceImpl extends BaseServiceImpl<User, Integer> implements I
 
 	@Autowired	
 	private IUserDao userDao;
+	
+	@Autowired
+	private IRecycleDao recycleDao;
+	
+	@Autowired
+	private EntityUtils entityUtils;
 
 	/**
 	 * 保存用户
@@ -121,6 +138,11 @@ public class UserServiceImpl extends BaseServiceImpl<User, Integer> implements I
 
 	
 	@Override
+	public Page<User> getUsersByOrganizationId(Page<User> page, Integer organizationId, InternalEnum internal) {
+		return userDao.getUsersByOrganizationId(page, organizationId, internal);
+	}
+	
+	@Override
 	public Page<User> getUsersByOrganizationId(Page<User> page, Integer organizationId) {
 		return userDao.getUsersByOrganizationId(page, organizationId);
 	}
@@ -131,4 +153,44 @@ public class UserServiceImpl extends BaseServiceImpl<User, Integer> implements I
 		return user == null ? null : user.getPhone();
 		
 	}
+
+	/**
+	 * 提供带回收站功能的逻辑删除操作；
+	 */
+	@Transactional(readOnly = false)
+	@Override
+	public void delete(Integer id, Integer opUserId) {
+		/**
+		 * 删除操作的步骤：
+		 * 一.组合要删除记录的记录信息，进行保存，即保存删除记录到Recycle
+		 * 二.修改当前实体删除的逻辑状态
+		 * 三.修改列表查询中筛选的条件，将逻辑删除的记录排除掉；
+		 */
+		User user = userDao.find(id);
+
+		Recycle recycle = new Recycle();
+		recycle.setContent(user.toString());
+		recycle.setIsRecovery(RecycleEnum.NO);
+		recycle.setOpTime(new Date());
+		recycle.setOpUserId(opUserId);
+		recycle.setTableName(entityUtils.getTableNameByEntity(User.class.getName()));
+		recycle.setTableRecordId(entityUtils.getIdNameByEntityName(User.class.getName()));
+		recycleDao.save(recycle);
+
+		user.setStatus(StatusEnum.DELETED);//此处要确认是使用Id还是name，还是使用string本身
+		userDao.update(user);
+	}
+
+	@Override
+	public Page<User> findPage(Page<User> page, InternalEnum internal,List<PropertyFilter> filters) {
+		StringBuffer hql =new StringBuffer( "select u from User u ");
+		hql.append(" where enable='" +EnabledStateEnum.ENABLED +"' and status='" + StatusEnum.NORMAL + "' ");
+		hql.append(" and belong='" + internal + "'");
+		return userDao.findPage(page, hql.toString(), filters);
+	}
+	
+	public List<User> getAllList() {
+		return userDao.getAllList();
+	}
+	
 }

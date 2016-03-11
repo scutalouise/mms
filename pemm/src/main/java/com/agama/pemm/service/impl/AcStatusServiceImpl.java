@@ -10,8 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.agama.common.enumbean.AirConditioningRunState;
 import com.agama.common.enumbean.AirConditioningUnitState;
 import com.agama.common.service.impl.BaseServiceImpl;
+import com.agama.pemm.dao.IAcConfigDao;
 import com.agama.pemm.dao.IAcStatusDao;
 import com.agama.pemm.dao.IDeviceDao;
+import com.agama.pemm.domain.AcConfig;
 import com.agama.pemm.domain.AcStatus;
 import com.agama.pemm.domain.Device;
 import com.agama.pemm.protocol.snmp.AcOidInfo;
@@ -27,6 +29,8 @@ public class AcStatusServiceImpl extends BaseServiceImpl<AcStatus, Integer> impl
 	private IDeviceDao deviceDao;
 	@Autowired
 	private IAcStatusDao acStatusDao;
+	@Autowired
+	private IAcConfigDao acConfigDao;
 	@Override
 	public void collectAcStatus(String ipAaddress, Integer index,
 			Integer deviceId) {
@@ -43,9 +47,9 @@ public class AcStatusServiceImpl extends BaseServiceImpl<AcStatus, Integer> impl
 							.parseLong(lastCollectIntervalStr.trim());
 					if (lastCollectInterval < MAX_INTERVAL) {
 						
-						acStatus.setIndoorTemperature(Double.parseDouble(resultMap.get(AcOidInfo.INDOORTEMPERATURE.getOid()+"."+index).trim()));
-						acStatus.setIndoorHumidity(Double.parseDouble(resultMap.get(AcOidInfo.INDOORHUMIDITY.getOid()+"."+index).trim()));
-						acStatus.setOutdoorTemperature(Double.parseDouble(resultMap.get(AcOidInfo.OUTDOORTEMPERATURE.getOid()+"."+index).trim()));
+						acStatus.setIndoorTemperature(Double.parseDouble(resultMap.get(AcOidInfo.INDOORTEMPERATURE.getOid()+"."+index).trim())/10);
+						acStatus.setIndoorHumidity(Double.parseDouble(resultMap.get(AcOidInfo.INDOORHUMIDITY.getOid()+"."+index).trim())/10);
+						acStatus.setOutdoorTemperature(Double.parseDouble(resultMap.get(AcOidInfo.OUTDOORTEMPERATURE.getOid()+"."+index).trim())/10);
 					
 						acStatus.setRunState(AirConditioningRunState.getAirConditioningRunStateByOrdinal(Integer.parseInt(resultMap.get(AcOidInfo.RUNSTATE.getOid()+"."+index).trim())));
 						
@@ -60,6 +64,23 @@ public class AcStatusServiceImpl extends BaseServiceImpl<AcStatus, Integer> impl
 						acStatus.setCollectTime(DateUtils.parseDate(resultMap
 								.get("collectTime")));
 						acStatusDao.save(acStatus);
+						//
+						AcConfig acConfig=acConfigDao.findAcConfigByDeviceId(device.getId());
+						if(acConfig!=null){
+							//空调室内温度
+							Double indoorTemperature=acStatus.getIndoorTemperature();
+							//空调室内湿度
+							Double indoorHumidity=acStatus.getIndoorHumidity();
+							
+							//温度没有在设置的范围内并且空调为关机状态控制空调开机 暂时去掉acStatus.getRunState()==AirConditioningRunState.SHUTDOWN条件
+							if((indoorTemperature>acConfig.getMaxTemperature()||indoorTemperature<acConfig.getMinTemperature())){
+								
+								this.closeOrOpenOfAc(device.getGitInfo().getIp(), index,2);
+							}
+						
+						}
+						
+						
 					}
 				}
 			}
@@ -81,5 +102,12 @@ public class AcStatusServiceImpl extends BaseServiceImpl<AcStatus, Integer> impl
 		return true;
 		
 	}
+	
+	
+	public void saveS(Integer id){
+		baseDao.delete(id);
+		throw new RuntimeException("出现异常");
+	}
+	
 
 }

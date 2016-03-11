@@ -18,14 +18,16 @@ public class AcStatusDaoImpl extends HibernateDaoImpl<AcStatus, Integer>
 	@Override
 	public List<AcStatus> findLastestDataByGitInfoId(Integer gitInfoId) {
 		StringBuffer sql=new StringBuffer("select s.id as id,");
+		sql.append("d.name as name,");
 		sql.append("s.version as version,");
 		sql.append("s.indoor_temperature as indoorTemperature,");
 		sql.append("s.indoor_humidity as indoorHumidity,");
 		sql.append("s.outdoor_temperature as outdoorTemperature,");
 		sql.append("s.run_state as runStateOrdinal,");
 		sql.append("s.unit_state as unitStateOrdinal,");
-		sql.append("d.device_index as deviceIndex");
-		sql.append(" from ac_status s right join (select device_index,device_id,collect_time from device,(select device_id,max(collect_time) as collect_time from ac_status  where device_id in (select id from device where device_interface_type=")
+		sql.append("d.device_index as deviceIndex,");
+		sql.append("d.device_id as deviceId");
+		sql.append(" from ac_status s right join (select device_index,device_id,collect_time,name from device,(select device_id,max(collect_time) as collect_time from ac_status  where device_id in (select id from device where device_interface_type=")
 				.append(DeviceInterfaceType.AC.ordinal())
 				.append(" and git_info_id=")
 				.append(gitInfoId)

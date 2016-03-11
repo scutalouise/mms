@@ -27,7 +27,7 @@ public class AjaxFilter implements Filter{
 		 String currentURL = request.getRequestURI();//取得根目录所对应的绝对路径:   
 		 String targetURL = currentURL.substring(currentURL.indexOf("/", 1), currentURL.length());  //截取到当前文件名用于比较
 		
-		if(!targetURL.startsWith("/das/")&&!targetURL.equals(Global.getAdminPath()+"/login")&&!targetURL.contains("/static")&&!targetURL.equals("/d/login")&&!targetURL.equals(Global.getMonitorPath()+"/login")){
+		if(!targetURL.startsWith("/das/")&&!targetURL.startsWith("/handset/")&&!targetURL.equals(Global.getAdminPath()+"/login")&&!targetURL.contains("/static")){
 		 if (SecurityUtils.getSubject().getPrincipal()!=null) {  
 		 String ajaxSubmit = request.getHeader("X-Requested-With");
 		 if(ajaxSubmit != null && ajaxSubmit.equals("XMLHttpRequest")){
@@ -40,14 +40,15 @@ public class AjaxFilter implements Filter{
 		 
 		 }else{
 			// String loginUrl="/a/login";
-			 String loginUrl="/m/login";
+			// String loginUrl="/m/login";
 			/* if(targetURL.contains("/monitorPlatform")){
 				 loginUrl="/m/login";
 			 }else if(targetURL.equals("/device/deviceView")){
 				 loginUrl="/d/login";
 			 }*/
-			System.out.println(response.getCharacterEncoding());
-			response.setContentType("text/html; charset=utf-8");
+			 String loginUrl=Global.getAdminPath()+"/login";
+			 
+			 response.setContentType("text/html; charset=utf-8");
 			 response.setCharacterEncoding("UTF-8");
 			 response.getWriter().print("<script type='text/javascript'>window.top.location.href='"+ request.getContextPath()+loginUrl+"';</script>");
 			 return;

@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,13 +20,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.agama.authority.entity.Role;
-import com.agama.authority.service.IRoleService;
+import com.agama.authority.entity.User;
 import com.agama.common.dao.utils.Page;
 import com.agama.common.dao.utils.PropertyFilter;
+import com.agama.common.enumbean.DeviceUsedStateEnum;
 import com.agama.common.enumbean.EnabledStateEnum;
 import com.agama.common.enumbean.FirstDeviceType;
+import com.agama.common.enumbean.ObtainWayEnum;
 import com.agama.common.enumbean.StatusEnum;
+import com.agama.common.enumbean.UsingStateEnum;
 import com.agama.common.web.BaseController;
 import com.agama.device.domain.DevicePurchase;
 import com.agama.device.domain.NetworkDevice;
@@ -42,13 +46,9 @@ import com.agama.tool.utils.date.DateUtils;
 public class NetworkDeviceController extends BaseController {
 	@Autowired
 	private INetworkDeviceService networkDeviceService;
-	
 	@Autowired
 	private IDevicePurchaseService devicePurchaseService;
 	
-	@Autowired
-	private IRoleService roleService;
-
 	/**
 	 * @Description:网络设备默认页面
 	 * @return
@@ -70,10 +70,39 @@ public class NetworkDeviceController extends BaseController {
 	@ResponseBody
 	public Map<String, Object> getData(HttpServletRequest request) {
 		Page<NetworkDevice> page = getPage(request);
-		List<PropertyFilter> filters = PropertyFilter.buildFromHttpRequest(request);
-		PropertyFilter propertyFilter = new PropertyFilter("EQE_status", String.valueOf(StatusEnum.NORMAL));//过滤掉，状态为删除状态的记录；
-		filters.add(propertyFilter);
-		page = networkDeviceService.search(page, filters);
+		String type=request.getParameter("type");
+		//非设备领用模块
+		if(type==null){
+			List<PropertyFilter> filters = PropertyFilter.buildFromHttpRequest(request);
+			filters.add(new PropertyFilter("EQ_StatusEnum_status",StatusEnum.NORMAL.toString()));// 新增过滤掉，状态为删除状态的记录；
+			page = networkDeviceService.search(page, filters);
+		}else{
+			String organizationId=request.getParameter("orgId");
+			DeviceUsedStateEnum deviceUsedState=DeviceUsedStateEnum.USED;
+			String deviceUsedStateStr=request.getParameter("deviceUsedState");
+			ObtainWayEnum obtainWay=ObtainWayEnum.ORGANIZATION;
+			String way=request.getParameter("way");
+			if(way!=null){
+				obtainWay=ObtainWayEnum.valueOf(way.toUpperCase());//领用方式 
+			}
+			User user=null;
+			if(obtainWay==ObtainWayEnum.PERSONAL){
+				user=(User)request.getSession().getAttribute("user");
+			}
+			
+			if(deviceUsedStateStr!=null){
+				deviceUsedState=DeviceUsedStateEnum.valueOf(deviceUsedStateStr); //入库
+			}
+			//type为审核中的状态
+			if(type.equals("audit")){
+				deviceUsedState=DeviceUsedStateEnum.AUDIT;
+			}else if(type.equals("waitRepair")){
+				deviceUsedState=DeviceUsedStateEnum.WAITREPAIR;
+			}else if(type.equals("badParts")){
+				deviceUsedState=DeviceUsedStateEnum.BADPARTS;
+			}
+			page=networkDeviceService.searchObtainNetWorkDeviceList(page,organizationId,StatusEnum.NORMAL,deviceUsedState,user);
+		}
 		return getEasyUIData(page);
 	}
 
@@ -110,6 +139,11 @@ public class NetworkDeviceController extends BaseController {
 			synchronized (networkDevice) {
 				networkDevice.setIdentifier(FirstDeviceType.NETWORKDEVICE.getValue() + DateUtils.formatDate(new Date(), "yyMMddHHmmSSS"));// 唯一识别码的生成
 			}
+			networkDevice.setOrganizationId(devicePurchaseService.get(networkDevice.getPurchaseId()).getOrgId());
+			networkDevice.setOrganizationName(devicePurchaseService.get(networkDevice.getPurchaseId()).getOrgName());
+			networkDevice.setDeviceUsedState(DeviceUsedStateEnum.PUTINSTORAGE);
+			networkDevice.setScrappedState(UsingStateEnum.NO);
+			networkDevice.setSecondmentState(UsingStateEnum.NO);
 			networkDeviceService.save(networkDevice);
 		}
 		return "success";
@@ -144,9 +178,7 @@ public class NetworkDeviceController extends BaseController {
 	public String updateForm(@PathVariable("id") Integer id, Model model) {
 		NetworkDevice networkDevice = networkDeviceService.get(id);
 		DevicePurchase devicePurchase = devicePurchaseService.get(networkDevice.getPurchaseId());
-		Role role = roleService.get(networkDevice.getRoleId());
 		networkDevice.setPurchaseName(devicePurchase.getName());
-		networkDevice.setRoleName(role.getName());
 		model.addAttribute("networkDevice", networkDevice);
 		model.addAttribute("action", "update");
 		return "details/networkDeviceForm";
@@ -208,7 +240,77 @@ public class NetworkDeviceController extends BaseController {
 		networkDeviceService.update(networkDevice);// 根据提交过来的运维角色id进行设置；
 		return "success";
 	}
+	@RequestMapping(value="chooseNetWorkDeviceList",method=RequestMethod.GET)
+	public String chooseNetWorkDeviceList(){
+		return "obtain/chooseNetWorkDeviceList";
+	}
+	@RequestMapping("obtainNetWorkDevice/{way}/{type}")
+	@ResponseBody
+	public String obtainNetWorkDevice(@PathVariable("way") String way,@PathVariable("type") String type,String orgId,@RequestBody List<Integer> netWorkDeviceIdList,HttpSession session){
+		ObtainWayEnum obtainWay=ObtainWayEnum.valueOf(way.toUpperCase());
+		Integer organizationId=null;
+		if(orgId!=null){
+			organizationId=Integer.parseInt(orgId);
+		}
+		User user=null;
+		if(obtainWay==ObtainWayEnum.PERSONAL){
+			user=(User)session.getAttribute("user");
+		}
+		networkDeviceService.netWorkDeviceObtain(organizationId,type,netWorkDeviceIdList,user);
+		return "success";
+	} 
+	@RequestMapping("backNetWorkDevice")
+	@ResponseBody
+	public String backNetWorkDevice(@RequestBody List<Integer> netWorkDeviceIdList){
+		networkDeviceService.backNetWorkDevice(netWorkDeviceIdList);
+		return "success";
+		
+	}
+	@RequiresPermissions("sys:auditDevice:audit")
+	@RequestMapping("netWorkDeviceAudit/{type}")
+	@ResponseBody
+	public String netWorkDeviceAudit(@PathVariable("type") Integer type,@RequestBody List<Integer> netWorkDeviceIdList){
+		networkDeviceService.netWorkDeviceAudit(type,netWorkDeviceIdList);
+		return "success";
+	}
+	@RequiresPermissions("sys:auditDevice:putInstorage")
+	@RequestMapping("putInstorage")
+	@ResponseBody
+	public String putInstorage(@RequestBody List<Integer> netWorkDeviceIdList){
+		networkDeviceService.updateDeviceUsedStateByDeviceIdList(netWorkDeviceIdList,DeviceUsedStateEnum.PUTINSTORAGE);
+		return "success";
+	}
 	
+	@RequiresPermissions("sys:auditDevice:badparts")
+	@RequestMapping("badparts")
+	@ResponseBody
+	public String badparts(@RequestBody List<Integer> netWorkDeviceIdList){
+		networkDeviceService.updateDeviceUsedStateByDeviceIdList(netWorkDeviceIdList,DeviceUsedStateEnum.BADPARTS);
+		return "success";
+	}
+	
+	@RequiresPermissions("sys:auditDevice:scrap")
+	@RequestMapping("scrap")
+	@ResponseBody
+	public String scrap(@RequestBody List<Integer> netWorkDeviceIdList){
+		networkDeviceService.updateDeviceUsedStateByDeviceIdList(netWorkDeviceIdList,DeviceUsedStateEnum.SCRAP);
+		return "success";
+	}
+	@RequiresPermissions("sys:auditDevice:waitExternalMaintenance")
+	@RequestMapping("waitExternalMaintenance")
+	@ResponseBody
+	public String waitExternalMaintenance(@RequestBody List<Integer> netWorkDeviceIdList){
+		networkDeviceService.updateDeviceUsedStateByDeviceIdList(netWorkDeviceIdList,DeviceUsedStateEnum.EXTERNALMAINTENANCE);
+		return "success";
+	}
+	
+	@RequestMapping("scrappedNetWorkDevice")
+	@ResponseBody
+	public String scrappedNetWorkDevice(@RequestBody List<Integer> netWorkDeviceIdList){
+		networkDeviceService.scrappedNetWorkDevice(netWorkDeviceIdList); 
+		return "success";
+		
+	}
 	/**
 	 * @Description:设置告警模板
 	 * @param networkDevice

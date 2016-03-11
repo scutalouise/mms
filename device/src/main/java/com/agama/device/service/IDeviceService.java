@@ -3,6 +3,8 @@ package com.agama.device.service;
 import java.util.List;
 import java.util.Map;
 
+import com.agama.common.dao.utils.Page;
+import com.agama.common.enumbean.DeviceUsedStateEnum;
 import com.agama.common.enumbean.FirstDeviceType;
 
 /**
@@ -31,5 +33,18 @@ public interface IDeviceService {
 	public List<Object> getDeviceListByOrgId(int orgId) throws Exception;
 	
 	public List<Object> getAllDeviceList() throws Exception;
+	
+	public Page<Object> getDeviceListByDeviceUsedStateEnum(Page<Object> page, DeviceUsedStateEnum eusEnum) throws Exception;
+	
+	public List<Object> getDeviceListByObtainUser(Integer userId);
+	
+	public Page<Object> getPageListByQueryMap(Page<Object> page, Map<String, Object> map);
+	
+	/**
+	 * @Description:根据设备编号列表，批量修改设备使用状态
+	 * @param identifierList 设备编号列表
+	 * @Since :2016年3月10日 下午4:19:17
+	 */
+	public void updateDeviceUsedStateByIdentifierList(List<String> identifierList, DeviceUsedStateEnum dusEnum);
 
 }

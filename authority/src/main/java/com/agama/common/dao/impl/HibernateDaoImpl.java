@@ -74,10 +74,75 @@ public class HibernateDaoImpl<T, PK extends Serializable> extends SimpleBaseDaoU
 	public Page<T> getAll(final Page<T> page) {
 		return findPage(page);
 	}
+	
+	/* (non-Javadoc)
+	 * @see com.agama.authority.common.persistence.IBaseDao#findPage(com.agama.authority.common.persistence.Page, org.hibernate.criterion.Criterion)
+	 */
+	@Override
+	@SuppressWarnings({ "rawtypes" })
+	public Page<T> findPage(final Page<T> page, final Criterion... criterions) {
+		Assert.notNull(page, "page不能为空");
+		Criteria c = createCriteria(criterions);
+		if (page.isAutoCount()) {
+			long totalCount = countCriteriaResult(c);
+			page.setTotalCount(totalCount);
+		}
+		setPageParameterToCriteria(c, page);
+		List result = c.list();
+		page.setResult(result);
+		return page;
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.agama.authority.common.persistence.IBaseDao#findPage(com.agama.authority.common.persistence.Page, java.util.List)
+	 */
+	@Override
+	public Page<T> findPage(final Page<T> page, final List<PropertyFilter> filters) {
+		Criterion[] criterions = buildCriterionByPropertyFilter(filters);
+		return findPage(page, criterions);
+	}
 
+	/**
+	 * @Description：此处为执行sql语句查询，最后将查询的结果封装成一个冗余的bean对象；
+	 * 注意冗余的意义：例如：当User对象中包含了一个orgId，现在要查询到orgName,
+	 * 封装的User对象必须包含未持久化的orgName，并提供相应的查询结果所有字段的构造函数；
+	 */
+	public Page<T> findPage(final Page<T> page, final String hql, final List<PropertyFilter> filters){
+		Assert.notNull(page, "page不能为空");
+		String resultHql = prepareQuery(hql,filters);
+		if (page.isAutoCount()) {
+			long totalCount = countHqlResult(resultHql, filters);
+			page.setTotalCount(totalCount);
+		}
+		Query q = getSession().createQuery(resultHql);
+		setPageParameterToQuery(q, page);
+		page.setResult(q.list());
+		return page;
+	}
 	
 	/**
-	 * @Description:此处为执行sql语句查询，最后将查询的结果封装成一个冗余的bean对象；注意冗余的意义：例如：当User对象中包含了一个orgId，现在要查询到orgName,封装的User对象博阿寒orgName；
+	 * @Description：此处为执行sql语句查询，最后将查询的结果封装成一个冗余的bean对象；
+	 * 注意冗余的意义：例如：当User对象中包含了一个orgId，现在要查询到orgName,
+	 * 封装的User对象必须包含未持久化的orgName，并提供相应的查询结果所有字段的构造函数；
+	 */
+	public Page<T> findPageBySql(final Page<T> page, final String sql, final List<PropertyFilter> filters){
+		Assert.notNull(page, "page不能为空");
+		String queryString = prepareQuery(sql,filters);
+		if (page.isAutoCount()) {
+			long totalCount = countSqlResult(queryString, filters);
+			page.setTotalCount(totalCount);
+		}
+		Query q = getSession().createSQLQuery(queryString);
+		q = q.setResultTransformer(Transformers.aliasToBean(this.entityClass));
+		setPageParameterToQuery(q, page);
+		page.setResult(q.list());
+		return page;
+	}
+	
+	/**
+	 * @Description:此处为执行sql语句查询，最后将查询的结果封装成一个冗余的bean对象；
+	 * 注意冗余的意义：例如：当User对象中包含了一个orgId，现在要查询到orgName,
+	 * 封装的User对象必须包含未持久化的orgName，并提供相应的查询结果所有字段的构造函数；
 	 * @param page
 	 * @param sql
 	 * @param values
@@ -96,49 +161,6 @@ public class HibernateDaoImpl<T, PK extends Serializable> extends SimpleBaseDaoU
 		page.setResult(q.list());
 		return page;
 	}
-	/**
-	 * @Description:单独封装为处理sql查询：此处查询对象数量的sql语句封装；
-	 * @param orgSql
-	 * @return
-	 * @Since :2016年2月1日 下午3:10:39
-	 */
-	private String prepareCountSql(String orgSql) {
-		String fromSql = orgSql;
-		//select子句与order by子句会影响count查询,进行简单的排除.
-		fromSql = "from " + StringUtils.substringAfter(fromSql, "from");
-		fromSql = StringUtils.substringBefore(fromSql, "order by");
-		String countSql = "select count(*) " + fromSql;
-		return countSql;
-	}
-	/**
-	 * @Description:单独封装为处理sql处理：此处为对语句执行查询数量的操作；
-	 * @param sql
-	 * @param values
-	 * @return
-	 * @Since :2016年2月1日 下午3:11:08
-	 */
-	private long countSqlResult(final String sql, final Object... values) {
-		String countSql = prepareCountSql(sql);
-
-		try {
-			BigInteger count = findUniqueBySQL(countSql, values);
-			return count.intValue();
-		} catch (Exception e) {
-			throw new RuntimeException("sql can't be auto count, Sql is:" + countSql, e);
-		}
-	}
-	
-	/**
-	 * @Description:按SQL查询唯一对象.
-	 * @param sql
-	 * @param values
-	 * @return
-	 * @Since :2016年2月1日 下午3:46:13
-	 */
-	private <X> X findUniqueBySQL(final String sql, Object... values) {
-		return (X) createSQLQuery(sql, values).uniqueResult();
-	}
-	
 	
 	/* (non-Javadoc)
 	 * @see com.agama.authority.common.persistence.IBaseDao#findPage(com.agama.authority.common.persistence.Page, java.lang.String, java.lang.Object)
@@ -147,16 +169,12 @@ public class HibernateDaoImpl<T, PK extends Serializable> extends SimpleBaseDaoU
 	@SuppressWarnings({ "rawtypes" })
 	public Page<T> findPage(final Page<T> page, final String hql, final Object... values) {
 		Assert.notNull(page, "page不能为空");
-
 		Query q = createQuery(hql, values);
-
 		if (page.isAutoCount()) {
 			long totalCount = countHqlResult(hql, values);
 			page.setTotalCount(totalCount);
 		}
-
 		setPageParameterToQuery(q, page);
-
 		List result = q.list();
 		page.setResult(result);
 		return page;
@@ -169,51 +187,57 @@ public class HibernateDaoImpl<T, PK extends Serializable> extends SimpleBaseDaoU
 	@SuppressWarnings({ "rawtypes" })
 	public Page<T> findPage(final Page<T> page, final String hql, final Map<String, ?> values) {
 		Assert.notNull(page, "page不能为空");
-
 		Query q = createQuery(hql, values);
-
 		if (page.isAutoCount()) {
 			long totalCount = countHqlResult(hql, values);
 			page.setTotalCount(totalCount);
 		}
-
 		setPageParameterToQuery(q, page);
-
 		List result = q.list();
 		page.setResult(result);
 		return page;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.agama.authority.common.persistence.IBaseDao#findPage(com.agama.authority.common.persistence.Page, org.hibernate.criterion.Criterion)
+	
+	/**
+	 * @Description:单独封装为处理sql处理：此处为对语句执行查询数量的操作；
+	 * @param sql
+	 * @param values
+	 * @return
+	 * @Since :2016年2月1日 下午3:11:08
 	 */
-	@Override
-	@SuppressWarnings({ "rawtypes" })
-	public Page<T> findPage(final Page<T> page, final Criterion... criterions) {
-		Assert.notNull(page, "page不能为空");
-
-		Criteria c = createCriteria(criterions);
-
-		if (page.isAutoCount()) {
-			long totalCount = countCriteriaResult(c);
-			page.setTotalCount(totalCount);
+	protected long countSqlResult(final String sql, final Object... values) {
+		String countSql = prepareCountSql(sql);
+		try {
+			BigInteger count = findUniqueBySQL(countSql, values);
+			return count.intValue();
+		} catch (Exception e) {
+			throw new RuntimeException("sql can't be auto count, Sql is:" + countSql, e);
 		}
-
-		setPageParameterToCriteria(c, page);
-
-		List result = c.list();
-		page.setResult(result);
-		return page;
 	}
 	
 	/**
+	 * 执行count查询获得本次Sql查询所能获得的对象总数.
+	 * 本函数只能自动处理简单的sql语句,复杂的sql查询请另行编写count语句查询.
+	 */
+	protected long countSqlResult(final String sql, final List<PropertyFilter> filters) {
+		String countSql = StringUtils.substringBefore(sql, "order by");;
+		try {
+			Query query = getSession().createSQLQuery(countSql);
+			Long count = (long) query.list().size();
+			return count;
+		} catch (Exception e) {
+			throw new RuntimeException("sql can't be auto count, hql is:" + countSql, e);
+		}
+	}
+	
+	
+	/**
 	 * 执行count查询获得本次Hql查询所能获得的对象总数.
-	 * 
 	 * 本函数只能自动处理简单的hql语句,复杂的hql查询请另行编写count语句查询.
 	 */
 	protected long countHqlResult(final String hql, final Object... values) {
 		String countHql = prepareCountHql(hql);
-
 		try {
 			Long count = findUnique(countHql, values);
 			return count;
@@ -224,12 +248,25 @@ public class HibernateDaoImpl<T, PK extends Serializable> extends SimpleBaseDaoU
 
 	/**
 	 * 执行count查询获得本次Hql查询所能获得的对象总数.
-	 * 
+	 * 本函数只能自动处理简单的hql语句,复杂的hql查询请另行编写count语句查询.
+	 */
+	protected long countHqlResult(final String hql, final List<PropertyFilter> filters) {
+		String countHql = StringUtils.substringBefore(hql, "order by");;
+		try {
+			Query query = getSession().createQuery(countHql);
+			Long count = (long) query.list().size();
+			return count;
+		} catch (Exception e) {
+			throw new RuntimeException("hql can't be auto count, hql is:" + countHql, e);
+		}
+	}
+	
+	/**
+	 * 执行count查询获得本次Hql查询所能获得的对象总数.
 	 * 本函数只能自动处理简单的hql语句,复杂的hql查询请另行编写count语句查询.
 	 */
 	protected long countHqlResult(final String hql, final Map<String, ?> values) {
 		String countHql = prepareCountHql(hql);
-
 		try {
 			Long count = findUnique(countHql, values);
 			return count;
@@ -279,8 +316,7 @@ public class HibernateDaoImpl<T, PK extends Serializable> extends SimpleBaseDaoU
 		return totalCount;
 	}
 
-	//-- 属性过滤条件(PropertyFilter)查询函数 --//
-
+	
 	/* (non-Javadoc)
 	 * @see com.agama.authority.common.persistence.IBaseDao#findBy(java.lang.String, java.lang.Object, com.agama.authority.common.persistence.PropertyFilter.MatchType)
 	 */
@@ -299,16 +335,6 @@ public class HibernateDaoImpl<T, PK extends Serializable> extends SimpleBaseDaoU
 		return find(criterions);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.agama.authority.common.persistence.IBaseDao#findPage(com.agama.authority.common.persistence.Page, java.util.List)
-	 */
-	@Override
-	public Page<T> findPage(final Page<T> page, final List<PropertyFilter> filters) {
-		Criterion[] criterions = buildCriterionByPropertyFilter(filters);
-		return findPage(page, criterions);
-	}
-
-	
 	/**
 	 * 保存新增或修改的对象.
 	 * @param entity
@@ -370,6 +396,19 @@ public class HibernateDaoImpl<T, PK extends Serializable> extends SimpleBaseDaoU
 	}
 
 	/**
+	 * 按Criteria查询对象列表.
+	 * @param criterions 数量可变的Criterion.
+	 * @return 结果集合
+	 */
+	public List<T> find(final Criterion... criterions) {
+		return createCriteria(criterions).list();
+	}
+
+	public List<T> find(Boolean isCache,final Criterion... criterions) {
+		return createCriteria(isCache,criterions).list();
+	}
+	
+	/**
 	 * 获取全部对象, 支持按属性行序.
 	 * @param orderByProperty 排序属性name
 	 * @param isAsc 是否升序排序
@@ -397,17 +436,6 @@ public class HibernateDaoImpl<T, PK extends Serializable> extends SimpleBaseDaoU
 	}
 
 	/**
-	 * 按属性查找唯一对象, 匹配方式为相等
-	 * @param propertyName 属性name
-	 * @param value 属性值
-	 * @return 结果对象
-	 */
-	public T findUniqueBy(final String propertyName, final Object value) {
-		Criterion criterion = Restrictions.eq(propertyName, value);
-		return (T) createCriteria(criterion).uniqueResult();
-	}
-
-	/**
 	 * 按HQL查询对象列表.
 	 * @param hql
 	 * @param values 数量可变的参数,按顺序绑定.
@@ -428,6 +456,38 @@ public class HibernateDaoImpl<T, PK extends Serializable> extends SimpleBaseDaoU
 	}
 
 	/**
+	 * 按Criteria查询唯一对象.
+	 * @param criterions 数量可变的Criterion.
+	 * @return 对象
+	 */
+	public T findUnique(final Criterion... criterions) {
+		return (T) createCriteria(criterions).uniqueResult();
+	}
+	
+	/**
+	 * 按属性查找唯一对象, 匹配方式为相等
+	 * @param propertyName 属性name
+	 * @param value 属性值
+	 * @return 结果对象
+	 */
+	public T findUniqueBy(final String propertyName, final Object value) {
+		Criterion criterion = Restrictions.eq(propertyName, value);
+		return (T) createCriteria(criterion).uniqueResult();
+	}
+	
+	/**
+	 * @Description:按SQL查询唯一对象.
+	 * @param sql
+	 * @param values
+	 * @return
+	 * @Since :2016年2月1日 下午3:46:13
+	 */
+	public <X> X findUniqueBySQL(final String sql, Object... values) {
+		return (X) createSQLQuery(sql, values).uniqueResult();
+	}
+	
+	
+	/**
 	 * 按HQL查询唯一对象.
 	 * @param hql
 	 * @param values 数量可变的参数,按顺序绑定.
@@ -437,6 +497,17 @@ public class HibernateDaoImpl<T, PK extends Serializable> extends SimpleBaseDaoU
 		return (X) createQuery(hql, values).uniqueResult();
 	}
 
+	
+	/**
+	 * 按HQL查询唯一对象.
+	 * @param hql
+	 * @param values 数量可变的参数,按顺序绑定.
+	 * @return 对象
+	 */
+	public <X> X findUnique(final String hql, final List<PropertyFilter> filters) {
+		return (X) createQuery(hql, filters).uniqueResult();
+	}
+	
 	/**
 	 * 按HQL查询唯一对象.
 	 * @param hql
@@ -458,6 +529,17 @@ public class HibernateDaoImpl<T, PK extends Serializable> extends SimpleBaseDaoU
 	}
 
 	/**
+	 * 执行SQL进行批量修改/删除操作.
+	 * @param sql
+	 * @param values 数量可变的参数,按顺序绑定.
+	 * @return 更新记录数.
+	 */
+	@Override
+	public int batchExecuteSql(String sql, Object... values) {
+		return createSQLQuery(sql, values).executeUpdate();
+	}
+	
+	/**
 	 * 执行HQL进行批量修改/删除操作.
 	 * @param hql
 	 * @param values 命名参数,按名称绑定.
@@ -465,28 +547,6 @@ public class HibernateDaoImpl<T, PK extends Serializable> extends SimpleBaseDaoU
 	 */
 	public int batchExecute(final String hql, final Map<String, ?> values) {
 		return createQuery(hql, values).executeUpdate();
-	}
-
-	/**
-	 * 按Criteria查询对象列表.
-	 * @param criterions 数量可变的Criterion.
-	 * @return 结果集合
-	 */
-	public List<T> find(final Criterion... criterions) {
-		return createCriteria(criterions).list();
-	}
-
-	public List<T> find(Boolean isCache,final Criterion... criterions) {
-		return createCriteria(isCache,criterions).list();
-	}
-
-	/**
-	 * 按Criteria查询唯一对象.
-	 * @param criterions 数量可变的Criterion.
-	 * @return 对象
-	 */
-	public T findUnique(final Criterion... criterions) {
-		return (T) createCriteria(criterions).uniqueResult();
 	}
 
 	/**
@@ -536,7 +596,7 @@ public class HibernateDaoImpl<T, PK extends Serializable> extends SimpleBaseDaoU
 		getSession().merge(entity);
 
 	}
-	
+
 	
 	
 	

@@ -154,8 +154,8 @@ public class DeviceServiceImpl extends BaseServiceImpl<Device, Integer>
 	}
 
 	@Override
-	public Page<Device> searchListByOrganizationIdStr(String organizationIdStr,
-			Page<Device> page, List<PropertyFilter> filters) {
+	public Page<Device> searchListByOrganizationIdStr(String organizationIdStr,String deviceType,
+			Page<Device> page) {
 		StringBuffer hql = new StringBuffer(
 				"from Device d where d.status=0 and d.gitInfo.id in (select g.id from GitInfo g where g.status=0 ");
 		if (organizationIdStr != null) {
@@ -163,6 +163,9 @@ public class DeviceServiceImpl extends BaseServiceImpl<Device, Integer>
 					.append(")");
 		}
 		hql.append(")");
+		if(deviceType!=null&&!deviceType.equals("")){
+			hql.append(" and d.deviceType=").append(DeviceType.valueOf(deviceType).ordinal());
+		}
 
 		return deviceDao.findPage(page, hql.toString());
 	}

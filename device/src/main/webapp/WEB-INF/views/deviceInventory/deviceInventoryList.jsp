@@ -26,7 +26,7 @@
 		 pagination:true,
 		 rownumbers:true,
 		 pageNumber:1,
-		 pageSize:10,
+		 pageSize:20,
 		 pageList:[10,20,30,40,50],
 		 singleSelect:true,
 		 columns:[[

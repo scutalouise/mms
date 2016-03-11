@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.agama.authority.entity.Permission;
 import com.agama.authority.service.IPermissionService;
-import com.agama.authority.service.IRolePermissionService;
 import com.agama.authority.utils.UserUtil;
 import com.agama.common.web.BaseController;
 
@@ -34,9 +33,6 @@ public class PermissionController extends BaseController{
 	
 	@Autowired
 	private IPermissionService permissionService;
-	
-	@Autowired
-	private IRolePermissionService rolePermissionService;
 	
 	/**
 	 * 默认页面
@@ -193,7 +189,7 @@ public class PermissionController extends BaseController{
 	@RequestMapping(value = "delete/{id}")
 	@ResponseBody
 	public String delete(@PathVariable("id") Integer id) {
-		permissionService.delete(id);
+		permissionService.delete(id, UserUtil.getCurrentUser().getId());
 		return "success";
 	}
 	

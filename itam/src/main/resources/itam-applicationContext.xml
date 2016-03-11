@@ -78,7 +78,7 @@
 				<prop key="hibernate.ejb.naming_strategy">com.agama.authority.utils.CustomHibernateNamingStrategy</prop>
 			</props>
 		</property>
-		<property name="packagesToScan" value="com.agama.authority,com.agama.itam.domain,com.agama.device.domain" />
+		<property name="packagesToScan" value="com.agama.authority,com.agama.common.entity,com.agama.itam.domain,com.agama.device.domain" />
 
 	</bean>
 

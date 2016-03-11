@@ -28,13 +28,15 @@
 	            <span class="toolbar-item dialog-tool-separator"></span>
 	            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="userForPeDevice()">网点管理员</a>
 	            <span class="toolbar-item dialog-tool-separator"></span>
-	            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="roleForPeDevice()">设备运维角色</a>
-	            <span class="toolbar-item dialog-tool-separator"></span>
 	            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="userDefineTypePe()">自定义分类</a>
 	            <span class="toolbar-item dialog-tool-separator"></span>
      	        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="alarmTemplatePe()">告警模板</a>
 	            <span class="toolbar-item dialog-tool-separator"></span>
 	            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-print" plain="true" onclick="pe_QR()">二维码</a>
+	       		
+	       		<span class="toolbar-item dialog-tool-separator"></span>
+	            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-standard-drive-burn" id="peScrapped" plain="true" onclick="peScrapped()">设备报废</a>
+	       		
 	       </div> 
 	</div>
 <!---------------------------------------- toolsBar End ---------------------------------------->	
@@ -45,7 +47,10 @@
 <script type="text/javascript">
 var peDevice_datagrid;
 var peDevice_dialog;
-$(function(){   
+$(function(){  
+	$("#peScrapped").css({
+		visibility : "hidden"
+	});
 	peDevice_datagrid=$('#peDevice_datagrid').datagrid({    
 		method: "post",
 	    url:'${ctx}/device/peDevice/json', 
@@ -62,9 +67,10 @@ $(function(){
 		pageList : [ 10, 20, 30, 40, 50 ],
 		singleSelect:true,
 	    columns:[[    
-	        {field:'id',title:'id',hidden:true},    
+	        {field:'id',title:'id',hidden:true},
+	        {field:'name',title:'设备名称',sortable:true,width:100}, 
 	        {field:'identifier',title:'识别码',sortable:true,width:100},    
-	        {field:'manufactureDate',title:'生产日期',sortable:true,width:100,formatter: function(value,row,index){
+	        {field:'manufactureDate',title:'采购日期',sortable:true,width:100,formatter: function(value,row,index){
 	        	return formatDate(value,"yyyy-MM-dd")
 	        }},
 	        {field:'enable',title:'是否可用',sortable:true,width:50,
@@ -72,8 +78,13 @@ $(function(){
 	       			return value=='ENABLED'?'启用':'禁用';
 	        	}
 	        },
-	        {field:'name',title:'名字',sortable:true,width:100},
+	        
 	        {field:'model',title:'型号',sortable:true,width:100},
+	        {field:'deviceUsedState',title:"设备状态",sortable:true,width:50,align:"center",formatter:function(v){
+	        	if(v!=null){
+	        		return v.value;
+	        	}
+	        }},
 	        {field:'updateTime',title:'最近更新时间',sortable:true,width:100}
 	    ]],
 	    headerContextMenu: [
@@ -89,7 +100,18 @@ $(function(){
 	    enableHeaderClickMenu: true,
 	    enableHeaderContextMenu: true,
 	    enableRowContextMenu: false,
-	    toolbar:'#peDevice_toolBar'
+	    toolbar:'#peDevice_toolBar',
+	    onSelect:function(rowIndex,rowData){
+	    	if(rowData.deviceUsedState.value=="坏件"){
+	    		$("#peScrapped").css({
+					visibility : "visible"
+				});
+	    	}else{
+	    		$("#peScrapped").css({
+					visibility : "hidden"
+				});
+	    	}
+	    }
 	});
 	
 	initDateFilter("pe_startDate","pe_endDate");
@@ -238,36 +260,6 @@ function userForPeDevice(){
 		});
 }
 
-//弹窗设置运维角色
-function roleForPeDevice(){
-	var row = peDevice_datagrid.datagrid('getSelected');
-	if(rowIsNull(row)) return;
-	$.ajaxSetup({type : 'GET'});
-	peDevice_dialog=$("#peDevice_dialog").dialog({   
-	    title: '动环设备运维角色设置',    
-	    width: 580,    
-	    height: 350,  
-	    href:'${ctx}/device/details/roles',
-	    maximizable:true,
-	    modal:true,
-	    onClose:function(){
-	    	appendAndRemovePe("peDevice_dialog");
-	    },
-	    buttons:[{
-			text:'确认',
-			handler:function(){
-				saveDeviceRole(peDevice_datagrid,"${ctx}/device/peDevice/setDeviceRole");//执行保存运维角色的操作
-				peDevice_dialog.panel('close');
-			}
-		},{
-			text:'取消',
-			handler:function(){
-				peDevice_dialog.panel('close');
-			}
-		}]
-	});
-}
-
 //弹窗设置自定义分类
 function userDefineTypePe(){
 	var row = peDevice_datagrid.datagrid('getSelected');
@@ -337,6 +329,47 @@ function alarmTemplatePe(){
 function appendAndRemovePe(divId){
 	$("#" +divId + "").dialog("destroy").remove(); //直接摧毁、移除
 	$("<div id='"+ divId +"'></div> ").appendTo($('body'))//新加入一个
+}
+
+
+function peScrapped(){
+	var peDeviceIdList=[];
+	
+	//所选的的主机设备
+	var data=peDevice_datagrid.datagrid('getSelections');
+	if(data.length==0){
+		parent.$.messager.show({ title : "提示",msg: "请选择需要报废的设备！", position: "topCenter" });
+		return;
+	}
+	for(var i=0;i<data.length;i++){
+		/* if(data[i].obtainState.id==0){
+			parent.$.messager.show({ title : "提示",msg: "设备需要退回后才能报废！", position: "topCenter" });
+			return;
+		} */
+		peDeviceIdList.push(data[i].id);
+	}
+	parent.$.messager.confirm('提示', '确定要报废设备吗？', function(data){
+		if (data){
+			$.ajax({
+				type:"post",
+				data:JSON.stringify(peDeviceIdList),
+				contentType:'application/json;charset=utf-8',	//必须
+				url:"${ctx}/device/peDevice/scrappedPeDevice",
+				success:function(data){
+					if(data=='success'){
+						parent.$.messager.show({ title : "提示",msg: "操作成功！", position: "bottomRight" });
+						$("#peScrapped").css({
+							visibility : "hidden"
+						});
+						peDevice_datagrid.datagrid('reload'); 
+					}else{
+						$.easyui.messager.alert(data);
+					}
+					
+				}
+			});
+		}
+	});
 }
 </script>
 </body>

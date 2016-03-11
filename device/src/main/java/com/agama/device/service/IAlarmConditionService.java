@@ -36,4 +36,5 @@ public interface IAlarmConditionService extends
 	public StateEnum alarmConditionHandle(Integer managerId,String identifier,StateEnum currenState,
 			AlarmCondition alarmCondition, Map<String, Object> alarmMap);
 	
+	public Integer getUserId(String identifier);
 }

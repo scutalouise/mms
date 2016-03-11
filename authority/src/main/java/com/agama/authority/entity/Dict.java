@@ -2,6 +2,8 @@ package com.agama.authority.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -14,15 +16,20 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import com.agama.common.enumbean.EnabledStateEnum;
+import com.agama.common.enumbean.StatusEnum;
+
 /**
  * 字典 entity
+ * 
  * @author ty
  * @date 2015年1月13日
  */
 @Entity
 @Table(name = "dict")
-@Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
-@DynamicUpdate @DynamicInsert
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@DynamicUpdate
+@DynamicInsert
 public class Dict implements java.io.Serializable {
 
 	// Fields
@@ -34,24 +41,28 @@ public class Dict implements java.io.Serializable {
 	private String description;
 	private Integer sort;
 	private String remark;
-	private String delFlag;
+	// 2016年2月2日，将删除与启用2个字段与目前已有的项目统一处理，命名；
+	private EnabledStateEnum enable; // 是否启用
+	private StatusEnum status; // 是否删除
 
 	// Constructors
 
 	/** default constructor */
 	public Dict() {
+		this.enable = EnabledStateEnum.ENABLED;
+		this.status = StatusEnum.NORMAL;
 	}
 
 	/** full constructor */
-	public Dict(String label, String value, String type, String description,
-			Integer sort, String remark, String delFlag) {
+	public Dict(String label, String value, String type, String description, Integer sort, String remark, EnabledStateEnum enable, StatusEnum status) {
 		this.label = label;
 		this.value = value;
 		this.type = type;
 		this.description = description;
 		this.sort = sort;
 		this.remark = remark;
-		this.delFlag = delFlag;
+		this.enable = enable;
+		this.status = status;
 	}
 
 	// Property accessors
@@ -120,13 +131,29 @@ public class Dict implements java.io.Serializable {
 		this.remark = remark;
 	}
 
-	@Column(name = "DEL_FLAG")
-	public String getDelFlag() {
-		return this.delFlag;
+	@Column(name = "ENABLE")
+	@Enumerated(EnumType.STRING)
+	public EnabledStateEnum getEnable() {
+		return enable;
 	}
 
-	public void setDelFlag(String delFlag) {
-		this.delFlag = delFlag;
+	public void setEnable(EnabledStateEnum enable) {
+		this.enable = enable;
+	}
+
+	@Column(name = "STATUS")
+	@Enumerated(EnumType.STRING)
+	public StatusEnum getStatus() {
+		return status;
+	}
+
+	public void setStatus(StatusEnum status) {
+		this.status = status;
+	}
+
+	@Override
+	public String toString() {
+		return "Dict [id=" + id + ", enable=" + enable + ", status=" + status + "]";
 	}
 
 }

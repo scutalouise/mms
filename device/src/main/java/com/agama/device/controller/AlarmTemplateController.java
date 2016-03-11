@@ -17,9 +17,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.agama.common.dao.utils.Page;
 import com.agama.common.dao.utils.PropertyFilter;
+import com.agama.common.enumbean.TemplateTypeEnum;
 import com.agama.common.web.BaseController;
 import com.agama.device.domain.AlarmTemplate;
+import com.agama.device.domain.OrgAlarmTemplate;
 import com.agama.device.service.IAlarmTemplateService;
+import com.agama.device.service.IOrgAlarmTemplateService;
 
 /**
  * @Description:告警模板控制层
@@ -31,6 +34,8 @@ import com.agama.device.service.IAlarmTemplateService;
 public class AlarmTemplateController extends BaseController {
 	@Autowired
 	private IAlarmTemplateService alarmTemplateService;
+	@Autowired
+	private IOrgAlarmTemplateService orgAlarmTemplateService;
 
 	/**
 	 * @Description:默认页面
@@ -41,11 +46,21 @@ public class AlarmTemplateController extends BaseController {
 	public String view() {
 		return "alarm/alarmTemplate";
 	}
-
+	/**
+	 * @Description:设备业务告警模板
+	 * @return
+	 * @Since :2016年2月26日 下午4:24:38
+	 */
+	@RequestMapping(value="deviceAlarmTemplate",method=RequestMethod.GET)
+	public String deviceAlarmTemplate(){
+		return "alarm/deviceAlarmTemplate";
+		
+	}
 	@RequiresPermissions("sys:alarmTemplate:view")
 	@RequestMapping(value = "json", method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> getData(HttpServletRequest request) {
+		
 		Page<AlarmTemplate> page = getPage(request);
 		List<PropertyFilter> filters = PropertyFilter
 				.buildFromHttpRequest(request);
@@ -53,9 +68,11 @@ public class AlarmTemplateController extends BaseController {
 		return getEasyUIData(page);
 	}
 	@RequiresPermissions("sys:alarmTemplate:add")
-	@RequestMapping(value="addForm",method=RequestMethod.GET)
-	public String addForm(Model model) {
-		model.addAttribute("alarmTemplate", new AlarmTemplate());
+	@RequestMapping(value="addForm/{templateType}",method=RequestMethod.GET)
+	public String addForm(@PathVariable("templateType") TemplateTypeEnum templateType,Model model) {
+		AlarmTemplate alarmTemplate=new AlarmTemplate();
+		alarmTemplate.setTemplateType(templateType);
+		model.addAttribute("alarmTemplate", alarmTemplate);
 		model.addAttribute("action", "add");
 		return "alarm/templateForm";
 	}
@@ -101,5 +118,25 @@ public class AlarmTemplateController extends BaseController {
 		List<PropertyFilter> filters = PropertyFilter
 				.buildFromHttpRequest(request);
 		return alarmTemplateService.search(filters);
+	}
+	@RequestMapping(value="chooseDeviceTemplate",method=RequestMethod.GET)
+	public String chooseDeviceTemplate(){
+		return "alarm/chooseDeviceTemplate";
+	}
+	@RequestMapping(value="findOrgAlarmTemplate",method=RequestMethod.GET)
+	@ResponseBody
+	public OrgAlarmTemplate findTemplateId(Integer orgId){
+		OrgAlarmTemplate orgAlarmTemplate=orgAlarmTemplateService.findByOrgId(orgId);
+		return orgAlarmTemplate;
+	}
+	@RequestMapping(value="saveOrgAlarmTemplate",method=RequestMethod.GET)
+	@ResponseBody
+	public String saveOrgAlarmTemplate(Integer orgId,Integer templateId){
+		OrgAlarmTemplate orgAlarmTemplate=new OrgAlarmTemplate();
+		orgAlarmTemplate.setOrgId(orgId);
+		orgAlarmTemplate.setAlarmTemplateId(templateId);
+		orgAlarmTemplateService.saveOrgAlarmTemplateId(orgAlarmTemplate);
+		return "success";
+		
 	}
 }

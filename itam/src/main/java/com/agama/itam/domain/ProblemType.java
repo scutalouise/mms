@@ -1,11 +1,14 @@
 package com.agama.itam.domain;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import com.agama.authority.entity.BaseDomain;
+import com.agama.common.enumbean.AlarmRuleType;
 import com.agama.common.enumbean.FirstDeviceType;
 import com.agama.common.enumbean.StatusEnum;
 
@@ -23,7 +26,11 @@ public class ProblemType extends BaseDomain {
 	private String name;
 	private boolean Initial;
 	private String otherNote;
+	@Enumerated(EnumType.STRING)
 	private FirstDeviceType deviceType;
+	private boolean alarmGenerate;
+	@Enumerated(EnumType.STRING)
+	private AlarmRuleType alarmRuleType;
 	private StatusEnum status;
 
 	public String getName() {
@@ -64,6 +71,22 @@ public class ProblemType extends BaseDomain {
 
 	public void setStatus(StatusEnum status) {
 		this.status = status;
+	}
+
+	public boolean isAlarmGenerate() {
+		return alarmGenerate;
+	}
+
+	public void setAlarmGenerate(boolean alarmGenerate) {
+		this.alarmGenerate = alarmGenerate;
+	}
+
+	public AlarmRuleType getAlarmRuleType() {
+		return alarmRuleType;
+	}
+
+	public void setAlarmRuleType(AlarmRuleType alarmRuleType) {
+		this.alarmRuleType = alarmRuleType;
 	}
 
 

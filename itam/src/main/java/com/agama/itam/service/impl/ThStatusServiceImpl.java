@@ -133,6 +133,7 @@ public class ThStatusServiceImpl implements IThStatusService{
 		Map<String, Object> map = new HashMap<String, Object>();
 		StateEnum runState = StateEnum.good;
 		StringBuffer alarmContent = new StringBuffer();
+		StringBuffer alarmRuleType=new StringBuffer();
 		OperationType operationType = alarmRule.getOperationType();
 		Integer value = alarmRule.getValue();
 		Integer minValue = alarmRule.getMinValue();
@@ -142,9 +143,11 @@ public class ThStatusServiceImpl implements IThStatusService{
 				minValue, maxValue,alarmRule.getState());
 		if (runState != StateEnum.good) {
 			alarmContent.append("").append(alarmRule.getRemark()).append("、");
+			alarmRuleType.append(alarmRule.getAlarmRuleType()).append("、");
 		}
 		map.put("runState", runState);
 		map.put("alarmContent", alarmContent.toString());
+		map.put("alarmRuleType", alarmRuleType);
 		return map;
 	}
 	@Override
@@ -159,6 +162,7 @@ public class ThStatusServiceImpl implements IThStatusService{
 						AlarmOptionType.TH);
 		// 报警内容
 		StringBuffer alarmContent = new StringBuffer();
+		StringBuffer alarmRuleType = new StringBuffer();
 		for (AlarmRule alarmRule : alarmRules) {
 			
 				Double compareValue=null;
@@ -194,17 +198,20 @@ public class ThStatusServiceImpl implements IThStatusService{
 				
 				alarmContent.append(map.get("alarmContent")
 						.toString());
+				alarmRuleType.append(map.get("alarmRuleType").toString());
 			
 		}
 		
 		if(alarmContent.indexOf("、")>0){
 			alarmContent=new StringBuffer(alarmContent.substring(0,alarmContent.length()-1));
+			alarmRuleType=new StringBuffer(alarmRuleType.substring(0,alarmRuleType.length()-1));
 		}
 		ObjectId objectId=new ObjectId(thStatus.getId());
 	
 		mongoDao.updateBeanByObjectId(objectId, thStatus,ThStatus.class);
 		alarmResultMap.put("runState", runState);
 		alarmResultMap.put("alarmContent", alarmContent.toString());
+		alarmResultMap.put("alarmRuleType", alarmRuleType.toString());
 		return alarmResultMap;
 	}
 

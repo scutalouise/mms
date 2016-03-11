@@ -42,8 +42,8 @@ public interface IDeviceService extends IBaseService<Device, Integer> {
 	public Page<Device> searchListByOrganizationId(Integer organizationId,
 			Page<Device> page, List<PropertyFilter> filters);
 
-	public Page<Device> searchListByOrganizationIdStr(String organizationIds,
-			Page<Device> page, List<PropertyFilter> filters);
+	public Page<Device> searchListByOrganizationIdStr(String organizationIds,String deviceType,
+			Page<Device> page);
 
 	public List<DeviceStateRecord> getDeviceStateRecordByOrganizationId(
 			String organizationIdStr);

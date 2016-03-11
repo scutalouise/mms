@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import com.agama.common.enumbean.AlarmRuleType;
+import com.agama.common.enumbean.FirstDeviceType;
 import com.agama.common.service.IBaseService;
 import com.agama.itam.domain.ProblemType;
 
@@ -19,5 +21,9 @@ public interface IProblemTypeService extends IBaseService<ProblemType, Serializa
 	public List<Map<String, Object>> getListByIdentifierForHandset(String identifier) throws Exception;
 
 	public List<ProblemType> getAllList() throws Exception;
+	
+	public ProblemType getUniqueByAlarmType(AlarmRuleType art);
+	
+	public List<ProblemType> getListByDeviceType(FirstDeviceType deviceType) throws Exception;
 
 }

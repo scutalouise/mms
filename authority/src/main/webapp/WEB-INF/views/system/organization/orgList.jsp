@@ -8,6 +8,12 @@
 <body style="font-family: '微软雅黑'">
 <div id="tb" style="padding:5px;height:auto">
     <div>
+   		<form id="orgSearchFrom" action="">
+      	        <input type="text" name="filter_LIKES_orgName" class="easyui-validatebox" data-options="width:150,prompt: '机构名'"/>
+      	        <input type="text" name="filter_LIKES_orgCode" class="easyui-validatebox" data-options="width:150,prompt: '机构代码'"/>
+	        <span class="toolbar-item dialog-tool-separator"></span>
+	        <a href="javascript(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="cx()">查询</a>
+		</form>
     	<%-- <shiro:hasPermission name="sys:perm:add"> --%>
     	<a href="#" class="easyui-linkbutton" plain="true" iconCls="icon-add" onclick="add();">添加</a>
     	<span class="toolbar-item dialog-tool-separator"></span>
@@ -18,14 +24,30 @@
        <%--  </shiro:hasPermission>
         <shiro:hasPermission name="sys:perm:update"> --%>
         <a href="#" class="easyui-linkbutton" plain="true" iconCls="icon-edit" onclick="upd()">修改</a>
+        <span class="toolbar-item dialog-tool-separator"></span>
         <%-- </shiro:hasPermission> --%>
-    </div>
+        
+        <a href="#" class="easyui-linkbutton" plain="true" id="templateCog" iconCls="icon-cog" data-options="disabled:true" onclick="cogTemplate()">业务告警配置</a>
+        <span class="toolbar-item dialog-tool-separator"></span>
+        
+        
+         <a href="#" class="easyui-linkbutton" plain="true" id="managerCog" iconCls="icon-cog" data-options="disabled:true" onclick="cogManager()">管理员配置</a>
+        <span class="toolbar-item dialog-tool-separator"></span>
+        
+        
+        <a href="javascript:void(0)" class="easyui-menubutton" plain="true" data-options="menu:'#exportExcel',iconCls:'icon-standard-page-excel'">Excel</a>
+     </div> 
+     <div id="exportExcel">
+		<div data-options="iconCls:'icon-standard-page-excel'" onclick="importExcel()">导入Excel</div>
+		<div data-options="iconCls:'icon-standard-page-excel'" onclick="exportExcel()">导出Excel</div>
+	 </div>
 </div>
 <table id="dg"></table>
  
 <div id="dlg"></div> 
 <div id="icon_dlg"></div>  
-
+<div id="template_dlg"></div>
+<div id="manager_dlg"></div>
 <script type="text/javascript">
 var dg;
 var d;
@@ -33,7 +55,7 @@ var permissionDg;
 var parentPermId;
 $(function(){   
 	dg=$('#dg').treegrid({  
-	method: "get",
+	method: "post",
     url:'${ctx}/system/organization/json', 
     fit : true,
 	fitColumns : true,
@@ -49,6 +71,7 @@ $(function(){
         {field:'id',title:'id',hidden:true,width:100},    
         {field:'orgName',title:'机构名称',width:100},
         {field:'orgCode',title:'机构代码',width:100},
+        {field:'contact',title:'联系方式',width:100},
         {field:'longitude',title:'经度',width:100},
         {field:'latitude',title:'纬度',width:100}
     ]],
@@ -56,7 +79,10 @@ $(function(){
     enableHeaderContextMenu: false,
     enableRowContextMenu: false,
     toolbar:'#tb',
-    dataPlain: true
+    dataPlain: true,onSelect:function(){
+    	$("#templateCog").linkbutton('enable');   
+    	$("#managerCog").linkbutton('enable'); 
+    }
 	});
 	
 });
@@ -72,7 +98,7 @@ function add() {
 	d=$('#dlg').dialog({    
 	    title: '添加菜单',    
 	    width: 450,    
-	    height: 320,    
+	    height: 400,    
 	    closed: false,    
 	    cache: false,
 	    maximizable:true,
@@ -123,7 +149,7 @@ function upd(){
 	d=$("#dlg").dialog({   
 	    title: '修改菜单',    
 	    width: 450,    
-	    height: 320,    
+	    height: 400,    
 	    href:'${ctx}/system/organization/update/'+row.id,
 	    maximizable:true,
 	    modal:true,
@@ -141,9 +167,83 @@ function upd(){
 	});
 
 }
-
+var orgRow;
+function cogTemplate(){
+	orgRow = dg.treegrid('getSelected');
+	var template_dlg=$("#template_dlg").dialog({
+		title:"业务告警模板",
+		width:600,
+		height:400,
+		methos:'post',
+		href:"${ctx}/system/alarmTemplate/chooseDeviceTemplate",
+		buttons:[{
+			text:"确定",
+			handler:function(){
+				saveOrgAlarmTemplate(orgRow.id,templateId);
+			}
+		},{
+			text:"取消",
+			handler:function(){
+				template_dlg.panel("close");
+			}
+		}]
+	});
+	
+	
+}
+function cogManager(){
+	orgRow = dg.treegrid('getSelected');
+	var manager_dlg=$("#manager_dlg").dialog({
+		title:"选择网点管理员",
+		width:600,
+		height:400,
+		methos:'post',
+		buttons:[{
+			text:"确定",handler:function(){
+				
+			}
+		},{
+			text:"取消",handler:function(){
+				manager_dlg.panel("close");
+			}
+		}]
+	});
+}
+function saveOrgAlarmTemplate(orgId,templateId){
+	$.ajax({
+		method:"get",
+		url:ctx+"/system/alarmTemplate/saveOrgAlarmTemplate",
+		data:{
+			orgId:orgId,templateId:templateId
+		},success:function(data){
+			parent.$.messager.show({ title : "提示",msg: "操作成功！", position: "bottomRight" });
+			$("#template_dlg").panel("close");
+		}
+	})
+}
 var nowIcon;
 var icon_dlg;
+
+//创建查询对象并查询
+function cx(){
+	var obj=$("#orgSearchFrom").serializeObject();
+	dg.treegrid('load',obj); 
+}
+
+//导入excel
+function importExcel(){
+	//$("#orgSearchFrom")[0].action="${ctx}/system/organization/importExcel";
+	//$("#orgSearchFrom")[0].enctype='multipart/form-data';
+	
+}
+
+//导出excel
+function exportExcel(){
+	//var obj = $("#orgSearchFrom").serializeObject();
+	$("#orgSearchFrom")[0].action="${ctx}/system/organization/exportExcel";
+	$("#orgSearchFrom")[0].target='_self';
+	$("#orgSearchFrom").submit();
+}
 </script>
 </body>
 </html>

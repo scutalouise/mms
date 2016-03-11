@@ -24,13 +24,10 @@
 			      enableHeaderContextMenu: false,
 			  	  pagination:false,
 			      sortable : false,
+			      singleSelect:true,
 				  rownumbers:true,
 			      columns:[[
 			          {
-			        	  field:'id',
-			        	  title:'id',
-			        	  hidden:true
-			        }, {
 			        	field:'handleUserName',
 			        	title:'处理人',
 			        	sortable:true,

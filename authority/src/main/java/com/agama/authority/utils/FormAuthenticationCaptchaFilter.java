@@ -1,6 +1,7 @@
 package com.agama.authority.utils;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -33,7 +34,15 @@ public class FormAuthenticationCaptchaFilter extends FormAuthenticationFilter {
 
 	protected AuthenticationToken createToken(ServletRequest request,
 			ServletResponse response) {
+		
+		try {
+			((HttpServletRequest)request).setCharacterEncoding("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		String username = getUsername(request);
+		
 		String password = getPassword(request);
 		String captcha = getCaptcha(request);
 		boolean rememberMe = isRememberMe(request);

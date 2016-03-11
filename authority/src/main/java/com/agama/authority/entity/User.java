@@ -9,6 +9,8 @@ import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -19,18 +21,22 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import com.agama.common.enumbean.EnabledStateEnum;
+import com.agama.common.enumbean.InternalEnum;
+import com.agama.common.enumbean.StatusEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * 用户entity
+ * 
  * @author ty
  * @date 2015年1月13日
  */
 @Entity
 @Table(name = "user")
-@DynamicUpdate @DynamicInsert
+@DynamicUpdate
+@DynamicInsert
 public class User implements java.io.Serializable {
-
 	// Fields
 	private static final long serialVersionUID = 1L;
 	private Integer id;
@@ -40,17 +46,20 @@ public class User implements java.io.Serializable {
 	private String plainPassword;
 	private String salt;
 	private Timestamp birthday;
+	private String genderString;
 	private Short gender;
 	private String email;
 	private String phone;
 	private String icon;
 	private Timestamp createDate;
-	private String state;
 	private String description;
 	private Integer loginCount;
 	private Timestamp previousVisit;
 	private Timestamp lastVisit;
-	private String delFlag;
+	private InternalEnum belong;//2016年3月1日新增是否内部字段，判断员工是否属于内部人员；
+	//2016年2月2日，将删除与启用2个字段与目前已有的项目统一处理，命名；
+	private EnabledStateEnum enable;	// 是否启用
+	private StatusEnum status;			// 是否删除
 	@JsonIgnore
 	private Set<UserRole> userRoles = new HashSet<UserRole>(0);
 
@@ -58,10 +67,12 @@ public class User implements java.io.Serializable {
 
 	/** default constructor */
 	public User() {
+		this.enable = EnabledStateEnum.ENABLED;
+		this.status = StatusEnum.NORMAL;
 	}
-	
+
 	public User(Integer id) {
-		this.id=id;
+		this.id = id;
 	}
 
 	/** minimal constructor */
@@ -70,16 +81,15 @@ public class User implements java.io.Serializable {
 		this.name = name;
 		this.password = password;
 	}
-
+	
 	/** full constructor */
-	public User(String loginName, String name, String password, String salt,
-			Timestamp birthday, Short gender, String email, String phone,
-			String icon, Timestamp createDate, String state,String description,
-			Integer loginCount, Timestamp previousVisit, Timestamp lastVisit,
-			String delFlag, Set<UserRole> userRoles) {
+	public User(Integer id, String loginName, String name, String password, String plainPassword, String salt, Timestamp birthday, Short gender, String email, String phone,
+			String icon, Timestamp createDate, String description, Integer loginCount, Timestamp previousVisit, Timestamp lastVisit, InternalEnum belong, EnabledStateEnum enable, StatusEnum status) {
+		this.id = id;
 		this.loginName = loginName;
 		this.name = name;
 		this.password = password;
+		this.plainPassword = plainPassword;
 		this.salt = salt;
 		this.birthday = birthday;
 		this.gender = gender;
@@ -87,13 +97,13 @@ public class User implements java.io.Serializable {
 		this.phone = phone;
 		this.icon = icon;
 		this.createDate = createDate;
-		this.state = state;
-		this.description=description;
+		this.description = description;
 		this.loginCount = loginCount;
 		this.previousVisit = previousVisit;
 		this.lastVisit = lastVisit;
-		this.delFlag = delFlag;
-		this.userRoles = userRoles;
+		this.belong = belong;
+		this.enable = enable;
+		this.status = status;
 	}
 
 	// Property accessors
@@ -153,12 +163,31 @@ public class User implements java.io.Serializable {
 		this.birthday = birthday;
 	}
 
+	@Transient
+	public String getGenderString() {
+		return genderString;
+	}
+
+	public void setGenderString(String genderString) {
+		this.genderString = genderString;
+		if(gender == 1){
+			this.genderString = "男";
+		}else if(gender == 0){
+			this.genderString = "女";
+		}
+	}
+
 	@Column(name = "GENDER")
 	public Short getGender() {
 		return this.gender;
 	}
 
 	public void setGender(Short gender) {
+		if(gender == 1){
+			genderString = "男";
+		}else if( gender == 0){
+			genderString = "女";
+		}
 		this.gender = gender;
 	}
 
@@ -198,14 +227,12 @@ public class User implements java.io.Serializable {
 		this.createDate = createDate;
 	}
 
-	@Column(name = "STATE", length = 1)
-	public String getState() {
-		return this.state;
-	}
-
-	public void setState(String state) {
-		this.state = state;
-	}
+	/*
+	 * @Column(name = "STATE", length = 1) public String getState() { return
+	 * this.state; }
+	 * 
+	 * public void setState(String state) { this.state = state; }
+	 */
 
 	@Column(name = "DESCRIPTION")
 	public String getDescription() {
@@ -243,14 +270,12 @@ public class User implements java.io.Serializable {
 		this.lastVisit = lastVisit;
 	}
 
-	@Column(name = "DEL_FLAG", length = 1)
-	public String getDelFlag() {
-		return this.delFlag;
-	}
-
-	public void setDelFlag(String delFlag) {
-		this.delFlag = delFlag;
-	}
+	/*
+	 * @Column(name = "DEL_FLAG", length = 1) public String getDelFlag() {
+	 * return this.delFlag; }
+	 * 
+	 * public void setDelFlag(String delFlag) { this.delFlag = delFlag; }
+	 */
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
 	public Set<UserRole> getUserRoles() {
@@ -260,7 +285,7 @@ public class User implements java.io.Serializable {
 	public void setUserRoles(Set<UserRole> userRoles) {
 		this.userRoles = userRoles;
 	}
-	
+
 	// 不持久化到数据库，也不显示在Restful接口的属性.
 	@Transient
 	@JsonIgnore
@@ -272,4 +297,38 @@ public class User implements java.io.Serializable {
 		this.plainPassword = plainPassword;
 	}
 
+	@Column(name = "BELONG")
+	@Enumerated(EnumType.STRING)
+	public InternalEnum getBelong() {
+		return belong;
+	}
+
+	public void setBelong(InternalEnum belong) {
+		this.belong = belong;
+	}
+
+	@Column(name = "ENABLE")
+	@Enumerated(EnumType.STRING)
+	public EnabledStateEnum getEnable() {
+		return enable;
+	}
+
+	public void setEnable(EnabledStateEnum enable) {
+		this.enable = enable;
+	}
+
+	@Column(name = "STATUS")
+	@Enumerated(EnumType.STRING)
+	public StatusEnum getStatus() {
+		return status;
+	}
+
+	public void setStatus(StatusEnum status) {
+		this.status = status;
+	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", enable=" + enable + ", status=" + status + "]";
+	}
 }

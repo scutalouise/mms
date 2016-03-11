@@ -21,7 +21,4 @@ public class DeviceInventoryDaoImpl extends HibernateDaoImpl<DeviceInventory, In
 		}
 		return null;
 	}
-
-	
-
 }

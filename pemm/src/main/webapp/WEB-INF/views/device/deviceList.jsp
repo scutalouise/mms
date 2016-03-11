@@ -31,32 +31,52 @@
 
 		</div>
 		<div data-options="region: 'center'">
-			<div id="tb">
-				<div>
 
-					<shiro:hasPermission name="sys:device:add">
-						<a href="javascript:void(0)" class="easyui-linkbutton"
-							iconCls="icon-search" plain="true" onclick="scan();">扫描</a>
-						<span class="toolbar-item dialog-tool-separator"></span>
-					</shiro:hasPermission>
-					<shiro:hasPermission name="sys:device:delete">
-						<a href="javascript:void(0)" class="easyui-linkbutton"
-							iconCls="icon-remove" plain="true" data-options="disabled:false"
-							onclick="del()">删除</a>
-						<span class="toolbar-item dialog-tool-separator"></span>
-					</shiro:hasPermission>
-					<shiro:hasPermission name="sys:device:update">
-						<a href="javascript:void(0)" class="easyui-linkbutton"
-							iconCls="icon-edit" plain="true" onclick="update()">修改</a>
-					</shiro:hasPermission>
+			<div class="easyui-layout" data-options="fit:true,border:false">
+				<div data-options="region:'north',border:false"
+					style="height: 32px;">
+					<div class="easyui-tabs" id="device_tabs" data-options="fit:true">
+						<div title="所有设备"  data-options="refreshable:false" iconCls=""></div>
+						<div title="UPS" id="UPS" data-options="refreshable:false" iconCls=""></div>
+						<div title="温湿度" id="TH" data-options="refreshable:false" iconCls=""></div>
+						<div title="水浸/烟感" id="SWITCHINPUT" data-options="refreshable:false" iconCls=""></div>
+						<div title="空调" id="AC" data-options="refreshable:false" iconCls=""></div>
+					</div>
 				</div>
+				<div data-options="region:'center',border:false">
+					<div id="tb">
+						<div>
 
+							<shiro:hasPermission name="sys:device:add">
+								<a href="javascript:void(0)" class="easyui-linkbutton"
+									iconCls="icon-search" plain="true" onclick="scan();">扫描</a>
+								<span class="toolbar-item dialog-tool-separator"></span>
+							</shiro:hasPermission>
+							<shiro:hasPermission name="sys:device:delete">
+								<a href="javascript:void(0)" class="easyui-linkbutton"
+									iconCls="icon-remove" plain="true"
+									data-options="disabled:false" onclick="del()">删除</a>
+								<span class="toolbar-item dialog-tool-separator"></span>
+							</shiro:hasPermission>
+							<shiro:hasPermission name="sys:device:update">
+								<a href="javascript:void(0)" class="easyui-linkbutton"
+									iconCls="icon-edit" plain="true" onclick="update()">修改</a>
+								<span class="toolbar-item dialog-tool-separator"></span>
+							</shiro:hasPermission>
+							
+							<a href="javascript:void(0)" class="easyui-linkbutton" iconCls='icon-cog' plain="true"  id="acConfig" style="visibility: hidden;" onclick="cog()">空调配置</a>
+							
+						</div>
+
+					</div>
+					<div id="dg">
+					</div>
+					<div id="dlg"></div>
+					<div id="acdlg"></div>
+				</div>
 			</div>
 			
-			<div id="dg">
-				
-			</div>
-			<div id="dlg"></div>
+		
 		</div>
 	</div>
 

@@ -1,7 +1,30 @@
 var dg;
+var acdlg;
 
 var organizationId;
 $(function() {
+	$("#device_tabs").tabs({
+		onSelect : function(title) {
+			$('#dg').datagrid('clearSelections');
+			var tab = $(this).tabs('getSelected');
+			var type = tab.panel('options').id;
+			dg.datagrid('load', {
+				deviceType : type,
+				organizationId : organizationId
+			});
+
+			if (type == "AC") {
+
+				$("#acConfig").css({
+					visibility : "visible"
+				});
+			} else {
+				$("#acConfig").css({
+					visibility : "hidden"
+				});
+			}
+		}
+	});
 	dg = $("#dg").datagrid({
 		method : "post",
 		url : ctx + "/device/json",
@@ -23,21 +46,21 @@ $(function() {
 		columns : [ [ {
 			field : 'id',
 			checkbox : true
-		},{
+		}, {
 			field : "organizationName",
 			title : "所属机构",
 			sortable : true,
 			width : 60,
-			formatter : function(value,rowData) { 
+			formatter : function(value, rowData) {
 				return rowData.gitInfo.organizationName;
 			}
-		},  {
+		}, {
 			field : "gitInfo",
 			title : "所属主机",
 			sortable : true,
 			width : 50,
 			formatter : function(value, rowData, rowIndex) {
-			
+
 				return value.name
 			}
 		}, {
@@ -46,10 +69,10 @@ $(function() {
 			sortable : true,
 			width : 50,
 			formatter : function(v) {
-				if(v!=null){
+				if (v != null) {
 					return v.name;
 				}
-				
+
 			}
 
 		}, {
@@ -112,7 +135,19 @@ $(function() {
 		enableHeaderClickMenu : true,
 		enableHeaderContextMenu : true,
 		enableRowContextMenu : false,
-		toolbar : '#tb'
+		toolbar : '#tb',onSelect:function(rowIndex,rowData){
+			if(rowData.deviceInterfaceType!=null){
+			if(rowData.deviceInterfaceType.name=="空调"){
+				$("#acConfig").css({
+					visibility : "visible"
+				});
+			}else{
+				$("#acConfig").css({
+					visibility : "hidden"
+				});
+			}
+			}
+		}
 
 	});
 	$("#organizationTree").tree(
@@ -158,11 +193,14 @@ function scan() {
 	$.ajax({
 		type : "get",
 		url : ctx + "/device/scan",
-		data:{organizationId:organizationId},
+		data : {
+			organizationId : organizationId
+		},
 		success : function(result) {
 			displayLoadMask();
 			if (result.count > 0) {
-				parent.$.messager.confirm('提示', '扫描到' + result.count+'个设备，是否确认添加？', function(data) {
+				parent.$.messager.confirm('提示', '扫描到' + result.count
+						+ '个设备，是否确认添加？', function(data) {
 					if (data) {
 						loadMask();
 						$.ajax({
@@ -256,6 +294,40 @@ function update() {
 			text : '取消',
 			handler : function() {
 				d.panel('close');
+			}
+		} ]
+	});
+
+}
+function cog() {
+	var row = dg.datagrid("getSelected");
+	var rows = $('#dg').datagrid('getSelections');
+	if (rows.length < 1) {
+		rowIsNull(null);
+		return;
+	} else if (rows.length > 1) {
+		parent.$.messager.show({
+			title : "提示",
+			msg : "只能选择一条记录！",
+			position : "bottomRight"
+		});
+		return;
+	}
+
+	acdlg=$("#acdlg").dialog({
+		title : "空调配置",
+		width : 280,
+		height : "auto",
+		href:ctx+"/acConfig/acConfigForm/"+row.id,
+		buttons : [ {
+			text : "确认",
+			handler : function() {
+				$("#acMainform").submit();
+			}
+		}, {
+			text : "取消",
+			handler : function() {
+				acdlg.panel('close');
 			}
 		} ]
 	});

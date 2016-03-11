@@ -145,6 +145,29 @@ public class AlarmLogServiceImpl extends BaseServiceImpl<AlarmLog, Integer>
 		
 	}
 
+	@Override
+	public Object getAlarmNumAndTimeForYear(String beginDate, String endDate) {
+		// TODO Auto-generated method stub
+		return alarmLogDao.getAlarmNumAndTimeForYear(beginDate,endDate);
+	}
+
+	@Override
+	public Object getAlarmNumAndTimeForMonth(String beginDate, String endDate) {
+		// TODO Auto-generated method stub
+		return alarmLogDao.getAlarmNumAndTimeForMonth(beginDate,endDate);
+	}
+
+	@Override
+	public Object getAlarmNumAndTimeForDay(String beginDate, String endDate) {
+		// TODO Auto-generated method stub
+		return alarmLogDao.getAlarmNumAndTimeForDay(beginDate,endDate);
+	}
+
+	@Override
+	public List<AlarmLog> getAlarmLog() {
+		return alarmLogDao.getAlarmLog(); 
+	}
+
 	
 	
 

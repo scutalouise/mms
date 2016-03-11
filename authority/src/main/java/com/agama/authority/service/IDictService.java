@@ -10,4 +10,11 @@ import com.agama.common.service.IBaseService;
  */
 public interface IDictService extends IBaseService<Dict, Integer> {
 
+	/**
+	 * @Description:提供支持回收站的逻辑删除操作；
+	 * @param id
+	 * @param opUserId
+	 * @Since :2016年2月25日 下午5:36:23
+	 */
+	public void delete(Integer id, Integer opUserId);
 }

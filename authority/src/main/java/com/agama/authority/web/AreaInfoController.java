@@ -17,7 +17,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.agama.authority.entity.AreaInfo;
 import com.agama.authority.service.IAreaInfoService;
+import com.agama.authority.utils.UserUtil;
+import com.agama.common.dao.utils.PropertyFilter;
 import com.agama.common.domain.TreeBean;
+import com.agama.common.enumbean.EnabledStateEnum;
+import com.agama.common.enumbean.StatusEnum;
 import com.agama.common.web.BaseController;
 
 /**
@@ -46,8 +50,10 @@ public class AreaInfoController extends BaseController{
 	@RequestMapping(value="json",method = RequestMethod.GET)
 	@ResponseBody
 	public List<AreaInfo> areaInfoList(HttpServletRequest request) {
-		List<AreaInfo> areaInfoList=areaInfoService.getAll();
-		return areaInfoList;
+		List<PropertyFilter> filters = PropertyFilter.buildFromHttpRequest(request);
+		filters.add(new PropertyFilter("EQ_StatusEnum_status",StatusEnum.NORMAL.toString()));//过滤掉，状态为删除状态并且不可用的记录；
+		filters.add(new PropertyFilter("EQ_EnabledStateEnum_enable",EnabledStateEnum.ENABLED.toString()));//过滤掉，状态为禁用的记录；
+		return areaInfoService.search(filters);
 	}
 	
 	/**
@@ -112,9 +118,11 @@ public class AreaInfoController extends BaseController{
 	@RequestMapping(value = "delete/{id}")
 	@ResponseBody
 	public String delete(@PathVariable("id") Integer id) {
-		areaInfoService.delete(id);
+		areaInfoService.delete(id, UserUtil.getCurrentUser().getId());
 		return "success";
 	}
+	
+	
 	@RequestMapping(value="tree")
 	@ResponseBody
 	public List<TreeBean> tree(Integer pid){

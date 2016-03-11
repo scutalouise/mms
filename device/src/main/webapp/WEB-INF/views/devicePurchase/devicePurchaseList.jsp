@@ -10,8 +10,11 @@
 <div id="tb" style="padding: 5px;height: auto;">
    <div>
     <form id="searchFrom" action="" style="margin-left:8px;margin-top:5px;height: 30px;">
-       	<input type="text" name="filter_LIKES_name" class="easyui-validatebox" data-options="width:150,prompt:'采购名称'"/>&nbsp;&nbsp;&nbsp;
-		<input type="text" name="filter_GTD_purchaseDate" class="easyui-my97" datefmt="yyyy-MM-dd" data-options="width:150,prompt:'购买日期'"/>
+    	<input type="text" name="purchaseOrderNum" class="easyui-validatebox" data-options="width:150,prompt:'采购订单号'"/>&nbsp;&nbsp;&nbsp;
+       	<input type="text" name="name" class="easyui-validatebox" data-options="width:150,prompt:'采购名称'"/>&nbsp;&nbsp;&nbsp;
+       	<input type="text" id="orgId" name="orgId" class="easyui-validatebox" data-options="width:200,prompt:'采购机构'"/>&nbsp;&nbsp;&nbsp;
+		<input type="text" id="startDate" name="GTD_purchaseDate" class="easyui-my97" datefmt="yyyy-MM-dd" data-options="width:150,prompt:'购买日期(开始)'"/>&nbsp;&nbsp;&nbsp;
+	    <input type="text" id="endDate" name="LTD_purchaseDate" class="easyui-my97" datefmt="yyyy-MM-dd" data-options="width:150,prompt:'购买日期(截止)'"/>
 		<span class="toolbar-item dialog-tool-separator"></span>
 		<a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="cx();">查询</a>
 	 </form>
@@ -36,7 +39,7 @@
  
  $(function(){
 	 dg=$("#dg").datagrid({
-		 method:'get',
+		 method:'post',
 		 url:'${ctx}/device/devicePurchase/json',
 		 fit : true,
 	     fitColumns : true,
@@ -45,40 +48,70 @@
 		 pagination:true,
 		 rownumbers:true,
 		 pageNumber:1,
-		 pageSize:10,
+		 pageSize:20,
 		 pageList:[10,20,30,40,50],
 		 singleSelect:true,
 		 columns:[[
 		      {field:'id',title:'id',hidden:true},
-		      {field:'name',title:'采购名',sortable:true,width:150},
-		      {field:'quantity',title:'数量',sortable:true,width:100},
-		      {field:'purchaseDate',title:'购买日期',sortable:true,width:150},
-		      {field:'warrantyDate',title:'保修日期',sortable:true,width:150},
-		      {field:'orgName',title:'采购机构',sortable:true,width:150},
-		      {field:'isPurchase',title:'是否新购进',sortable:true,width:150,
-		    	  formatter:function(data){
-		    		  if(data=1){
-		    		    return "是";
-		    		  }else
-		    			return "不是";  
+		      {field:'purchaseOrderNum',title:'采购订单号',sortable:true,width:80},
+		      {field:'name',title:'采购名称',sortable:true,width:120},
+		      {field:'firstDeviceType',title:'设备类型',sortable:true,width:120,formatter:function(a,b,c){
+		    	  return a.name;
+		      }},
+		      {field:'secondDeviceType',title:'设备名字',sortable:true,width:120,formatter:function(a,b,c){
+		    	  return a.name;
+		      }},
+		      {field:'brandName',title:'品牌',sortable:true,width:150},
+		      {field:'orgName',title:'采购机构',sortable:true,width:180},
+		      {field:'quantity',title:'数量',sortable:true,width:80},
+		      {field:'purchaseDate',title:'购买日期',sortable:true,width:100},
+		      {field:'warrantyDate',title:'保修日期',sortable:true,width:100},
+		      {field:'isPurchase',title:'是否新购进',sortable:true,width:100,
+		    	  formatter:function(value,row,index){
+		    		  return value=1?"是":"不是";  
 		    	  }},
-		      {field:'otherNote',title:'其他说明',sortable:true,width:150},
-		      {field:'updateTime',title:'更新时间',sortable:true,width:150}
+		   	  {
+		    	field:'action',title:'详情', 	 
+		    		formatter : function(value, row, index) {
+						return '<a href="javascript:details('+row.id+')"><div class="icon-hamburg-cost" style="width:16px;height:16px" title="查看详情"></div></a>';
+					}
+		      }
+		    /*{field:'updateTime',title:'更新时间',sortable:true,width:150} */
 		  ]],
 		 toolbar:'#tb'
 	 });
+	 
+	 initDateFilter("startDate","endDate");
+	 
+	 $.ajax({
+			url:'${ctx}/system/organization/json',
+			type : "post",
+			dataType : "json",
+			success : function(data) {
+				var json = {"id":"","orgName":"-- 采购机构 --"};
+				data.unshift(json);
+				$('#orgId').combotree({
+					idField:'id',
+					textFiled:'orgName',
+					data:data
+			    });
+			}
+		});
  });
  
  //添加弹窗
  function add(){
 	 dlg=$('#dlg').dialog({
 		 title:'添加采购记录',
-		 width:350,
-		 height:400,
+		 width:400,
+		 height:540,
 		 iconCls:'icon-add',
 		 href:'${ctx}/device/devicePurchase/add',
 		 maximizable:true,
 		 modal:true,
+		 onClose:function(){
+			 appendAndRemovePurchase("dlg");
+		    },
 		 buttons:[{
 			 text:'确认',
 			 handler:function(){
@@ -99,12 +132,15 @@
 	 if(rowIsNull(row)) return;
 	 dlg=$('#dlg').dialog({
 		 title:'修改采购记录',
-		 width:350,
-		 height:400,
+		 width:400,
+		 height:540,
 		 iconCls:'icon-edit',
 		 href:'${ctx}/device/devicePurchase/update/'+row.id,
 		 maximizable:true,
 		 modal:true,
+		 onClose:function(){
+			 appendAndRemovePurchase("dlg");
+		    },
 		 buttons:[{
 			 text:'确认',
 			 handler:function(){
@@ -119,10 +155,34 @@
 	 });
  };
  
+ //查询
  function cx(){
 		var obj=$("#searchFrom").serializeObject();
-		dg.datagrid('load',obj); 
+		dg.datagrid('load',obj);
 }
+ 
+ /**
+  * 处理dialog,使用同一个div混淆；
+  */
+ function appendAndRemovePurchase(divId){
+ 	$("#" +divId + "").dialog("destroy").remove(); //直接摧毁、移除
+ 	$("<div id='"+ divId +"'></div> ").appendTo($('body'))//新加入一个
+ } 
+ //详情
+ function details(idValue){
+	 dlg=$('#dlg').dialog({
+		 title:'采购记录详情',
+		 width:400,
+		 height:540,
+		 iconCls:'icon-edit',
+		 href:'${ctx}/device/devicePurchase/details/'+idValue,
+		 maximizable:true,
+		 modal:true,
+		 onClose:function(){
+			 appendAndRemovePurchase("dlg");
+		    }
+	 });
+ }
 </script>
 </body>
 </html>

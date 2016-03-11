@@ -8,6 +8,8 @@ import com.agama.authority.dao.IAreaInfoDao;
 import com.agama.authority.entity.AreaInfo;
 import com.agama.common.dao.impl.HibernateDaoImpl;
 import com.agama.common.domain.StateEnum;
+import com.agama.common.enumbean.EnabledStateEnum;
+import com.agama.common.enumbean.StatusEnum;
 
 /**
  * @Description:区域Dao实现
@@ -21,6 +23,7 @@ public class AreaInfoDaoImpl extends HibernateDaoImpl<AreaInfo, Integer> impleme
 	@Override
 	public List<AreaInfo> findListByPid(Integer pid) {
 		StringBuffer hql=new StringBuffer("from AreaInfo where 1=1");
+		hql.append(" and enable='" +EnabledStateEnum.ENABLED + "' and status='" + StatusEnum.NORMAL + "' ");//增加对可用性与状态的判断；
 		if(pid!=null){
 			hql.append(" and pid=").append(pid);
 		}else{

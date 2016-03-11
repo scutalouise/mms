@@ -1,19 +1,23 @@
 package com.agama.itam.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.agama.authority.utils.UserUtil;
 import com.agama.common.dao.utils.Page;
+import com.agama.common.dao.utils.PropertyFilter;
+import com.agama.common.entity.Recycle;
+import com.agama.common.service.IRecycleService;
 import com.agama.common.web.BaseController;
-import com.agama.itam.domain.Recycle;
-import com.agama.itam.service.IRecycleService;
 
 /**
  * @Description:回收站控制层；
@@ -47,14 +51,23 @@ public class RecycleController extends BaseController{
 	@ResponseBody
 	public Map<String, Object> getData(HttpServletRequest request) {
 		Page<Recycle> page = getPage(request);
-		String sql = " select r.id as id,opUser.name as userName,recoveryUser.name as recoveryUserName, "
-					+ "r.op_time as opTime,r.recovery_time as recoveryTime,r.table_name as tableName, "
-					+ "r.table_record_id as tableRecordId,r.is_recovery as recoveryString "
-					+ "from recycle r "
-					+ "left join user opUser on r.op_user_id=opUser.id "
-					+ "left join user recoveryUser on r.recovery_user_id=recoveryUser.id ";//查询语句
-		Object[] values = {};//查询参数
-		page = recycleService.findPageBySQL(page, sql, values);
+		List<PropertyFilter> filters = PropertyFilter.buildFromHttpRequest(request);
+		page = recycleService.findPage(page, filters);
 		return getEasyUIData(page);
 	}
+	
+	/**
+	 * @Description:执行还原的操作；
+	 * @param id
+	 * @return
+	 * @Since :2016年3月9日 下午3:52:35
+	 */
+	@RequestMapping(value = "{id}",method = RequestMethod.GET)
+	@ResponseBody
+	public String execRecycle(@PathVariable Integer id){
+		int count = recycleService.execRecycle(id,UserUtil.getCurrentUser().getId());
+		return count == 0 ? "没有做任何修改" : "success";
+	}
+	
+	
 }

@@ -77,8 +77,9 @@
 				</tr>
 				<tr>
 					<td>消息内容:</td>
-					<td colspan="3"><form:textarea path="remark" 
-							class="easyui-validatebox" style="height: 60px; width: 386px;" data-options="required:true"></form:textarea></td>
+					<td colspan="3">
+					<form:textarea path="remark" 
+					class="easyui-validatebox" style="height: 60px; width: 386px;" data-options="required:true"></form:textarea></td>
 				</tr>
 			</table>
 		</form:form>

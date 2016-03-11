@@ -31,7 +31,7 @@ $(function (){
 	$.ajax({
 		async : false,
 		url : '${ctx}/system/organization/json',
-		type : "get",
+		type : "post",
 		dataType : "json",
 		success : function(datas) {
 			ur_dg = $.fn.zTree.init($("#ur_dg"), setting, datas);

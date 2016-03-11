@@ -5,7 +5,7 @@
 <html>
 <head>
 
-<title>动态环境数据采集监控平台</title>
+<title>IT综合运维管理平台</title>
 
 <%@ include file="/WEB-INF/views/include/easyui.jsp"%>
 <script type="text/javascript"
@@ -198,7 +198,7 @@ function inDeviceSystem(url){
 			<div
 				style="color: #4e5766; margin: 0px auto; text-align: center; font-size: 12px; font-family: 微软雅黑;">
 				<p style="color: #3399FF; margin: 2px 0;">
-					版权所有©成都申控物联科技有限公司<span
+					${adminPath }版权所有©成都申控物联科技有限公司<span
 						style="padding: 0 20px">|</span>Version:&nbsp;&nbsp;<span
 						style="font-weight: 900;">SK_DHRS_NX0100</span>
 				</p>

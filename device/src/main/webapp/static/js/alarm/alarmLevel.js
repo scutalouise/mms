@@ -5,7 +5,7 @@ $(function() {
 		method : "post",
 		url : ctx + "/system/alarmLevel/json",
 		queryParams : {
-			filter_EQE_status : 'NORMAL'
+			filter_EQ_StatusEnum_status : 'NORMAL'
 		},
 
 		fit : true,

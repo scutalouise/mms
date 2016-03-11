@@ -11,4 +11,5 @@ public interface IDeviceInventoryDao extends IBaseDao<DeviceInventory, Integer> 
 	 * @Since :2016年1月18日 下午5:05:28
 	 */
 	public DeviceInventory getDeviceInventoryByPurchaseId(int purchaseId);
+	
 }

@@ -1,6 +1,7 @@
 package com.agama.authority.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.agama.authority.dao.IPermissionDao;
 import com.agama.authority.entity.Permission;
 import com.agama.authority.service.IPermissionService;
+import com.agama.common.dao.IRecycleDao;
+import com.agama.common.dao.utils.EntityUtils;
+import com.agama.common.entity.Recycle;
+import com.agama.common.enumbean.RecycleEnum;
+import com.agama.common.enumbean.StatusEnum;
 import com.agama.common.service.impl.BaseServiceImpl;
 
 /**
@@ -23,6 +29,12 @@ public class PermissionServiceImpl extends BaseServiceImpl<Permission, Integer> 
 	
 	@Autowired
 	private IPermissionDao permissionDao;
+	
+	@Autowired
+	private IRecycleDao recycleDao;
+	
+	@Autowired
+	private EntityUtils entityUtils;
 	
 	/**
 	 * 添加菜单基础操作
@@ -89,4 +101,52 @@ public class PermissionServiceImpl extends BaseServiceImpl<Permission, Integer> 
 		return permissionDao.findMenuOperation(pid);
 	}
 
+	/**
+	 * 提供支持回收站的逻辑删除； 
+	 */
+	@Transactional(readOnly = false)
+	@Override
+	public void delete(Integer id, Integer opUserId) {
+		/**
+		 * 删除操作的步骤：
+		 * 一.组合要删除记录的记录信息，进行保存，即保存删除记录到Recycle
+		 * 二.修改当前实体删除的逻辑状态
+		 * 三.修改列表查询中筛选的条件，将逻辑删除的记录排除掉；
+		 */
+		List<Permission> list = recursivePermissionsByPid(id);
+		list.add(0, permissionDao.find(id));//当前菜单；
+		List<Integer> ids = new ArrayList<Integer>();
+		if(list.size() > 0){//此处加入判断：当一个页面打开，很久没用，但session没过期，在进行操作前，另一个人已经进行了操作，导致数据不一致；加入判断可以处理此类异常,NULL POINTER Exception;
+			for(Permission permission : list){
+				permission.setStatus(StatusEnum.DELETED);//此处要确认是使用Id还是name，还是使用string本身
+				permissionDao.update(permission);
+				ids.add(permission.getId());
+			}
+			
+			Recycle recycle = new Recycle();
+			recycle.setContent(ids.toString());
+			recycle.setIsRecovery(RecycleEnum.NO);
+			recycle.setOpTime(new Date());
+			recycle.setOpUserId(opUserId);
+			recycle.setTableName(entityUtils.getTableNameByEntity(Permission.class.getName()));
+			recycle.setTableRecordId(entityUtils.getIdNameByEntityName(Permission.class.getName()));
+			recycleDao.save(recycle);
+		}
+	}
+	
+	/**
+	 * @Description:根据当前菜单，选择此菜单下所有的操作或者菜单；
+	 * @param pid
+	 * @return
+	 * @Since :2016年2月26日 下午2:11:33
+	 */
+	private List<Permission> recursivePermissionsByPid(Integer pid){
+		List<Permission> list = new ArrayList<Permission>();
+		List<Permission> permissions = permissionDao.findAllPermissionsByPid(pid);//所有pid为当前pid值得下一级菜单；
+		for(Permission permission:permissions){
+			list.add(permission);
+			list.addAll(recursivePermissionsByPid(permission.getId()));
+		}
+		return list;
+	}
 }

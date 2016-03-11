@@ -17,6 +17,7 @@ import com.agama.common.domain.StateEnum;
 import com.agama.common.enumbean.AlarmDeviceType;
 import com.agama.common.enumbean.AlarmOptionType;
 import com.agama.common.enumbean.AlarmRuleType;
+import com.agama.common.enumbean.AlarmType;
 import com.agama.common.enumbean.OperationType;
 import com.agama.common.enumbean.StatusEnum;
 import com.agama.device.dao.IAlarmConditionDao;
@@ -98,6 +99,8 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 			StateEnum currentState = StateEnum.good;
 			for (AlarmCondition alarmCondition : alarmConditions) {
 				Map<String,Object> alarmMap=upsDeviceAlarm(upsStatus,alarmCondition);
+				
+				
 				currentState = alarmConditionService.alarmConditionHandle(peDevice.getManagerId(),upsStatus.getIdentifier(), currentState,
 						alarmCondition, alarmMap);
 				
@@ -384,6 +387,7 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 		Map<String, Object> communicationStatusMap = new HashMap<String, Object>();
 		StateEnum runState = StateEnum.good;
 		StringBuffer alarmContent = new StringBuffer();
+		StringBuffer alarmRuleType=new StringBuffer();
 		OperationType operationType = alarmRule.getOperationType();
 		Integer value = alarmRule.getValue();
 		Integer minValue = alarmRule.getMinValue();
@@ -393,9 +397,12 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 				value, minValue, maxValue,alarmRule.getState());
 		if (runState != StateEnum.good) {
 			alarmContent.append("").append(alarmRule.getRemark()).append("、");
+			alarmRuleType.append(alarmRule.getAlarmRuleType()).append("、");
+			
 		}
 		communicationStatusMap.put("runState", runState);
 		communicationStatusMap.put("alarmContent", alarmContent.toString());
+		communicationStatusMap.put("alarmRuleType", alarmRuleType.toString());
 		return communicationStatusMap;
 	}
 
@@ -404,6 +411,7 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 		Map<String, Object> byPassVoltageMap = new HashMap<String, Object>();
 		StateEnum runState = StateEnum.good;
 		StringBuffer alarmContent = new StringBuffer();
+		StringBuffer alarmRuleType=new StringBuffer();
 		OperationType operationType = alarmRule.getOperationType();
 		Integer value = alarmRule.getValue();
 		Integer minValue = alarmRule.getMinValue();
@@ -434,9 +442,11 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 		}
 		if (runState != StateEnum.good) {
 			alarmContent.append("").append(alarmRule.getRemark()).append("、");
+			alarmRuleType.append(alarmRule.getAlarmRuleType()).append("、");
 		}
 		byPassVoltageMap.put("runState", runState);
 		byPassVoltageMap.put("alarmContent", alarmContent.toString());
+		byPassVoltageMap.put("alarmRuleType", alarmRuleType.toString());
 		return byPassVoltageMap;
 	}
 
@@ -446,6 +456,7 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 		Map<String, Object> inputVoltageMap = new HashMap<String, Object>();
 		StateEnum runState = StateEnum.good;
 		StringBuffer alarmContent = new StringBuffer();
+		StringBuffer alarmRuleType=new StringBuffer();
 		OperationType operationType = alarmRule.getOperationType();
 		Integer value = alarmRule.getValue();
 		Integer minValue = alarmRule.getMinValue();
@@ -473,9 +484,11 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 		}
 		if (runState != StateEnum.good) {
 			alarmContent.append("").append(alarmRule.getRemark()).append("、");
+			alarmRuleType.append(alarmRule.getAlarmRuleType()).append("、");
 		}
 		inputVoltageMap.put("runState", runState);
 		inputVoltageMap.put("alarmContent", alarmContent.toString());
+		inputVoltageMap.put("alarmRuleType", alarmRuleType.toString());
 		return inputVoltageMap;
 
 	}
@@ -486,6 +499,7 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 		Map<String, Object> outputVoltageMap = new HashMap<String, Object>();
 		StateEnum runState = StateEnum.good;
 		StringBuffer alarmContent = new StringBuffer();
+		StringBuffer alarmRuleType=new StringBuffer();
 		OperationType operationType = alarmRule.getOperationType();
 		Integer value = alarmRule.getValue();
 		Integer minValue = alarmRule.getMinValue();
@@ -516,9 +530,11 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 		}
 		if (runState != StateEnum.good) {
 			alarmContent.append("").append(alarmRule.getRemark()).append("、");
+			alarmRuleType.append(alarmRule.getAlarmRuleType()).append("、");
 		}
 		outputVoltageMap.put("runState", runState);
 		outputVoltageMap.put("alarmContent", alarmContent.toString());
+		outputVoltageMap.put("alarmRuleType", alarmRuleType.toString());
 		return outputVoltageMap;
 
 	}
@@ -529,6 +545,7 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 		Map<String, Object> internalTemperatureMap = new HashMap<String, Object>();
 		StateEnum runState = StateEnum.good;
 		StringBuffer alarmContent = new StringBuffer();
+		StringBuffer alarmRuleType=new StringBuffer();
 		OperationType operationType = alarmRule.getOperationType();
 		Integer value = alarmRule.getValue();
 		Integer minValue = alarmRule.getMinValue();
@@ -537,9 +554,11 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 				upsStatus.getInternalTemperature(), value, minValue, maxValue,alarmRule.getState());
 		if (runState != StateEnum.good) {
 			alarmContent.append("").append(alarmRule.getRemark()).append("、");
+			alarmContent.append(alarmRule.getAlarmRuleType()).append("、");
 		}
 		internalTemperatureMap.put("runState", runState);
 		internalTemperatureMap.put("alarmContent", alarmContent.toString());
+		internalTemperatureMap.put("alarmRuleType", alarmRuleType.toString());
 		return internalTemperatureMap;
 	}
 
@@ -549,6 +568,7 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 		Map<String, Object> batteryVoltageMap = new HashMap<String, Object>();
 		StateEnum runState = StateEnum.good;
 		StringBuffer alarmContent = new StringBuffer();
+		StringBuffer alarmRuleType=new StringBuffer();
 		OperationType operationType = alarmRule.getOperationType();
 		Integer value = alarmRule.getValue();
 		Integer minValue = alarmRule.getMinValue();
@@ -558,9 +578,11 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 				minValue, maxValue,alarmRule.getState());
 		if (runState == StateEnum.error) {
 			alarmContent.append("").append(alarmRule.getRemark()).append("、");
+			alarmRuleType.append(alarmRule.getAlarmRuleType()).append("、");
 		}
 		batteryVoltageMap.put("runState", runState);
 		batteryVoltageMap.put("alarmContent", alarmContent.toString());
+		batteryVoltageMap.put("alarmRuleType", alarmRuleType.toString());
 		return batteryVoltageMap;
 	}
 
@@ -569,6 +591,7 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 		Map<String, Object> electricQuantityMap = new HashMap<String, Object>();
 		StateEnum runState = StateEnum.good;
 		StringBuffer alarmContent = new StringBuffer();
+		StringBuffer alarmRuleType=new StringBuffer();
 		OperationType operationType = alarmRule.getOperationType();
 		Integer value = alarmRule.getValue();
 		Integer minValue = alarmRule.getMinValue();
@@ -577,9 +600,11 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 				upsStatus.getElectricQuantity(), value, minValue, maxValue,alarmRule.getState());
 		if (runState != StateEnum.good) {
 			alarmContent.append("").append(alarmRule.getRemark()).append("、");
+			alarmRuleType.append(alarmRule.getAlarmRuleType()).append("、");
 		}
 		electricQuantityMap.put("runState", runState);
 		electricQuantityMap.put("alarmContent", alarmContent.toString());
+		electricQuantityMap.put("alarmRuleType", alarmRuleType.toString());
 		return electricQuantityMap;
 	}
 	public Map<String, Object> checkLoad(UpsStatus upsStatus,
@@ -587,6 +612,7 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 		Map<String, Object> upsLoadMap = new HashMap<String, Object>();
 		StateEnum runState = StateEnum.good;
 		StringBuffer alarmContent = new StringBuffer();
+		StringBuffer alarmRuleType = new StringBuffer();
 		OperationType operationType = alarmRule.getOperationType();
 		Integer value = alarmRule.getValue();
 		Integer minValue = alarmRule.getMinValue();
@@ -613,10 +639,14 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 		}
 		if (runState != StateEnum.good) {
 			alarmContent.append("").append(alarmRule.getRemark()).append("、");
+			alarmRuleType.append(alarmRule.getAlarmRuleType()).append("、");
 		}
 		
 		upsLoadMap.put("runState", runState);
 		upsLoadMap.put("alarmContent", alarmContent.toString());
+		upsLoadMap.put("alarmRuleType", alarmRuleType.toString());
+		
+		
 		return upsLoadMap;
 	}
 	@Override
@@ -629,6 +659,7 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 						AlarmOptionType.UPS);
 
 		StringBuffer alarmContent = new StringBuffer();
+		StringBuffer alarmRuleType=new StringBuffer();
 		for (AlarmRule alarmRule : alarmRules) {
 			// 通讯状态规则
 			if (alarmRule.getAlarmRuleType() == AlarmRuleType.COMMUNICATIONSTATUS) {
@@ -639,9 +670,11 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 						.ordinal()) {
 					runState = StateEnum.valueOf(communicationStatusMap.get(
 							"runState").toString());
+					
 				}
 				alarmContent.append(communicationStatusMap.get("alarmContent")
 						.toString());
+				alarmRuleType.append(communicationStatusMap.get("alarmRuleType").toString());
 			}
 			if (alarmRule.getAlarmRuleType() == AlarmRuleType.BYPASSVOLTAGE) { // UPS旁路电压
 				if (upsStatus.getBypassVoltage() != null) {
@@ -655,6 +688,7 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 					}
 					alarmContent.append(byPassVoltageMap.get("alarmContent")
 							.toString());
+					alarmRuleType.append(byPassVoltageMap.get("alarmRuleType").toString());
 				}
 			}
 			if (alarmRule.getAlarmRuleType() == AlarmRuleType.INPUTVOLTAGE) {
@@ -669,6 +703,7 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 					}
 					alarmContent.append(inputVoltageMap.get("alarmContent")
 							.toString());
+					alarmRuleType.append(inputVoltageMap.get("alarmRuleType").toString());
 				}
 			}
 			if (alarmRule.getAlarmRuleType() == AlarmRuleType.OUTPUTVOLTAGE) {
@@ -683,6 +718,8 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 					}
 					alarmContent.append(outputVoltageMap.get("alarmContent")
 							.toString());
+					alarmRuleType.append(outputVoltageMap.get("alarmRuleType").toString());
+
 				}
 			}
 			// 机内温度规则
@@ -697,6 +734,8 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 				}
 				alarmContent.append(internalTemperatureMap.get("alarmContent")
 						.toString());
+				alarmRuleType.append(internalTemperatureMap.get("alarmRuleType").toString());
+
 			}
 			// 电池电压
 			if (alarmRule.getAlarmRuleType() == AlarmRuleType.BATTERYVOLTAGE) {
@@ -709,6 +748,8 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 				}
 				alarmContent.append(batteryVoltageMap.get("alarmContent")
 						.toString());
+				alarmRuleType.append(batteryVoltageMap.get("alarmRuleType").toString());
+
 			}
 			if (upsStatus.getUpsType() != 2 && upsStatus.getUpsType() != 3) {
 				// 电池电量
@@ -723,6 +764,8 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 					}
 					alarmContent.append(electricQuantityMap.get("alarmContent")
 							.toString());
+					alarmRuleType.append(electricQuantityMap.get("alarmRuleType").toString());
+
 				}
 			}
 			// 负载
@@ -736,14 +779,19 @@ public class UpsStatusServiceImpl implements IUpsStatusService {
 				}
 				alarmContent.append(loadMap.get("alarmContent")
 						.toString());
+				alarmContent.append(loadMap.get("alarmRuleType")
+						.toString());
 			}
 
 		}
 		if(alarmContent.indexOf("、")>0){
 			alarmContent=new StringBuffer(alarmContent.substring(0,alarmContent.length()-1));
+			alarmRuleType=new StringBuffer(alarmRuleType.substring(0,alarmRuleType.length()-1));
+
 		}
 		alarmResultMap.put("runState", runState);
 		alarmResultMap.put("alarmContent", alarmContent.toString());
+		alarmResultMap.put("alarmRuleType", alarmRuleType.toString());
 		return alarmResultMap;
 	}
 

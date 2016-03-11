@@ -2,6 +2,7 @@ package com.agama.device.dao;
 
 import com.agama.common.dao.IBaseDao;
 import com.agama.device.domain.AlarmTemplate;
+import com.agama.device.domain.OrgAlarmTemplate;
 
 /**
  * @Description:告警模板数据访问层接口

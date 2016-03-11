@@ -20,6 +20,7 @@ import com.agama.device.domain.NetworkDevice;
 import com.agama.device.domain.PeDevice;
 import com.agama.device.domain.TwoDimentionCode;
 import com.agama.device.domain.UnintelligentDevice;
+import com.agama.device.service.IBrandService;
 import com.agama.device.service.ICollectionDeviceService;
 import com.agama.device.service.IDeviceInventoryService;
 import com.agama.device.service.IHostDeviceService;
@@ -51,6 +52,8 @@ public class TwoDimentionCodeServiceImpl extends BaseServiceImpl<TwoDimentionCod
 	private IDeviceInventoryService deviceInventoryService;
 	@Autowired
 	private ITwoDimentionCodeDao twoDimentionCodeDao;
+	@Autowired
+	private IBrandService brandService;
 
 
 	@Override
@@ -58,7 +61,6 @@ public class TwoDimentionCodeServiceImpl extends BaseServiceImpl<TwoDimentionCod
 		return twoDimentionCodeDao.findUniqueBy("identifier", identifier);
 	}
 
-	@SuppressWarnings({ "incomplete-switch" })
 	@Override
 	public String createQR(String identifier, Integer id, HttpServletRequest request, String pathEdit)
 			throws JsonProcessingException {
@@ -72,7 +74,7 @@ public class TwoDimentionCodeServiceImpl extends BaseServiceImpl<TwoDimentionCod
 			String phone_cd = userService.getPhoneNumberById(collectionDevice.getManagerId());
 			Map<String, Object> map_cd = new HashMap<String, Object>();
 			map_cd.put("identifier", collectionDevice.getIdentifier());
-			map_cd.put("brand", deviceInventory_cd.getBrandName());
+			map_cd.put("brand", brandService.get(deviceInventory_cd.getBrandId()).getName());
 			map_cd.put("model", collectionDevice.getModel());
 			map_cd.put("manufactureDate", DateUtils.formatDate(collectionDevice.getManufactureDate()));
 			map_cd.put("warrantyDate", DateUtils.formatDate(collectionDevice.getWarrantyDate()));
@@ -85,7 +87,7 @@ public class TwoDimentionCodeServiceImpl extends BaseServiceImpl<TwoDimentionCod
 			String phone_hd = userService.getPhoneNumberById(hostDevice.getManagerId());
 			Map<String, Object> map_hd = new HashMap<String, Object>();
 			map_hd.put("identifier", hostDevice.getIdentifier());
-			map_hd.put("brand", deviceInventory_hd.getBrandName());
+			map_hd.put("brand", brandService.get(deviceInventory_hd.getBrandId()).getName());
 			map_hd.put("model", hostDevice.getModel());
 			map_hd.put("manufactureDate", DateUtils.formatDate(hostDevice.getManufactureDate()));
 			map_hd.put("warrantyDate", DateUtils.formatDate(hostDevice.getWarrantyDate()));
@@ -98,7 +100,7 @@ public class TwoDimentionCodeServiceImpl extends BaseServiceImpl<TwoDimentionCod
 			String phone_nd = userService.getPhoneNumberById(networkDevice.getManagerId());
 			Map<String, Object> map_nd = new HashMap<String, Object>();
 			map_nd.put("identifier", networkDevice.getIdentifier());
-			map_nd.put("brand", deviceInventory_nd.getBrandName());
+			map_nd.put("brand", brandService.get(deviceInventory_nd.getBrandId()).getName());
 			map_nd.put("model", networkDevice.getModel());
 			map_nd.put("manufactureDate", DateUtils.formatDate(networkDevice.getManufactureDate()));
 			map_nd.put("warrantyDate", DateUtils.formatDate(networkDevice.getWarrantyDate()));
@@ -111,7 +113,7 @@ public class TwoDimentionCodeServiceImpl extends BaseServiceImpl<TwoDimentionCod
 			String phone_pd = userService.getPhoneNumberById(peDevice.getManagerId());
 			Map<String, Object> map_pd = new HashMap<String, Object>();
 			map_pd.put("identifier", peDevice.getIdentifier());
-			map_pd.put("brand", deviceInventory_pd.getBrandName());
+			map_pd.put("brand", brandService.get(deviceInventory_pd.getBrandId()).getName());
 			map_pd.put("model", peDevice.getModel());
 			map_pd.put("manufactureDate", DateUtils.formatDate(peDevice.getManufactureDate()));
 			map_pd.put("warrantyDate", DateUtils.formatDate(peDevice.getWarrantyDate()));
@@ -124,7 +126,7 @@ public class TwoDimentionCodeServiceImpl extends BaseServiceImpl<TwoDimentionCod
 			String phone_ud = userService.getPhoneNumberById(unintelligentDevice.getManagerId());
 			Map<String, Object> map_ud = new HashMap<String, Object>();
 			map_ud.put("identifier", unintelligentDevice.getIdentifier());
-			map_ud.put("brand", deviceInventory_ud.getBrandName());
+			map_ud.put("brand", brandService.get(deviceInventory_ud.getBrandId()).getName());
 			map_ud.put("model", unintelligentDevice.getModel());
 			map_ud.put("manufactureDate", DateUtils.formatDate(unintelligentDevice.getManufactureDate()));
 			map_ud.put("warrantyDate", DateUtils.formatDate(unintelligentDevice.getWarrantyDate()));

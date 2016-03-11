@@ -28,6 +28,12 @@
 			<version>1.8.2.RELEASE</version>
 		</dependency>
 		
+		<dependency>
+			<groupId>com.agama</groupId>
+			<artifactId>tool</artifactId>
+			<version>${tool.version}</version>
+		</dependency>
+		
 	</dependencies>
 	<build>
 		<plugins>

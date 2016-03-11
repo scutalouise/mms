@@ -11,7 +11,8 @@ public class EntityUtilsTest {
 
 	@Test
 	public void testGetTableNameByEntity(){
-		EntityUtils eu = new EntityUtils();
-		eu.getTableNameByEntity("Recycle");
+//		EntityUtils eu = new EntityUtils();
+//		eu.getTableNameByEntity("Recycle");
+		;
 	}
 }

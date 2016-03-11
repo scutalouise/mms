@@ -9,6 +9,13 @@
 <body>
 <div id="tb" style="padding: 5px;height: auto;">
    <div>
+    <form id="brandSearchFrom" action="">
+    	    <input type="text" name="filter_LIKES_name" class="easyui-validatebox" data-options="width:150,prompt: '品牌名'"/>
+    	    <input type="text" name="filter_EQ_FirstDeviceType_firstDeviceType" id="firstDeviceType" class="easyui-combobox" data-options="width:150,prompt: '设备类型'"/>
+    	    <input type="text" name="filter_EQ_SecondDeviceType_secondDeviceType" id="secondDeviceType" class="easyui-combobox" data-options="width:150,prompt: '设备名称'"/>
+	        <span class="toolbar-item dialog-tool-separator"></span>
+	        <a href="javascript(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="cx()">查询</a>
+	 </form>
      <shiro:hasPermission name="device:brand:add">
     	 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="add();">添加</a>
     	 <span class="toolbar-item dialog-tool-separator"></span>
@@ -32,7 +39,7 @@
 		  method:"get",
 		  url:'${ctx}/device/brand/json',
 		  queryParams:{
-				filter_EQE_status : 'NORMAL',
+				filter_EQ_StatusEnum_status : 'NORMAL',
 			},
 		  fit:true,
 		  fitColumns:true,
@@ -47,11 +54,11 @@
 	      columns:[[
 	          {field:'id',title:'id',hidden:true},
 	          {field:'name',title:'品牌名',sortable:true,width:100},
-	          {field:'firstDeviceType',title:'一级设备类型',sortable:true,width:100,
+	          {field:'firstDeviceType',title:'设备类型',sortable:true,width:100,
 	        	  formatter:function(data){
 	        		  return data.name;
 	        	  }},
-	          {field:'secondDeviceType',title:'二级设备类型',sortable:true,width:100,
+	          {field:'secondDeviceType',title:'设备名称',sortable:true,width:100,
 	        	  formatter:function(data){
 	        		  return data.name;  
 	        	  }},
@@ -73,6 +80,27 @@
 	      ]],
 	      toolbar:'#tb'
 	  });
+	  
+	  //对查询条件中的设备类型与名称的加入；
+	  $('#firstDeviceType').combobox({
+		  method:"get",
+		  url:'${ctx}/device/brand/firstDeviceType',
+		  valueField:'firstDeviceType',
+		  textField:'name',
+		  onSelect:function(data){
+			  var firstDeviceType=data.firstDeviceType;
+			  $('#secondDeviceType').combobox({
+				  method:"get",
+				  url:'${ctx}/device/brand/secondDeviceType?firstDeviceType='+firstDeviceType
+			 }).combobox('clear');
+		  }
+	  });
+	  $('#secondDeviceType').combobox({
+	      valueField:'secondDeviceType',
+	      textField:'name'
+	  });
+	  
+	  
   });
   
   //添加弹窗
@@ -110,10 +138,14 @@ function add(){
 				  url:'${ctx}/device/brand/delete/'+row.id,
 				  success:function(data){
 					  if(data=='success'){
-							parent.$.messager.show({ title : "提示",msg: "操作成功！", position: "bottomRight" });
-							dg.datagrid('reload');
+						   if(dg!=null)
+								dg.datagrid('reload');
+						   if(dlg!=null)
+								dlg.panel('close');
+						   parent.$.messager.show({ title : "提示",msg: "操作成功！", position: "bottomRight" });
+						   dg.treegrid('clearSelections');
 						}else{
-							parent.$.messager.alert('提示','数据已被绑定不能删除','info');
+						   parent.$.messager.alert('提示','数据已被绑定不能删除','info');
 						}
 				  }
 			  });
@@ -145,6 +177,13 @@ function add(){
 			}]
 		});
 	}
+  
+//创建查询对象并查询
+  function cx(){
+  	var obj=$("#brandSearchFrom").serializeObject();
+  	dg.datagrid('load',obj); 
+  }
+
 </script>
 </body>
 </html>

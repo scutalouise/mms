@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,14 +21,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.agama.authority.entity.Role;
-import com.agama.authority.service.IRoleService;
+import com.agama.authority.entity.User;
 import com.agama.common.dao.utils.Page;
 import com.agama.common.dao.utils.PropertyFilter;
+import com.agama.common.enumbean.DeviceUsedStateEnum;
 import com.agama.common.enumbean.EnabledStateEnum;
 import com.agama.common.enumbean.FirstDeviceType;
 import com.agama.common.enumbean.OSBitsEnum;
+import com.agama.common.enumbean.ObtainWayEnum;
 import com.agama.common.enumbean.StatusEnum;
+import com.agama.common.enumbean.UsingStateEnum;
 import com.agama.common.web.BaseController;
 import com.agama.device.domain.DevicePurchase;
 import com.agama.device.domain.HostDevice;
@@ -47,9 +51,6 @@ public class HostDeviceController extends BaseController {
 
 	@Autowired
 	private IDevicePurchaseService devicePurchaseService;
-	
-	@Autowired
-	private IRoleService roleService;
 
 	/**
 	 * @Description:主机设备默认页面
@@ -72,13 +73,40 @@ public class HostDeviceController extends BaseController {
 	@ResponseBody
 	public Map<String, Object> getData(HttpServletRequest request) {
 		Page<HostDevice> page = getPage(request);
-		List<PropertyFilter> filters = PropertyFilter.buildFromHttpRequest(request);
-		// 新增过滤掉，状态为删除状态的记录；
-		PropertyFilter propertyFilter = new PropertyFilter("EQE_status", String.valueOf(StatusEnum.NORMAL));
-		filters.add(propertyFilter);
-		page = hostDeviceService.search(page, filters);
+		String type=request.getParameter("type");
+		if(type==null){
+			List<PropertyFilter> filters = PropertyFilter.buildFromHttpRequest(request);
+			filters.add(new PropertyFilter("EQ_StatusEnum_status",StatusEnum.NORMAL.toString()));// 新增过滤掉，状态为删除状态的记录；
+			page = hostDeviceService.search(page, filters);
+		}else{
+			String organizationId=request.getParameter("orgId");
+			DeviceUsedStateEnum deviceUsedState=DeviceUsedStateEnum.USED;
+			String deviceUsedStateStr=request.getParameter("deviceUsedState");
+			ObtainWayEnum obtainWay=ObtainWayEnum.ORGANIZATION;
+			String way=request.getParameter("way");
+			if(way!=null){
+				obtainWay=ObtainWayEnum.valueOf(way.toUpperCase());//领用方式 
+			}
+			if(deviceUsedStateStr!=null){
+				deviceUsedState=DeviceUsedStateEnum.valueOf(deviceUsedStateStr); //入库
+			}
+			User user=null;
+			if(obtainWay==ObtainWayEnum.PERSONAL){
+				user=(User)request.getSession().getAttribute("user");
+			}
+			//type为审核中的状态
+			if(type.equals("audit")){
+				deviceUsedState=DeviceUsedStateEnum.AUDIT;
+			}else if(type.equals("waitRepair")){
+				deviceUsedState=DeviceUsedStateEnum.WAITREPAIR;
+			}else if(type.equals("badParts")){
+				deviceUsedState=DeviceUsedStateEnum.BADPARTS;
+			}
+			page=hostDeviceService.searchObtainHostDeviceList(page,organizationId,StatusEnum.NORMAL,deviceUsedState,user);
+		}
 		return getEasyUIData(page);
 	}
+	
 
 	/**
 	 * @Description:跳转到主机新增的页面；
@@ -113,6 +141,11 @@ public class HostDeviceController extends BaseController {
 			synchronized (hostDevice) {
 				hostDevice.setIdentifier(FirstDeviceType.HOSTDEVICE.getValue() + DateUtils.formatDate(new Date(), "yyMMddHHmmSSS"));// 唯一识别码的生成
 			}
+			hostDevice.setOrganizationId(devicePurchaseService.get(hostDevice.getPurchaseId()).getOrgId());
+			hostDevice.setOrganizationName(devicePurchaseService.get(hostDevice.getPurchaseId()).getOrgName());
+			hostDevice.setDeviceUsedState(DeviceUsedStateEnum.PUTINSTORAGE);
+			hostDevice.setScrappedState(UsingStateEnum.NO);
+			hostDevice.setSecondmentState(UsingStateEnum.NO);
 			hostDeviceService.save(hostDevice);
 		}
 		return "success";
@@ -146,9 +179,7 @@ public class HostDeviceController extends BaseController {
 	public String updateForm(@PathVariable("id") Integer id, Model model) {
 		HostDevice hostDevice = hostDeviceService.get(id);
 		DevicePurchase devicePurchase = devicePurchaseService.get(hostDevice.getPurchaseId());
-		Role role = roleService.get(hostDevice.getRoleId());
 		hostDevice.setPurchaseName(devicePurchase.getName());
-		hostDevice.setRoleName(role.getName());
 		model.addAttribute("hostDevice", hostDevice);
 		model.addAttribute("action", "update");
 		return "details/hostDeviceForm";
@@ -225,7 +256,6 @@ public class HostDeviceController extends BaseController {
 	public Map<String, Object> getHostDeviceById(@Valid @ModelAttribute HostDevice hostDevice, Model model) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("managerId", hostDevice.getManagerId());
-		map.put("roleId",hostDevice.getRoleId());
 		map.put("userDeviceTypeId", hostDevice.getUserDeviceTypeId());
 		return map;
 	}
@@ -244,7 +274,91 @@ public class HostDeviceController extends BaseController {
 		hostDeviceService.update(hostDevice);// 根据提交过来的告警模板id进行设置；
 		return "success";
 	}
-
+	@RequestMapping(value="chooseHostDeviceList",method=RequestMethod.GET)
+	public String chooseHostDeviceList(){
+		
+		return "obtain/chooseHostDeviceList";
+	}
+	/**
+	 * @Description:主机设备领用
+	 * @param orgId
+	 * @param type
+	 * @param hostDeviceIdList
+	 * @return
+	 * @Since :2016年3月1日 下午1:17:07
+	 */
+	@RequestMapping("obtainHostDevice/{way}/{type}")
+	@ResponseBody
+	public String obtainHostDevice(@PathVariable("way") String way,@PathVariable("type") String type,String orgId,@RequestBody List<Integer> hostDeviceIdList,HttpSession session){
+		ObtainWayEnum obtainWay=ObtainWayEnum.valueOf(way.toUpperCase());
+		Integer organizationId=null;
+		if(orgId!=null){
+			organizationId=Integer.parseInt(orgId);
+		}
+		User user=null;
+		if(obtainWay==ObtainWayEnum.PERSONAL){
+			user=(User)session.getAttribute("user");
+		}
+		hostDeviceService.hostDeviceObtain(organizationId,type,hostDeviceIdList,user);
+		return "success";
+	} 
+	@RequestMapping("backHostDevice")
+	@ResponseBody
+	public String backHostDevice(@RequestBody List<Integer> hostDeviceIdList){
+		hostDeviceService.backHostDevice(hostDeviceIdList);
+		return "success";
+		
+	}
+	@RequiresPermissions("sys:auditDevice:audit")
+	@RequestMapping("hostDeviceAudit/{type}")
+	@ResponseBody
+	public String hostDeviceAudit(@PathVariable("type") Integer type,@RequestBody List<Integer> hostDeviceIdList){
+		hostDeviceService.hostDeviceAudit(type,hostDeviceIdList);
+		return "success";
+	}
+	
+	@RequiresPermissions("sys:auditDevice:putInstorage")
+	@RequestMapping("putInstorage")
+	@ResponseBody
+	public String putInstorage(@RequestBody List<Integer> hostDeviceIdList){
+		hostDeviceService.updateDeviceUsedStateByDeviceIdList(hostDeviceIdList,DeviceUsedStateEnum.PUTINSTORAGE);
+		return "success";
+	}
+	
+	
+	@RequiresPermissions("sys:auditDevice:badparts")
+	@RequestMapping("badparts")
+	@ResponseBody
+	public String badparts(@RequestBody List<Integer> hostDeviceIdList){
+		hostDeviceService.updateDeviceUsedStateByDeviceIdList(hostDeviceIdList,DeviceUsedStateEnum.BADPARTS);
+		return "success";
+	}
+	@RequiresPermissions("sys:auditDevice:scrap")
+	@RequestMapping("scrap")
+	@ResponseBody
+	public String scrap(@RequestBody List<Integer> hostDeviceIdList){
+		hostDeviceService.updateDeviceUsedStateByDeviceIdList(hostDeviceIdList,DeviceUsedStateEnum.SCRAP);
+		return "success";
+	}
+	@RequiresPermissions("sys:auditDevice:waitExternalMaintenance")
+	@RequestMapping("waitExternalMaintenance")
+	@ResponseBody
+	public String waitExternalMaintenance(@RequestBody List<Integer> hostDeviceIdList){
+		hostDeviceService.updateDeviceUsedStateByDeviceIdList(hostDeviceIdList,DeviceUsedStateEnum.EXTERNALMAINTENANCE);
+		return "success";
+	}
+	/**
+	 * @Description:主机设备报废
+	 * @return
+	 * @Since :2016年2月25日 上午9:48:42
+	 */
+	@RequestMapping("scrappedHostDevice")
+	@ResponseBody
+	public String scrappedHostDevice(@RequestBody List<Integer> hostDeviceIdList){
+		hostDeviceService.scrappedHostDevice(hostDeviceIdList);
+		return "success";
+	}
+	
 	/**
 	 * @Description:在处理修改主机设备之前，加载一次主机信息；
 	 * @param id

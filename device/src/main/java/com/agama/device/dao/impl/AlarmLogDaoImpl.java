@@ -22,7 +22,7 @@ public class AlarmLogDaoImpl extends HibernateDaoImpl<AlarmLog, Integer>implemen
 	@Override
 	public Object getAlarmNumAndTime(String organizationIdIdStr,DeviceInterfaceType deviceInterfaceType, String beginDate, String endDate) {
 		StringBuffer hql = new StringBuffer(
-				"select new map (count(alarmType) as num,date_format(collectTime,'%Y-%m-%d') as collectTime) from AlarmLog where alarmType=2");
+				"select new map (count(currentState) as num,date_format(collectTime,'%Y-%m-%d') as collectTime) from AlarmLog where currentState=2");
 		if (organizationIdIdStr != null) {
 			hql.append(
 					" and device.id in (select id from Device where status=0 and gitInfo.id in ( select id from GitInfo where status=0 and organizationId in (")
@@ -44,7 +44,7 @@ public class AlarmLogDaoImpl extends HibernateDaoImpl<AlarmLog, Integer>implemen
 	@Override
 	public Object getAlarmNumAndTimeForYear(String beginDate, String endDate) {
 		StringBuffer hql = new StringBuffer(
-				"select new map (count(alarmType) as num,date_format(collectTime,'%Y-%m') as collectTime) from AlarmLog where alarmType=2");
+				"select new map (count(currentState) as num,date_format(collectTime,'%Y-%m') as collectTime) from AlarmLog where currentState=2");
 		if (beginDate != null) {
 			hql.append(" and date_format(collectTime,'%Y-%m')>='").append(beginDate).append("'");
 		}
@@ -58,7 +58,7 @@ public class AlarmLogDaoImpl extends HibernateDaoImpl<AlarmLog, Integer>implemen
 	@Override
 	public Object getAlarmNumAndTimeForMonth(String beginDate, String endDate) {
 		StringBuffer hql = new StringBuffer(
-				"select new map (count(alarmType) as num,date_format(collectTime,'%Y-%m-%d') as collectTime) from AlarmLog where alarmType=2");
+				"select new map (count(currentState) as num,date_format(collectTime,'%Y-%m-%d') as collectTime) from AlarmLog where currentState=2");
 		if (beginDate != null) {
 			hql.append(" and date_format(collectTime,'%Y-%m-%d')>='").append(beginDate).append("'");
 		}
@@ -72,7 +72,7 @@ public class AlarmLogDaoImpl extends HibernateDaoImpl<AlarmLog, Integer>implemen
 	@Override
 	public Object getAlarmNumAndTimeForDay(String beginDate, String endDate) {
 		StringBuffer hql = new StringBuffer(
-				"select new map (count(alarmType) as num,date_format(collectTime,'%Y-%m-%d %H') as collectTime) from AlarmLog where alarmType=2");
+				"select new map (count(currentState) as num,date_format(collectTime,'%Y-%m-%d %H') as collectTime) from AlarmLog where currentState=2");
 		if (beginDate != null) {
 			hql.append(" and date_format(collectTime,'%Y-%m-%d %H')>='").append(beginDate).append("'");
 		}
@@ -86,7 +86,8 @@ public class AlarmLogDaoImpl extends HibernateDaoImpl<AlarmLog, Integer>implemen
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<AlarmLog> getAlarmLog() {
-		String hql = "SELECT al.id AS id, al.alarm_type AS runState, al.collect_time AS collectTime, al.content AS content, al.device_interface_type AS deviceTypeIndex, d.NAME AS deviceName, g.organization_name AS organizationName FROM Alarm_Log al RIGHT JOIN (SELECT max(alog.collect_Time) AS collectTime, alog.device_id AS deviceId FROM alarm_Log alog, device d WHERE alog. STATUS = 0 AND d.id = alog.device_id AND d.current_state != 0 AND d. STATUS = 0 GROUP BY deviceId) a ON al.STATUS = 0 AND a.collectTime = al.collect_Time AND al.device_id = a.deviceId LEFT JOIN device d ON al.device_id = d.id LEFT JOIN git_info g ON g.id = d.git_info_id where d.status=0 and g.status=0 ORDER BY al.collect_Time";
+		//此处目前展示的是动环系统的告警日志，后期需要加入其他设备的日志记录
+		String hql = "SELECT al.id AS id, al.current_state AS runState, al.collect_time AS collectTime, al.content AS content, al.alarm_option_type AS deviceTypeIndex, d. NAME AS deviceName, o.org_name AS organizationName FROM Alarm_Log al RIGHT JOIN ( SELECT max(alog.collect_Time) AS collectTime, alog.identifier AS identifier FROM alarm_Log alog, pe_device d WHERE alog. STATUS = 0 AND d.identifier = alog.identifier AND d.current_state != 0 AND d. STATUS = 0 GROUP BY identifier ) a ON al. STATUS = 0 AND a.collectTime = al.collect_Time AND al.identifier = a.identifier LEFT JOIN pe_device d ON al.identifier = d.identifier LEFT JOIN organization o ON o.id = d.organization_id WHERE d. STATUS = 0 ORDER BY al.collect_Time";
 		return this.getSession().createSQLQuery(hql).setResultTransformer(Transformers.aliasToBean(AlarmLog.class))
 				.list();
 	}

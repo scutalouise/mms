@@ -2,7 +2,9 @@ package com.agama.common.enumbean;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -49,7 +51,6 @@ public enum SecondDeviceType implements JsonSerializable {
 	BINDING(25,"扎把机",FirstDeviceType.UNINTELLIGENTDEVICE),
 	CARDSENDER(26,"发卡机",FirstDeviceType.UNINTELLIGENTDEVICE);
 
-	;
 	/**
 	 * id标识
 	 */
@@ -95,7 +96,27 @@ public enum SecondDeviceType implements JsonSerializable {
 		
 		return secondDeviceTypes;
 	}
-
+	public static List<Map<String,Object>> getSecondDeviceTypeListByFirstDeviceType(FirstDeviceType firstDeviceType){
+		List<Map<String,Object>> secondDeviceTypes=new ArrayList<Map<String,Object>>();
+		for (SecondDeviceType secondDeviceType : SecondDeviceType.values()) {
+			if(secondDeviceType.getFirstDeviceType()==firstDeviceType){
+				Map<String,Object> map=new HashMap<String, Object>();
+				map.put("value", secondDeviceType.toString());
+				map.put("name", secondDeviceType.getName());
+				secondDeviceTypes.add(map);
+			}
+		}
+		return secondDeviceTypes;
+	}
+	
+	public static List<SecondDeviceType> getSecondDeviceType() {
+		List<SecondDeviceType> secondDeviceTypeList = new ArrayList<>();
+		for (SecondDeviceType firstDeviceType : SecondDeviceType.values()) {
+			secondDeviceTypeList.add(firstDeviceType);
+		}
+		return secondDeviceTypeList;
+	}
+	
 	@Override
 	public void serialize(JsonGenerator generator, SerializerProvider arg1) throws IOException, JsonProcessingException {
 		generator.writeStartObject();

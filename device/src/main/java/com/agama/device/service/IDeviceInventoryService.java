@@ -1,5 +1,6 @@
 package com.agama.device.service;
 
+import com.agama.common.dao.utils.Page;
 import com.agama.common.service.IBaseService;
 import com.agama.device.domain.DeviceInventory;
 
@@ -28,4 +29,11 @@ public interface IDeviceInventoryService extends IBaseService<DeviceInventory, I
 	 * @Since :2016年1月15日 下午1:53:09
 	 */
 	public DeviceInventory getDeviceInventoryByPurchaseId(int id);
+    
+    /**
+     * @Description 重写hql，查询
+     * @return
+     * @Since 2016年3月10日 下午1:00:39
+     */
+    public Page<DeviceInventory> getPageByHql(Page<DeviceInventory> page);
 }

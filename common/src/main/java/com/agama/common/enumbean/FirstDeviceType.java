@@ -62,6 +62,7 @@ public enum FirstDeviceType implements JsonSerializable {
 		return firstDeviceTypeList;
 	}
 
+	
 	@Override
 	public void serialize(JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
 		generator.writeStartObject();

@@ -34,6 +34,12 @@ public interface IAreaInfoService extends IBaseService<AreaInfo, Integer>{
 	 */
 	public List<AreaInfo> getListRelevancyOrganization(StateEnum stateEnum, String searchValue);
 	
-	
+	/**
+	 * @Description:删除操作的时候，加入操作用户的id便于数据库记录；
+	 * @param id
+	 * @param opUserId
+	 * @Since :2016年2月23日 上午9:41:01
+	 */
+	public void delete(Integer id, Integer opUserId);
 	
 }

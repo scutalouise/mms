@@ -30,4 +30,5 @@ public interface IAcStatusService extends IBaseService<AcStatus, Integer> {
 	 */
 	public boolean closeOrOpenOfAc(String ip, Integer index,Integer command);
 
+	public void saveS(Integer id);
 }

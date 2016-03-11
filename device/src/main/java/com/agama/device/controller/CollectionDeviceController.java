@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,17 +20,21 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.agama.authority.entity.Role;
-import com.agama.authority.service.IRoleService;
+import com.agama.authority.entity.User;
 import com.agama.common.dao.utils.Page;
 import com.agama.common.dao.utils.PropertyFilter;
+import com.agama.common.enumbean.DeviceUsedStateEnum;
 import com.agama.common.enumbean.EnabledStateEnum;
 import com.agama.common.enumbean.FirstDeviceType;
+import com.agama.common.enumbean.ObtainWayEnum;
 import com.agama.common.enumbean.StatusEnum;
+import com.agama.common.enumbean.UsingStateEnum;
 import com.agama.common.web.BaseController;
 import com.agama.device.domain.CollectionDevice;
+import com.agama.device.domain.DeviceInventory;
 import com.agama.device.domain.DevicePurchase;
 import com.agama.device.service.ICollectionDeviceService;
+import com.agama.device.service.IDeviceInventoryService;
 import com.agama.device.service.IDevicePurchaseService;
 import com.agama.tool.utils.date.DateUtils;
 
@@ -45,10 +51,10 @@ public class CollectionDeviceController extends BaseController {
 	
 	@Autowired
 	private IDevicePurchaseService devicePurchaseService;
-	
 	@Autowired
-	private IRoleService roleService;
-
+	private IDeviceInventoryService deviceInventoryService;
+	
+	
 	/**
 	 * @Description：采集器默认页面
 	 * @return
@@ -70,10 +76,38 @@ public class CollectionDeviceController extends BaseController {
 	@ResponseBody
 	public Map<String, Object> getData(HttpServletRequest request) {
 		Page<CollectionDevice> page = getPage(request);
-		List<PropertyFilter> filters = PropertyFilter.buildFromHttpRequest(request);
-		PropertyFilter propertyFilter = new PropertyFilter("EQE_status", String.valueOf(StatusEnum.NORMAL));//过滤掉，状态为删除状态的记录；
-		filters.add(propertyFilter);
-		page = collectionDeviceService.search(page, filters);
+		String type=request.getParameter("type");
+		if(type==null){
+			List<PropertyFilter> filters = PropertyFilter.buildFromHttpRequest(request);
+			filters.add(new PropertyFilter("EQ_StatusEnum_status", StatusEnum.NORMAL.toString()));// 新增过滤掉，状态为删除状态的记录；
+			page = collectionDeviceService.search(page, filters);
+		}else{
+			String organizationId=request.getParameter("orgId");
+			DeviceUsedStateEnum deviceUsedState=DeviceUsedStateEnum.USED;
+			String deviceUsedStateStr=request.getParameter("deviceUsedState");
+			ObtainWayEnum obtainWay=ObtainWayEnum.ORGANIZATION;
+			String way=request.getParameter("way");
+			if(way!=null){
+				obtainWay=ObtainWayEnum.valueOf(way.toUpperCase());//领用方式 
+			}
+			if(deviceUsedStateStr!=null){
+				deviceUsedState=DeviceUsedStateEnum.valueOf(deviceUsedStateStr); //入库
+			}
+			User user=null;
+			if(obtainWay==ObtainWayEnum.PERSONAL){
+				user=(User)request.getSession().getAttribute("user");
+			}
+			//type为审核中的状态
+			if(type.equals("audit")){
+				deviceUsedState=DeviceUsedStateEnum.AUDIT;
+			}else if(type.equals("waitRepair")){
+				deviceUsedState=DeviceUsedStateEnum.WAITREPAIR;
+			}else if(type.equals("badParts")){
+				deviceUsedState=DeviceUsedStateEnum.BADPARTS;
+			}
+			page=collectionDeviceService.searchObtainCollectionDeviceList(page,organizationId,StatusEnum.NORMAL,deviceUsedState,user);
+
+		}
 		return getEasyUIData(page);
 	}
 
@@ -108,6 +142,15 @@ public class CollectionDeviceController extends BaseController {
 			synchronized (collectionDevice) {
 				collectionDevice.setIdentifier(FirstDeviceType.COLLECTDEVICE.getValue() + DateUtils.formatDate(new Date(), "yyMMddHHmmSSS"));// 唯一识别码的生成
 			}
+			DevicePurchase devicePurchase= devicePurchaseService.get(collectionDevice.getPurchaseId());
+			DeviceInventory deviceInventory=deviceInventoryService.get(devicePurchase.getDeviceInventoryId());
+			collectionDevice.setDeviceType(devicePurchase.getSecondDeviceType());
+			collectionDevice.setOrganizationId(devicePurchase.getOrgId());
+			collectionDevice.setOrganizationName(devicePurchase.getOrgName());
+			collectionDevice.setDeviceType(deviceInventory.getSecondDeviceType());
+			collectionDevice.setDeviceUsedState(DeviceUsedStateEnum.PUTINSTORAGE);
+			collectionDevice.setScrappedState(UsingStateEnum.NO);
+			collectionDevice.setSecondmentState(UsingStateEnum.NO);
 			collectionDeviceService.save(collectionDevice);
 		}
 		return "success";
@@ -136,13 +179,11 @@ public class CollectionDeviceController extends BaseController {
 	 * @return
 	 * @Since :2016年1月19日 下午5:29:48
 	 */
-	@RequestMapping(value = "update/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "update/{id}",method = RequestMethod.GET)
 	public String updateForm(@PathVariable("id") Integer id, Model model) {
 		CollectionDevice collectionDevice = collectionDeviceService.get(id);
 		DevicePurchase devicePurchase = devicePurchaseService.get(collectionDevice.getPurchaseId());
-		Role role = roleService.get(collectionDevice.getRoleId());
 		collectionDevice.setPurchaseName(devicePurchase.getName());
-		collectionDevice.setRoleName(role.getName());
 		model.addAttribute("collectionDevice", collectionDevice);
 		model.addAttribute("action", "update");
 		return "details/collectionDeviceForm";
@@ -202,6 +243,77 @@ public class CollectionDeviceController extends BaseController {
 	@RequestMapping(value = "setUserDeviceType", method = RequestMethod.POST)
 	public String setUserDeviceType(@Valid @ModelAttribute CollectionDevice collectionDevice, Model model) {
 		collectionDeviceService.update(collectionDevice);// 根据提交过来的运维角色id进行设置；
+		return "success";
+	}
+	
+	@RequestMapping(value="chooseCollectionDeviceList",method=RequestMethod.GET)
+	public String chooseCollectionDeviceList(){
+		return "obtain/chooseCollectionDeviceList";
+	}
+	@RequestMapping("obtainCollectionDevice/{way}/{type}")
+	@ResponseBody
+	public String obtainCollectionDevice(@PathVariable("way") String way,@PathVariable("type") String type,String orgId,@RequestBody List<Integer> collectionDeviceIdList,HttpSession session){
+		ObtainWayEnum obtainWay=ObtainWayEnum.valueOf(way.toUpperCase());
+		Integer organizationId=null;
+		if(orgId!=null){
+			organizationId=Integer.parseInt(orgId);
+		}
+		User user=null;
+		if(obtainWay==ObtainWayEnum.PERSONAL){
+			user=(User)session.getAttribute("user");
+		}
+		collectionDeviceService.collectionDeviceObtain(organizationId,type,collectionDeviceIdList,user);
+		return "success";
+	} 
+	@RequestMapping("backCollectionDevice")
+	@ResponseBody
+	public String backCollectionDevice(@RequestBody List<Integer> collectionDeviceIdList){
+		collectionDeviceService.backCollectionDevice(collectionDeviceIdList);
+		return "success";
+		
+	}
+	@RequiresPermissions("sys:auditDevice:audit")
+	@RequestMapping("collectionDeviceAudit/{type}")
+	@ResponseBody
+	public String collectionDeviceAudit(@PathVariable("type") Integer type,@RequestBody List<Integer> collectionDeviceIdList){
+		collectionDeviceService.collectionDeviceAudit(type,collectionDeviceIdList);
+		return "success";
+	}
+	
+	@RequiresPermissions("sys:auditDevice:badparts")
+	@RequestMapping("badparts")
+	@ResponseBody
+	public String badparts(@RequestBody List<Integer> collectionDeviceIdList){
+		collectionDeviceService.updateDeviceUsedStateByDeviceIdList(collectionDeviceIdList,DeviceUsedStateEnum.BADPARTS);
+		return "success";
+	}
+	@RequiresPermissions("sys:auditDevice:putInstorage")
+	@RequestMapping("putInstorage")
+	@ResponseBody
+	public String putInstorage(@RequestBody List<Integer> collectionDeviceIdList){
+		collectionDeviceService.updateDeviceUsedStateByDeviceIdList(collectionDeviceIdList,DeviceUsedStateEnum.PUTINSTORAGE);
+		return "success";
+	}
+	@RequiresPermissions("sys:auditDevice:scrap")
+	@RequestMapping("scrap")
+	@ResponseBody
+	public String scrap(@RequestBody List<Integer> collectionDeviceIdList){
+		collectionDeviceService.updateDeviceUsedStateByDeviceIdList(collectionDeviceIdList,DeviceUsedStateEnum.SCRAP);
+		return "success";
+	}
+	
+	@RequiresPermissions("sys:auditDevice:waitExternalMaintenance")
+	@RequestMapping("waitExternalMaintenance")
+	@ResponseBody
+	public String waitExternalMaintenance(@RequestBody List<Integer> collectionDeviceIdList){
+		collectionDeviceService.updateDeviceUsedStateByDeviceIdList(collectionDeviceIdList,DeviceUsedStateEnum.WAITEXTERNALMAINTENANCE);
+		return "success";
+	}
+	
+	@RequestMapping("scrappedCollectionDevice")
+	@ResponseBody
+	public String scrappedCollectionDevice(@RequestBody List<Integer> collectionDeviceIdList){
+		collectionDeviceService.scrappedCollectionDevice(collectionDeviceIdList);
 		return "success";
 	}
 	

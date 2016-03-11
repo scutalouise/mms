@@ -8,61 +8,79 @@
 <body>
 <div>
 	<form id="mainform" action="${ctx }/device/devicePurchase/${action}" method="post">
-		<table style="border-spacing:5px;margin-left: 10px;">  
+		<table style="border-spacing:5px;margin-left: 10px;margin-top: 5px;">  
 			<tr>
 				<td>采购名：</td>
 				<td>
 					<input type="hidden" name="id" value="${id }"/>
 					<input type="hidden" name="version" value="${devicePurchase.version }"/>
-					<input id="name" name="name" class="easyui-validatebox" data-options="width: 150,required:'required'" value="${devicePurchase.name }" validType="length[2,20]"/> 
+					<input id="name" name="name" class="easyui-validatebox" data-options="width: 200,required:'required'" value="${devicePurchase.name }" validType="length[2,20]"/> 
 				</td>
 			</tr>
 			<tr>
 				<td>数量：</td>
 				<td>
-				    <input name="quantity" value="${devicePurchase.quantity }" class="easyui-numberbox" data-options="width: 150,required:'required'"/>
-				</td>
-			</tr>
-			<tr>
-				<td>一级设备类型:&nbsp;&nbsp;</td>
-				<td>
-					<input name="firstDeviceType" id="firstDeviceType" class="easyui-combobox" value="${deviceInventory.firstDeviceType }" data-options="width: 150,required:true,editable:false"/>
-					            <%-- <option value="">--请选择--</option>
-							<c:forEach items="${firstDeviceType }" var="firstDevice">
-								<option value="${firstDevice }">${firstDevice.name }</option>
-							</c:forEach> --%>
-				</td>
-			</tr>
-			<tr>	
-				<td>二级设备类型:</td>
-				<td>
-					<input name="secondDeviceType" id="secondDeviceType" class="easyui-combobox" value="${deviceInventory.secondDeviceType }" data-options="width: 150,required:true,editable:false"/>
-				</td>
-			</tr>
-			<tr>	
-				<td>品牌:</td>
-				<td>
-				    <input name="brandName" id="brandName" type="hidden" value="${deviceInventory.brandName }"/>
-					<input name="brandId" id="brandId" class="easyui-combobox" value="${deviceInventory.brandId }" data-options="width: 150,required:true,editable:false"/>
+				    <input name="quantity" value="${devicePurchase.quantity }" class="easyui-numberbox" data-options="width: 200,required:'required'"/>
 				</td>
 			</tr>
 			<tr>
 				<td>采购机构：</td>
 				<td>
-				    <input name="orgName" id="orgName"  type="hidden" value="${devicePurchase.orgName }"/>
-				    <input name="orgId" id="orgId"  value="${devicePurchase.orgId }" class="easyui-combobox" data-options="width: 150,required:'required',editable:false"/>
+				    <input name="orgId" id="orgIds" value="${devicePurchase.orgId }" class="easyui-combobox" data-options="width: 200,required:'required',editable:false"/>
+				</td>
+			</tr>
+			<tr>
+				<td>设备类型:&nbsp;&nbsp;</td><!-- 原一级设备类型 -->
+				<td>
+					<input name="firstDeviceType" id="firstDeviceType" class="easyui-combobox" value="${deviceInventory.firstDeviceType }" data-options="width: 200,required:true,editable:false"/>
+				</td>
+			</tr>
+			<tr>	
+				<td>设备名称:</td><!-- 原二级设备类型 -->
+				<td>
+					<input name="secondDeviceType" id="secondDeviceType" class="easyui-combobox" value="${deviceInventory.secondDeviceType }" data-options="width: 200,required:true,editable:false"/>
+				</td>
+			</tr>
+			<tr>	
+				<td>品牌:</td>
+				<td>
+					<input name="brandId" id="brandId" class="easyui-combobox" value="${deviceInventory.brandId }" data-options="width: 200,required:true,editable:false"/>
+				</td>
+			</tr>
+			<tr>
+				<td>供应商：</td>
+				<td>
+				    <input name="supplyId" id="supplyId" class="easyui-combobox" value="${devicePurchase.supplyId }" data-options="width: 200,required:true,editable:false"/>
+				</td>
+			</tr>
+			<tr>
+				<td>采购订单号：</td>
+				<td>
+				    <input name="purchaseOrderNum" id="purchaseOrderNum" class="easyui-validatebox" value="${devicePurchase.purchaseOrderNum }" data-options="width: 200,required:false,editable:false"/>
+				</td>
+			</tr>
+			<tr>
+				<td>运维方式:</td>
+				<td>
+				    <input name="maintainWay" id="maintainWay" value="${devicePurchase.maintainWay }" data-options="width: 200,required:true,editable:false" />
+				</td>
+			</tr>
+			<tr>
+				<td>运维组织：</td>
+				<td>
+				    <input name="maintainOrgId" id="maintainOrgId"  value="${devicePurchase.maintainOrgId }" class="easyui-combobox" data-options="width: 200,required:true,editable:false"/>
 				</td>
 			</tr>
 			<tr>
 				<td>购买日期：</td>
 				<td>
-					<input name="purchaseDate" id="purchaseDate" class="easyui-my97" dateFmt="yyyy-MM-dd" data-options="width: 150" value="<fmt:formatDate value="${devicePurchase.purchaseDate}"/>"/>
+					<input name="purchaseDate" id="purchaseDate" class="easyui-my97" dateFmt="yyyy-MM-dd" data-options="width: 200" value="<fmt:formatDate value="${devicePurchase.purchaseDate}"/>"/>
 				</td>
 			</tr>
 			<tr>
 				<td>保修日期：</td>
 				<td>
-				    <input name="warrantyDate" id="warrantyDate" class="easyui-my97" dateFmt="yyyy-MM-dd" minDate="%y-{%M+12}-%d" data-options="width: 150" value="<fmt:formatDate value="${devicePurchase.warrantyDate}"/>"/>
+				    <input name="warrantyDate" id="warrantyDate" class="easyui-my97" dateFmt="yyyy-MM-dd" data-options="width: 200" value="<fmt:formatDate value="${devicePurchase.warrantyDate}"/>"/>
 				</td>
 			</tr>
 			<tr>
@@ -75,7 +93,7 @@
 			<tr>
 				<td>描述：</td>
 				<td>
-				    <textarea rows="2" cols="19" name="otherNote" class="easyui-validatebox">${devicePurchase.otherNote}</textarea>
+				    <textarea rows="3" name="otherNote" class="easyui-validatebox" data-options="width: 200">${devicePurchase.otherNote}</textarea>
 				</td>
 			</tr>
 		</table>
@@ -83,13 +101,32 @@
 </div>
 
 <script type="text/javascript">
+
 var action="${action}";
 
 if(action=="add"){
 	  $("input[name='isPurchase'][value=1]").attr('checked',true);
 }
+
 if(action=="update"){
-	  $("input[name='isPurchase'][value=${devicePurchase.isPurchase }]").attr('checked',true);	  
+	  $("input[name='isPurchase'][value=${devicePurchase.isPurchase }]").attr('checked',true);
+	 
+	  if ("${devicePurchase.maintainWay }" == "INNER"){
+		  $('#maintainOrgId').combotree({
+				method:'post',
+				url:'${ctx}/system/organization/json',
+				idField:'id',
+				textFiled:'orgName'
+		  });
+      }else{
+    	  $('#maintainOrgId').combotree({
+				method:'get',
+				url:'${ctx}/device/supplyMaintainOrg/json',
+				idField:'id',
+				textFiled:'orgName'
+          });
+      }
+	  
 	  $('#secondDeviceType').combobox({
 		  method:"get",
 		  url:'${ctx}/device/brand/secondDeviceType?firstDeviceType=${deviceInventory.firstDeviceType }'
@@ -99,18 +136,21 @@ if(action=="update"){
 		  method:"get",
 		  url:'${ctx}/device/brand/brandCollection?secondDeviceType=${deviceInventory.secondDeviceType }'
 	 });
+	  
+	 $('#supplyId').combobox({
+		  method:"get",
+		  url:'${ctx}/device/supplyMaintainOrg/supplyMaintainOrgList?brandId=${devicePurchase.brandId }'
+	 });
 }
-
+		
 $(function(){
-	$('#orgId').combotree({
-		method:'get',
+	
+	$('#orgIds').combotree({
+		method:'post',
 		url:'${ctx}/system/organization/json',
 		idField:'id',
 		textFiled:'orgName',
-	    animate:true,
-	    onSelect:function(data){
-	    	$('#orgName').val(data.text);
-	    } 
+	    animate:true
 	});
     
 	 $('#firstDeviceType').combobox({
@@ -119,31 +159,86 @@ $(function(){
 		  valueField:'firstDeviceType',
 		  textField:'name',
 		  onSelect:function(data){
-			  firstDeviceType=data.firstDeviceType;
+			  var firstDeviceType=data.firstDeviceType;
 			  $('#secondDeviceType').combobox({
 				  method:"get",
 				  url:'${ctx}/device/brand/secondDeviceType?firstDeviceType='+firstDeviceType
 			 }).combobox('clear');
 		  }
 	  });
+	 
 	 $('#secondDeviceType').combobox({
 	      valueField:'secondDeviceType',
 	      textField:'name',
 	      onSelect:function(data){
-	    	  secondDeviceType=data.secondDeviceType;
+	    	  var secondDeviceType=data.secondDeviceType;
 	    	  $('#brandId').combobox({
 				  method:"get",
 				  url:'${ctx}/device/brand/brandCollection?secondDeviceType='+secondDeviceType,
-			      onSelect:function(data){
-			    	  $('#brandName').val(data.name);
-			      }
 			 }).combobox('clear');
 	       }
 	 });
+	 
 	 $('#brandId').combobox({
-	      valueField:'id',
-	      textField:'name'
+		  valueField:'id',
+	      textField:'name',
+	      onSelect:function(data){
+	    	  var brandId=data.id;
+	    	  $('#supplyId').combobox({
+				  method:"get",
+				  url:'${ctx}/device/supplyMaintainOrg/supplyMaintainOrgList?brandId='+brandId
+			 }).combobox('clear');
+	      }
 	 });
+	 
+	 $('#supplyId').combobox({
+	      valueField:'id',
+	      textField:'orgName'
+	 });
+	  
+	 $("#maintainWay").combobox({
+		    method:'get',
+			url:'${ctx}/device/devicePurchase/maintainWay',
+			valueField:'maintainWay',
+		    textField:'name',
+			onSelect : function(v) {
+				if (v.maintainWay == "INNER") {
+					$('#maintainOrgId').combotree({
+						method:'post',
+						url:'${ctx}/system/organization/json',
+						idField:'id',
+						textFiled:'orgName',
+					    animate:true,
+					    required:false,
+					    onLoadSuccess:function(data){
+					    	if(action=="update"){
+					    		$('#maintainOrgId').combotree("setValue","${devicePurchase.maintainOrgId }");
+					    	}else{
+					    		$('#maintainOrgId').combotree("setValue",$('#orgIds').combotree('getValue'));
+					    	}
+					    }
+				    });
+				} else if(v.maintainWay == "OUTER"){
+					$('#maintainOrgId').combotree({
+						method:'get',
+						url:'${ctx}/device/supplyMaintainOrg/json',
+						idField:'id',
+						textFiled:'orgName',
+					    animate:true,
+					    required:true,
+					    onLoadSuccess:function(data){
+					    	if(action=="update"){
+					    		$('#maintainOrgId').combotree("setValue","${devicePurchase.maintainOrgId }");
+					    	}else{
+					    		$('#maintainOrgId').combotree("setValue",$('#supplyId').combobox('getValue'));
+					    	}
+					    }
+					 });
+				} 
+			}
+	});
+	 
+	initDate("purchaseDate","warrantyDate");
 });
 
   //提交表单

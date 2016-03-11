@@ -11,7 +11,27 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 public enum DeviceType implements JsonSerializable{
-	UPS, TH, SWITCHINPUT,AC; 
+	UPS("UPS"), TH("温湿度"), SWITCHINPUT("开关输出量"),AC("空调"); 
+	private String value;
+
+	private DeviceType(String value) {
+		// TODO Auto-generated constructor stub
+		this.value=value;
+	}
+	
+	
+	
+	public String getValue() {
+		return value;
+	}
+
+
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+
 
 	public static List<DeviceType> geDeviceType() {
 		List<DeviceType> deviceTypeList = new ArrayList<>();
@@ -26,6 +46,8 @@ public enum DeviceType implements JsonSerializable{
 		generator.writeStartObject();
 		generator.writeFieldName("deviceType");
 		generator.writeString(toString());
+		generator.writeFieldName("value");
+		generator.writeString(value);
 		generator.writeEndObject();
 	}
 

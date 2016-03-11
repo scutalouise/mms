@@ -51,9 +51,9 @@ public class TwoDimentionCodeController {
 		return "details/twoDimentionCode";
 	}
 
-	@RequestMapping(value = "createQR", method = RequestMethod.POST)
+	@RequestMapping(value = "updateQR", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String, Object> createQR(@RequestParam String identifier, @RequestParam Integer id,
+	public Map<String, Object> updateQR(@RequestParam String identifier, @RequestParam Integer id,
 			@RequestParam String rand, HttpServletRequest request) throws JsonProcessingException {
 		TwoDimentionCode twoDimentionCode = twoDimentionCodeService.getByidentifier(identifier);
 		Map<String, Object> map = new HashMap<String, Object>();

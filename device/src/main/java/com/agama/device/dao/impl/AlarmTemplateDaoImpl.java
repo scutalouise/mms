@@ -6,6 +6,7 @@ import com.agama.common.dao.impl.HibernateDaoImpl;
 import com.agama.common.enumbean.StatusEnum;
 import com.agama.device.dao.IAlarmTemplateDao;
 import com.agama.device.domain.AlarmTemplate;
+import com.agama.device.domain.OrgAlarmTemplate;
 /**
  * @Description:告警模板数据访问层实现类
  * @Author:ranjunfeng

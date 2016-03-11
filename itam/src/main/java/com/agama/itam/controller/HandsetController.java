@@ -27,14 +27,15 @@ import com.agama.common.enumbean.ProblemStatusEnum;
 import com.agama.common.enumbean.ReportWayEnum;
 import com.agama.common.enumbean.SecondDeviceType;
 import com.agama.common.enumbean.StatusEnum;
-import com.agama.device.domain.HostDevice;
+import com.agama.device.domain.CollectionDevice;
+import com.agama.device.service.ICollectionDeviceService;
 import com.agama.device.service.IDeviceService;
 import com.agama.device.service.IHostDeviceService;
 import com.agama.itam.domain.Problem;
 import com.agama.itam.service.IDeviceInspectStatusService;
-import com.agama.itam.service.InspectRecordService;
 import com.agama.itam.service.IProblemService;
 import com.agama.itam.service.IProblemTypeService;
+import com.agama.itam.service.InspectRecordService;
 import com.agama.itam.util.HandsetUtils;
 import com.agama.tool.utils.PropertiesUtils;
 import com.agama.tool.utils.security.Digests;
@@ -58,6 +59,8 @@ public class HandsetController {
 	@Autowired
 	private IHostDeviceService hds;
 	@Autowired
+	private ICollectionDeviceService cds;
+	@Autowired
 	private IDeviceInspectStatusService disService;
 	@Autowired
 	private IDeviceService deviceService;
@@ -79,13 +82,13 @@ public class HandsetController {
 		Map<String, Object> map = new HashMap<String, Object>();
 		Organization org = null;
 		if (appType == 0) {
-			HostDevice hd = hds.getHostDeviceByIdentifier(handsetNo);
-			if (hd == null) {
+			CollectionDevice cd = cds.getCollectionDeviceByIdentifier(handsetNo);
+			if (cd == null) {
 				map.put("result", -101);
 				map.put("message", "终端编号不存在！");
 				return map;
 			} else {
-				org = orgService.get(hd.getOrganizationId());
+				org = orgService.get(cd.getOrganizationId());
 			}
 		} else {
 			org = orgService.getOrganizationByOrgCode(orgCode);
@@ -162,8 +165,8 @@ public class HandsetController {
 			try {
 				Organization org = null;
 				if (appType == 0) {
-					HostDevice hd = hds.getHostDeviceByIdentifier(handsetNo);
-					org = orgService.get(hd.getOrganizationId());
+					CollectionDevice cd = cds.getCollectionDeviceByIdentifier(handsetNo);
+					org = orgService.get(cd.getOrganizationId());
 				} else {
 					org = orgService.getOrganizationByOrgCode(orgCode);
 				}
@@ -202,13 +205,13 @@ public class HandsetController {
 			try {
 				Organization org = null;
 				if (appType == 0) {
-					HostDevice hd = hds.getHostDeviceByIdentifier(handsetNo);
-					org = orgService.get(hd.getOrganizationId());
+					CollectionDevice cd = cds.getCollectionDeviceByIdentifier(handsetNo);
+					org = orgService.get(cd.getOrganizationId());
 				} else {
 					org = orgService.getOrganizationByOrgCode(orgCode);
 				}
 				User user = userService.getUser(userName);
-				irs.saveInspectRecord(total, checkedTotal, inexistendTotal, checked, unchecked, inexistend, org.getId(), user.getId());
+				irs.saveInspectRecord(total, checkedTotal, inexistendTotal, checked, unchecked, inexistend, org, user);
 				map.put("message", "巡检数据保存成功！");
 			} catch (Exception e) {
 				map.put("result", -500);
@@ -241,7 +244,7 @@ public class HandsetController {
 					map.put("message", "获取问题类型成功！");
 					map.put("data", list);
 				} else {
-					map.put("message", "设备编号不存在！");
+					map.put("message", "系统未找到相应编号的设备！");
 					map.put("result", -101);
 				}
 			} catch (Exception e) {
@@ -288,7 +291,7 @@ public class HandsetController {
 					problemService.saveProblem(problem, user);
 					map.put("message", "设备报修成功！");
 				} else {
-					map.put("message", "设备编号不存在！");
+					map.put("message", "系统未找到相应编号的设备！");
 					map.put("result", -101);
 				}
 			} catch (Exception e) {
@@ -318,8 +321,8 @@ public class HandsetController {
 			try {
 				Organization org = null;
 				if (appType == 0) {
-					HostDevice hd = hds.getHostDeviceByIdentifier(handsetNo);
-					org = orgService.get(hd.getOrganizationId());
+					CollectionDevice cd = cds.getCollectionDeviceByIdentifier(handsetNo);
+					org = orgService.get(cd.getOrganizationId());
 				} else {
 					org = orgService.getOrganizationByOrgCode(orgCode);
 				}
@@ -396,7 +399,7 @@ public class HandsetController {
 					map.put("data", objMap);
 				} else {
 					map.put("result", -101);
-					map.put("message", "该设备编号不存在");
+					map.put("message", "系统未找到相应编号的设备！");
 				}
 			} catch (Exception e) {
 				map.put("result", -500);
@@ -412,13 +415,13 @@ public class HandsetController {
 		// 校验编号的存在性
 		Organization org = null;
 		if (appType == 0) {
-			HostDevice hd = hds.getHostDeviceByIdentifier(handsetNo);
-			if (hd == null) {
+			CollectionDevice cd = cds.getCollectionDeviceByIdentifier(handsetNo);
+			if (cd == null) {
 				map.put("result", -101);
 				map.put("message", "终端编号不存在！");
 				return map;
 			} else {
-				org = orgService.get(hd.getOrganizationId());
+				org = orgService.get(cd.getOrganizationId());
 			}
 
 		} else {
@@ -452,13 +455,13 @@ public class HandsetController {
 		// 校验编号的存在性
 		Organization org = null;
 		if (appType == 0) {
-			HostDevice hd = hds.getHostDeviceByIdentifier(handsetNo);
-			if (hd == null) {
+			CollectionDevice cd = cds.getCollectionDeviceByIdentifier(handsetNo);
+			if (cd == null) {
 				map.put("result", -101);
 				map.put("message", "终端编号不存在！");
 				return map;
 			} else {
-				org = orgService.get(hd.getOrganizationId());
+				org = orgService.get(cd.getOrganizationId());
 			}
 
 		} else {

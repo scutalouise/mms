@@ -11,14 +11,18 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.agama.common.domain.StateEnum;
 import com.agama.common.enumbean.EnabledStateEnum;
 import com.agama.common.enumbean.StatusEnum;
+import com.agama.device.dao.IHostDeviceDao;
 import com.agama.device.domain.CollectionDevice;
 import com.agama.device.service.ICollectionDeviceService;
+import com.agama.device.service.IHostDeviceService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath*:applicationContext.xml"})
 public class CollectionDeviceServiceImplTest {
 	@Autowired
 	private ICollectionDeviceService collectionDeviceService;
+	@Autowired
+	private IHostDeviceService hostDeviceService;
 	@Test
 	public void getListByStatus(){
 		List<CollectionDevice> collectionDevices=collectionDeviceService.getListByStatus(StatusEnum.DELETED);
@@ -36,7 +40,6 @@ public class CollectionDeviceServiceImplTest {
 		collectionDevice.setName("动环设备采集器");
 		collectionDevice.setOrganizationId(1);
 		collectionDevice.setPurchaseId(1);
-		collectionDevice.setRoleId(1);
 		collectionDevice.setUserDeviceTypeId(1);
 		collectionDevice.setStatus(StatusEnum.NORMAL);
 		collectionDevice.setCurrentState(StateEnum.good);
@@ -47,5 +50,6 @@ public class CollectionDeviceServiceImplTest {
 	public void delete(){
 		collectionDeviceService.delete(4);
 	}
+	
 
 }

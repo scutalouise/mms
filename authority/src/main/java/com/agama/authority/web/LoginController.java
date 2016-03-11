@@ -19,7 +19,7 @@ import com.agama.authority.utils.Global;
  * @date 2015年1月14日
  */
 @Controller
-@RequestMapping(value = "{adminPath}")
+@RequestMapping(value = "a")
 public class LoginController{
 	@Autowired
 	private FormAuthenticationCaptchaFilter formAuthenticationCaptchaFilter;

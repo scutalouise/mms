@@ -20,6 +20,7 @@ public class InspectRecord {
 	private String inspectStatus;
 
 	private int orgId;
+	private String orgName;
 
 	private int deviceTotal;
 
@@ -30,6 +31,7 @@ public class InspectRecord {
 	private int inexistendTotal;
 
 	private int userId;
+	private String userName;
 
 	public ObjectId getId() {
 		return id;
@@ -103,4 +105,21 @@ public class InspectRecord {
 		this.userId = userId;
 	}
 
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getOrgName() {
+		return orgName;
+	}
+
+	public void setOrgName(String orgName) {
+		this.orgName = orgName;
+	}
+
+	
 }

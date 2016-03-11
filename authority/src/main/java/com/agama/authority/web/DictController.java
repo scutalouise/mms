@@ -20,8 +20,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.agama.authority.entity.Dict;
 import com.agama.authority.service.IDictService;
+import com.agama.authority.utils.UserUtil;
 import com.agama.common.dao.utils.Page;
 import com.agama.common.dao.utils.PropertyFilter;
+import com.agama.common.enumbean.EnabledStateEnum;
+import com.agama.common.enumbean.StatusEnum;
 import com.agama.common.web.BaseController;
 
 /**
@@ -48,11 +51,13 @@ public class DictController extends BaseController{
 	 * 获取字典json
 	 */
 	@RequiresPermissions("sys:dict:view")
-	@RequestMapping(value="json",method = RequestMethod.GET)
+	@RequestMapping(value="json",method = RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> dictList(HttpServletRequest request) {
 		Page<Dict> page = getPage(request);
 		List<PropertyFilter> filters = PropertyFilter.buildFromHttpRequest(request);
+		filters.add(new PropertyFilter("EQ_StatusEnum_status",StatusEnum.NORMAL.toString()));//过滤掉，状态为删除状态并且不可用的记录；
+		filters.add(new PropertyFilter("EQ_EnabledStateEnum_enable",EnabledStateEnum.ENABLED.toString()));//过滤掉，状态为禁用的记录；
 		page = dictService.search(page, filters);
 		return getEasyUIData(page);
 	}
@@ -124,7 +129,7 @@ public class DictController extends BaseController{
 	@RequestMapping(value = "delete/{id}")
 	@ResponseBody
 	public String delete(@PathVariable("id") Integer id) {
-		dictService.delete(id);
+		dictService.delete(id, UserUtil.getCurrentUser().getId());
 		return "success";
 	}
 	

@@ -10,9 +10,9 @@
 	<form id="mainform" action="${ctx }/maintenance/problem/${action}" method="post">
       <table class="formTable">
          <tr>
-            <td>设备编号：</td>
+            <td>选择设备：</td>
             <td>
-              <input id="identifier" name="identifier"  class="easyui-combobox" data-options="width:150,editable:false,required:'required'"/>
+              <input id="identifier_fi" name="identifier"  class="easyui-combogrid" data-options="width:150,editable:false,required:'required'"/>
             </td>           
          </tr>
          
@@ -22,18 +22,14 @@
 				<input id="problemType" name="problemTypeId"  class="easyui-combobox" data-options="width:150,editable:false,required:'required'"/>
 			</td>
 		</tr>
-		
-		<tr>
-			<td>是否加入知识库：</td>
-			<td>
-				<input id="enableKnowledge" name="enableKnowledge" class="easyui-combobox" data-options="width:150,editable:false,required:'required'"/>
-			</td>
-		</tr>
          
          <tr>
 			<td>上报渠道：</td>
 			<td>
-				<input id="reportWay" name="reportWay"  class="easyui-combobox" data-options="width:150,editable:false,required:'required'"/>
+				<select id="reportWay" name="reportWay" class="easyui-combobox" style="width:150px;">
+						<option value="PHONE" selected="selected">电话报修</option>
+						<option value="DICTATION">口头报备</option>
+					</select>
 			</td>
 		</tr>
 		
@@ -54,46 +50,85 @@
          <tr>
             <td>描述：</td>
             <td>
-                <textarea name="description" class="easyui-validatebox" cols="19" rows="3" ></textarea>
+                <textarea name="description" class="easyui-validatebox" data-options="width:150" rows="3" ></textarea>
             </td>           
          </tr>
          
       </table>
    </form>
+	<div id="tbd" style="padding: 5px;height: auto;">
+			<input type="text" id="organizationId" name="organizationId" class="easyui-validatebox" data-options="width:150,prompt: '所属网点'"/>
+			<input type="text" id="deviceType" name="deviceType" class="easyui-validatebox" data-options="width:150,prompt: '设备类型'"/>
+			<span class="toolbar-item dialog-tool-separator"></span>
+		    <a href="javascript:void(0);" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="cxDevice()">查询</a>
+	</div>
    <script type="text/javascript">
 		$(function(){
+			 $('#identifier_fi').combogrid({
+				 panelWidth : 500,
+				  idField:'identifier',
+				  textField:'name',
+				  fitColumns : true,
+					striped : true,
+					pagination : true,//是否分页  
+					rownumbers : true,//序号  
+					editable : true,
+					collapsible : false,//是否可折叠的  
+					fit : true,//自动大小  
+					pageSize : 10,//每页显示的记录条数，默认为10  
+					method : 'get',
+					columns : [ [ {
+						field : 'name',
+						title : '设备名称',
+						width : 150
+					}, {
+						field : 'identifier',
+						title : '设备编号',
+						width : 150
+					}, {
+						field : 'hallName',
+						title : '所属网点',
+						width : 150
+					}, {
+						field : 'firstDeviceType',
+						title : '设备类型',
+						width : 150,
+						formatter : function(value, row, index) {
+			        		return value.name;
+			        	}
+					} ] ],
+					toolbar:'#tbd',
+					onClickRow : function(index, row) {
+					  var ide = row.identifier;
+					  $('#problemType').combobox({
+						  method:"get",
+						  url:'${ctx}/maintenance/problemType/identifier/' + ide
+					 }).combobox('clear');
+				  }
+			  });
+			 $('#identifier_fi').combogrid({
+				 url:'${ctx}/maintenance/problem/devices'
+			 });
+			 
 			 $('#problemType').combobox({
-				  method:"get",
-				  url:'${ctx}/maintenance/problemType/json',
 				  valueField:'id',
 				  textField:'name'
 			  });
 			 
-			 $('#identifier').combobox({
-				  method:"get",
-				  url:'${ctx}/maintenance/problem/devices',
-				  valueField:'identifier',
-				  textField:'name'
-			  });
+			 $('#organizationId').combotree({
+					method:'post',
+					url:'${ctx}/system/organization/json',
+					idField:'id',
+					textFiled:'orgName',
+				    animate:true
+				});
 			 
-			 $('#enableKnowledge').combobox({
-				  valueField:'value',
-				  textField:'name',
-				  data : [{
-					  value : "true",
-					  name : "是"
-				  }, {
-					  value : "false",
-					  name : "否"
-				  }]
-			  });
-			 
-			 $('#reportWay').combobox({
+			 $('#deviceType').combobox({
 				  method:"get",
-				  url:'${ctx}/maintenance/problem/reportway',
-				  valueField:'reportWay',
+				  url:'${ctx}/device/brand/firstDeviceType',
+				  valueField:'firstDeviceType',
 				  textField:'name'
-			  });
+			 });
 			 
 			 $('#mainform').form({    
 				    onSubmit: function(){    
@@ -105,6 +140,17 @@
 				    }    
 				});  
 		})
+		
+		function cxDevice(){
+			var orgId = $("#organizationId").combobox("getValue");
+			var deviceType = $("#deviceType").combobox("getValue");
+			var cg = $('#identifier_fi').combogrid({
+				 method : "get",
+				 queryParams : {"filter_organizationId" : orgId, "filter_firstDeviceType" : deviceType},
+				 url:'${ctx}/maintenance/problem/devices'
+			 });
+		}
+		
    </script>
 </body>
 </html>

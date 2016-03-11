@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 <html>
 <head>
 <title></title>
@@ -9,6 +11,12 @@
 <body>
 <div id="tb" style="padding: 5px;height: auto;">
    <div>
+   <form id="searchForm" action="">
+   		<input type="text" id="typeName" name="filter_LIKES_name" class="easyui-validatebox" data-options="width:150,prompt: '问题名称'"/>
+       	<input type="text" id="deviceType" name="filter_EQ_FirstDeviceType_deviceType" class="easyui-combobox" data-options="width:150,prompt: '设备类型'"/>
+		<span class="toolbar-item dialog-tool-separator"></span>
+		<a href="javascript(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="cx()">查询</a>
+	</form>
      <shiro:hasPermission name="maintenance:problemType:add">
     	 <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="add();">添加</a>
     	 <span class="toolbar-item dialog-tool-separator"></span>
@@ -29,13 +37,16 @@
   var dlg;
   $(function(){
 	  dg=$('#dg').datagrid({
-		  method:"get",
-		  url:'${ctx}/maintenance/problemType/json',
+		  method:"post",
+		  url:'${ctx}/maintenance/problemType/json?filter_EQ_StatusEnum_status=NORMAL',
 		  fit:true,
 		  fitColumns:true,
 	      animate:true,
 	      striped:true,
 	      rownumbers:true,
+	      pagination:true,
+	      pageNumber:1,
+		  pageSize : 20,
 	      singleSelect:true,
 	      columns:[[
 	          {
@@ -44,12 +55,12 @@
 	        	  hidden:true
 	        }, {
 	        	field:'name',
-	        	title:'设备名称',
+	        	title:'问题类型名称',
 	        	sortable:true,
 	        	width:100
 	        }, {
 	        	field:'deviceType',
-	        	title:'设备类型',
+	        	title:'适用设备类型',
 	        	sortable:true,
 	        	width:100,
 	        	formatter : function(value, row, index) {
@@ -77,6 +88,14 @@
 	      ]],
 	      toolbar:'#tb'
 	  });
+	  
+	  $('#deviceType').combobox({
+		  method:"get",
+		  url:'${ctx}/maintenance/problemType/deviceType',
+		  valueField:'value',
+		  textField:'name'
+	  });
+	  
   });
   
   //添加弹窗
@@ -129,13 +148,22 @@ function add(){
 	  }
   }
   
+  function cx() {
+		var type = $("#typeName").val();
+		var deviceType = $("#deviceType").combobox("getValue");
+		dg.datagrid('load',{
+			"filter_EQ_FirstDeviceType_deviceType" : deviceType,
+			"filter_LIKES_name" : type
+		});
+  }
+  
   //修改弹窗
   function upd(){
 	  var row=dg.datagrid('getSelected');
 	  if(rowIsNull(row)) return;
 	  var initial = row.initial;
 	  if (initial) {
-		  parent.$.messager.alert("警告：","该记录为系统初始化数据，不能进行删除！");
+		  parent.$.messager.alert("警告：","该记录为系统初始化数据，不能进行修改！");
 	  } else {
 		  dlg=$('#dlg').dialog({
 			  title:'修改问题类型',

@@ -1,6 +1,7 @@
 package com.agama.itam.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -22,17 +23,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.agama.authority.entity.User;
+import com.agama.authority.service.IUserRoleService;
 import com.agama.authority.service.IUserService;
+import com.agama.authority.utils.ServletUtils;
 import com.agama.common.dao.utils.Page;
-import com.agama.common.dao.utils.PropertyFilter;
+import com.agama.common.enumbean.MaintainWayEnum;
 import com.agama.common.enumbean.ProblemStatusEnum;
 import com.agama.common.enumbean.ReportWayEnum;
 import com.agama.common.enumbean.StatusEnum;
 import com.agama.common.web.BaseController;
 import com.agama.device.service.IDeviceService;
+import com.agama.device.service.IUserAdminOrgService;
+import com.agama.device.service.IUserMaintainOrgService;
 import com.agama.itam.domain.Problem;
 import com.agama.itam.service.IProblemService;
-import com.agama.tool.utils.date.DateUtils;
+import com.alibaba.fastjson.JSONArray;
 
 /**
  * @Description:
@@ -49,6 +54,12 @@ public class ProblemController extends BaseController {
 	private IUserService userService;
 	@Autowired
 	private IDeviceService deviceService;
+	@Autowired
+	private IUserRoleService urService;
+	@Autowired
+	private IUserAdminOrgService uaoService;
+	@Autowired
+	private IUserMaintainOrgService umoService;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String turnPage(Model model) {
@@ -58,24 +69,32 @@ public class ProblemController extends BaseController {
 	// @RequiresPermissions("maintenance:problem:view")
 	@RequestMapping(value = "json", method = RequestMethod.GET)
 	@ResponseBody
-	public Map<String, Object> view(HttpServletRequest request, String recordEndTime) {
+	public Map<String, Object> view(HttpServletRequest request, String problemCode, Integer problemTypeId, String enable, String recordTime,
+			String recordEndTime) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		try {
 			Page<Problem> page = getPage(request);
-			List<PropertyFilter> filters = PropertyFilter.buildFromHttpRequest(request);
-			if (!StringUtils.isBlank(recordEndTime)) {
-				Date endDate = DateUtils.parseDate(recordEndTime, "yyyy-MM-dd");
-				endDate = DateUtils.calculateDate(endDate, 1);
-				PropertyFilter pf = new PropertyFilter("LTD_recordTime", DateUtils.formatDate(endDate, "yyyy-MM-dd"));
-				filters.add(pf);
-			}
-			page = problemService.searchForPage(page, filters);
+			page = problemService.searchListForHandling(problemCode, problemTypeId, null, enable, recordTime, recordEndTime, page, "problem");
 			map = getEasyUIData(page);
 		} catch (Exception e) {
 			map.put("total", 0);
 			e.printStackTrace();
 		}
 		return map;
+	}
+	
+	@RequestMapping(value = "details/{id}", method = RequestMethod.GET)
+	public String getDetails(@PathVariable("id") Long id, Model model){
+		try {
+			Problem p = problemService.getDetailsById(id);
+			model.addAttribute("problem", p);
+			model.addAttribute("message", "success");
+		} catch (Exception e) {
+			model.addAttribute("problem", new Problem());
+			model.addAttribute("message", "failure");
+			e.printStackTrace();
+		}
+		return "maintenance/problemDetails";
 	}
 
 	// @RequiresPermissions("maintenance:problem:add")
@@ -105,6 +124,23 @@ public class ProblemController extends BaseController {
 		}
 		return "success";
 	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "receive", method = RequestMethod.POST)
+	@ResponseBody
+	public String createAlarmProblem(HttpServletRequest request) {
+		try {
+			String data=request.getParameter("data");
+			JSONArray jsonArray = JSONArray.parseArray(data);
+			Map<String, String>[] mapArray = (Map<String, String>[]) jsonArray.toArray();
+			List<Map<String, String>> list = Arrays.asList(mapArray);
+			problemService.saveAlarmProblem(list);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "数据保存失败！系统发生异常！";
+		}
+		return "success";
+	}
 
 	// @RequiresPermissions("maintenance:problem:delete")
 	@RequestMapping(value = "delete/{id}", method = RequestMethod.GET)
@@ -124,8 +160,6 @@ public class ProblemController extends BaseController {
 	@RequestMapping(value = "update/{id}", method = RequestMethod.GET)
 	public String toUpdate(@PathVariable(value = "id") Long id, Model model) {
 		Problem pt = problemService.get(id);
-		User user = userService.get(pt.getRecordUserId());
-		pt.setRecordUserName(user.getName());
 		model.addAttribute("problem", pt);
 		model.addAttribute("action", "update");
 		return "maintenance/problemForm";
@@ -136,14 +170,59 @@ public class ProblemController extends BaseController {
 	@ResponseBody
 	public String update(@ModelAttribute Problem problem) {
 		User user = getSessionUser();
-		if (problem.getEnable().equals(ProblemStatusEnum.RESOLVED)) {
-			problem.setResolveUserId(user.getId());
-		}
 		try {
 			problemService.updateProblem(problem, user);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return "failure";
+		}
+		return "success";
+	}
+
+	@RequestMapping(value = "assign/{id}", method = RequestMethod.GET)
+	public String toAssign(@PathVariable(value = "id") Long id, Model model) {
+		Problem pt = problemService.get(id);
+		model.addAttribute("problem", pt);
+		model.addAttribute("action", "update");
+		return "maintenance/problemAssign";
+	}
+	
+	/**
+	 * @Description:分配问题后发送短信
+	 * @param id 问题记录id
+	 * @return
+	 * @Since :2016年2月18日 下午5:16:31
+	 */
+	@RequestMapping(value = "sendMessage/{id}", method = RequestMethod.GET)
+	@ResponseBody
+	public String sendMessage(@PathVariable(value = "id") Long id) {
+		Problem pt = problemService.get(id);
+		User user = userService.get(pt.getResolveUserId());
+		if (!StringUtils.isBlank(user.getPhone())) {
+			problemService.sendPhoneMessage(pt, user);
+		}		
+		return "success";
+	}
+	
+	@RequestMapping(value = "shutdown/{id}", method = RequestMethod.GET)
+	public String toShutdown(@PathVariable(value = "id") Long id, Model model) {
+		model.addAttribute("id", id);
+		return "maintenance/shutResolve";
+	}
+	
+	@RequestMapping(value = "shutdown", method = RequestMethod.POST)
+	@ResponseBody
+	public String shutdown(@ModelAttribute Problem problem, Integer classificationId) {
+		User user = getSessionUser();
+		try {
+			if (problem.isEnableKnowledge() && classificationId == null) {
+				return "没用选择知识库分类！";
+			} else {
+				problemService.shutdown(problem, user, classificationId);				
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "关闭问题发生异常！";
 		}
 		return "success";
 	}
@@ -155,7 +234,7 @@ public class ProblemController extends BaseController {
 		if (flag) {
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("problemStatus", "");
-			map.put("value", "");
+			map.put("value", " ");
 			map.put("name", "—全部—");
 			list.add(map);
 		}
@@ -165,12 +244,39 @@ public class ProblemController extends BaseController {
 			map.put("value", pse.getValue());
 			map.put("name", pse.getText());
 			if (handle) {
-				if (pse != ProblemStatusEnum.NEW && pse != ProblemStatusEnum.CLOSED) {
+				if (pse != ProblemStatusEnum.NEW && pse != ProblemStatusEnum.CLOSED 
+						&& pse != ProblemStatusEnum.CALLBACK && pse != ProblemStatusEnum.RESOLVED) {
 					list.add(map);
 				}
 			} else {
 				list.add(map);
 			}
+		}
+		return list;
+	}
+
+	@RequestMapping(value = "resolveUser/identifier/{identifier}", method = RequestMethod.GET)
+	@ResponseBody
+	public List<User> getResolveUser(@PathVariable("identifier") String identifier){
+		List<User> list = new ArrayList<User>();
+		try {
+			Map<String,String> deviceMap = deviceService.getDeviceMapByIdentifier(identifier);
+			MaintainWayEnum maintenWay = MaintainWayEnum.valueOf(deviceMap.get("maintainWay")); 
+			 if (maintenWay.equals(MaintainWayEnum.INNER)) { 
+				 String orgIdStr = deviceMap.get("organizationId");
+				 if (StringUtils.isNotBlank(orgIdStr)) {
+					 list = uaoService.getUserListByOrgId(Integer.parseInt(orgIdStr));		
+				}
+			 } else {
+				 String maintainOrgIdStr = deviceMap.get("maintainOrgId");
+				 if (StringUtils.isNotBlank(maintainOrgIdStr)) {
+					 list = umoService.getUserListByOrgId(Integer.parseInt(maintainOrgIdStr));
+				}
+			 }
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return list;
 	}
@@ -187,14 +293,18 @@ public class ProblemController extends BaseController {
 
 	@RequestMapping(value = "devices", method = RequestMethod.GET)
 	@ResponseBody
-	public List<Object> deviceList() {
-		List<Object> list = new ArrayList<Object>();
+	public Map<String, Object> deviceList(HttpServletRequest request) {
+		Page<Object> page = getPage(request);
+		Map<String, Object> map = new HashMap<String, Object>();
 		try {
-			list = deviceService.getAllDeviceList();
+			Map<String, Object> queryMap = ServletUtils.getParametersStartingWith(request, "filter_");
+			page = deviceService.getPageListByQueryMap(page, queryMap);
+			map = getEasyUIData(page);
 		} catch (Exception e) {
+			map.put("total", 0);
 			e.printStackTrace();
 		}
-		return list;
+		return map;
 	}
 
 	/**
@@ -204,7 +314,7 @@ public class ProblemController extends BaseController {
 	 * @Since :2016年1月21日 上午11:36:38
 	 */
 	@ModelAttribute
-	public void getUser(@RequestParam(value = "id", defaultValue = "-1") Long id, Model model) {
+	public void getProblem(@RequestParam(value = "id", defaultValue = "-1") Long id, Model model) {
 		if (id != -1) {
 			model.addAttribute("problem", problemService.get(id));
 		}

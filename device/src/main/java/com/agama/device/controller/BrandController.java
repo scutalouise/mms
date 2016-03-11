@@ -57,6 +57,8 @@ public class BrandController extends BaseController {
 	public Map<String, Object> getData(HttpServletRequest request) {
 		Page<Brand> page = getPage(request);
 		List<PropertyFilter> filters = PropertyFilter.buildFromHttpRequest(request);
+		filters.add(new PropertyFilter("EQ_StatusEnum_status",StatusEnum.NORMAL.toString()));//过滤掉，状态为删除状态并且不可用的记录；
+		filters.add(new PropertyFilter("EQ_EnabledStateEnum_enable",EnabledStateEnum.ENABLED.toString()));//过滤掉，状态为禁用的记录；
 		page = brandService.search(page, filters);
 		return getEasyUIData(page);
 	}
@@ -135,7 +137,9 @@ public class BrandController extends BaseController {
 		} else if (deviceInventory != null) {
 			return "false";
 		}
-		brandService.updateStatusById(id);
+		brand.setUpdateTime(new Date());
+		brand.setStatus(StatusEnum.DELETED);
+		brandService.update(brand);
 		return "success";
 	}
 
@@ -183,5 +187,24 @@ public class BrandController extends BaseController {
 			}
 		}
 		return flag;
+	}
+	
+	/**
+	 * 获取品牌
+	 * 
+	 */
+	@RequestMapping(value = "all", method = RequestMethod.GET)
+	@ResponseBody
+	public List<Brand> getAll(HttpServletRequest request) {
+		return brandService.getAll();
+	}
+	
+	/**
+	 * 根据一级设备类型获取二级设备类型集合
+	 */
+	@RequestMapping(value = "secondDeviceTypeList", method = RequestMethod.GET)
+	@ResponseBody
+	public List<SecondDeviceType> getSecondDeviceType() {
+		return SecondDeviceType.getSecondDeviceType();
 	}
 }

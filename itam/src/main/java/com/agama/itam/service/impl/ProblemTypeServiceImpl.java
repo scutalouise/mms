@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.agama.common.enumbean.AlarmRuleType;
 import com.agama.common.enumbean.FirstDeviceType;
+import com.agama.common.enumbean.StatusEnum;
 import com.agama.common.service.impl.BaseServiceImpl;
 import com.agama.device.service.IDeviceService;
 import com.agama.itam.dao.IProblemTypeDao;
@@ -54,5 +56,17 @@ public class ProblemTypeServiceImpl extends BaseServiceImpl<ProblemType, Seriali
 	@Override
 	public List<ProblemType> getAllList() throws Exception {
 		return problemTypeDao.getAllList();
+	}
+
+	@Override
+	public ProblemType getUniqueByAlarmType(AlarmRuleType art) {
+		String hql = " from ProblemType where status = " + StatusEnum.NORMAL.ordinal() + " and alarmGenerate = '" + art + "' ";
+		return problemTypeDao.findUnique(hql);
+	}
+
+	@Override
+	public List<ProblemType> getListByDeviceType(FirstDeviceType deviceType) throws Exception {
+		return problemTypeDao.getListByDeviceType(deviceType);
+
 	}
 }

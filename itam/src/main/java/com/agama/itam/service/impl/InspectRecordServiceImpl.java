@@ -1,10 +1,16 @@
 package com.agama.itam.service.impl;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +20,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
 import com.agama.authority.entity.Organization;
+import com.agama.authority.entity.User;
 import com.agama.authority.service.IOrganizationService;
 import com.agama.authority.service.IUserService;
 import com.agama.aws.dao.MongoDao;
@@ -37,9 +44,9 @@ public class InspectRecordServiceImpl implements InspectRecordService {
 	@Autowired
 	private IDeviceInspectStatusService diss;
 	@Autowired
-	private IOrganizationService ios;
-	@Autowired
 	private IUserService userService;
+	@Autowired
+	private IOrganizationService organizationService;
 
 	@Override
 	public List<Map<String, Object>> getLatestFive(Organization org) throws Exception {
@@ -50,19 +57,21 @@ public class InspectRecordServiceImpl implements InspectRecordService {
 	}
 
 	public void saveInspectRecord(int total, int checkedTotal, int inexistendTotal, List<String> checkedList, List<String> uncheckedList,
-			List<String> inexistendList, int orgId, int userId) throws Exception {
+			List<String> inexistendList, Organization org, User user) throws Exception {
 		InspectRecord ir = new InspectRecord();
 		ir.setDeviceTotal(total);
 		ir.setInexistendTotal(inexistendTotal);
 		ir.setInspectedTotal(checkedTotal);
-		ir.setOrgId(orgId);
+		ir.setOrgId(org.getId());
+		ir.setOrgName(org.getOrgName());
 		if (checkedTotal == total) {
 			ir.setInspectStatus("合格");
 		} else {
 			ir.setInspectStatus("不合格");
 		}
 		ir.setUncheckedTotal(total - checkedTotal);
-		ir.setUserId(userId);
+		ir.setUserId(user.getId());
+		ir.setUserName(user.getName());
 		ir.setInspectTime(new Date());
 		mongoDao.save(ir);
 		ObjectId recordId = ir.getId();
@@ -94,6 +103,82 @@ public class InspectRecordServiceImpl implements InspectRecordService {
 			list.add(map);
 		}
 		return list;
+	}
+	
+	public Map<String, Object> queryListForPage(Criteria criteria, Sort sort, int pageNo, int pageSize) {
+		Map<String,Object> map=new HashMap<String, Object>();
+		List<InspectRecord> list = mongoDao.queryListByCriteriaAndSortForPage(criteria, sort, InspectRecord.class, pageNo, pageSize);
+		long total = mongoDao.queryCountByCriteria(criteria, InspectRecord.class);
+		map.put("rows", list);
+		map.put("total", total);
+		return map;
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Override
+	public List<InspectRecord> getList(Page<InspectRecord> inspectRecordPage,HttpServletRequest request) {
+		//巡检网点查询
+		Map<String, Collection> inMap = new HashMap<String, Collection>();
+		List<Integer> list = new ArrayList<Integer>();
+		String ids="";
+		String	orgId = request.getParameter("orgId");
+		if (orgId != null && orgId !="") {
+			ids = organizationService.getOrganizationIdStrById(Integer.parseInt(orgId));
+			String[] arrayStr = ids.split(",");
+			Integer[] arrayInt= new Integer[arrayStr.length];
+			for(int i=0;i<arrayStr.length;i++){  
+				arrayInt[i]=Integer.parseInt(arrayStr[i]);
+			}
+			list = Arrays.asList(arrayInt);
+			inMap.put("orgId", list);
+		}
+		
+		//巡检人查询
+		Map<String, String> regexMap = new HashMap<String, String>();
+		String name=request.getParameter("name");
+		if (name != null && name !="") {
+		    regexMap.put("name", name);
+		}
+		
+		//巡检状态查询
+		Map<String, Object> eqMap = new HashMap<String, Object>();
+		String status=request.getParameter("status");
+		if (status != null && status !="") {
+			eqMap.put("inspectStatus", status.equals("qualified") ? "合格" : "不合格");
+		}
+		
+		SimpleDateFormat sdf =new SimpleDateFormat("yyyy-MM-dd");
+		//巡检日期查询 gte
+		Map<String, Object> gteMap = new HashMap<String, Object>();
+		String startDate=request.getParameter("startDate");
+		Date inspectTimeStart = null;
+		if (startDate != null && startDate !="") {
+			try {
+				inspectTimeStart = sdf.parse(startDate);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			gteMap.put("inspectTime", inspectTimeStart);
+		}
+		
+		//巡检日期查询 lte
+		Map<String, Object> lteMap = new HashMap<String, Object>();
+		String endDate=request.getParameter("endDate");
+		Date inspectTimeEnd = null;
+		if (endDate != null && endDate !="") {
+			try {
+				inspectTimeEnd = sdf.parse(endDate);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+			lteMap.put("inspectTime", inspectTimeEnd);
+		}
+		
+		Criteria c = MongoQueryHelper.createCriteria(null, null, eqMap, gteMap, lteMap, regexMap, inMap, null);
+		Map<String, Direction> orderMap = new HashMap<String, Direction>();
+		orderMap.put("inspectTime", Direction.DESC);
+		Sort sort = MongoQueryHelper.createSort(orderMap);
+		return mongoDao.queryListByCriteriaAndSortForPage(c, sort, InspectRecord.class, inspectRecordPage.getPageNo(), inspectRecordPage.getPageSize());
 	}
 
 }

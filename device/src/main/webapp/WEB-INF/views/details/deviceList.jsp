@@ -9,9 +9,9 @@
 </head>
 <body>
 <div class="easyui-layout" data-options="fit:true">
-	<div data-options="region:'west',title:'组织机构',iconCls:'icon-hamburg-world',split:true, minWidth: 200, maxWidth: 400,width:220">
+	<!-- <div data-options="region:'west',title:'组织机构',iconCls:'icon-hamburg-world',split:true, minWidth: 200, maxWidth: 400,width:220">
 		<ul id="organizationTree"></ul>
-	</div>
+	</div> -->
 	<div data-options="region:'center'">
 		<!------------------------------- Tabs列表 ------------------------------->	
 		<div id="tab_devices" class="easyui-tabs" data-options="refreshable:false,tabWidth:112,tabHeight:50,fit:true">
@@ -27,7 +27,7 @@
 var	 tabIndex = 0;
 var  orgId = '';
 	$(function(){
-		$("#organizationTree").tree(
+		/* $("#organizationTree").tree(
 				{
 					method : "get",
 					url : "${ctx}/system/organization/tree",
@@ -39,7 +39,7 @@ var  orgId = '';
 						orgId = node.id;
 						$("#tab_devices").tabs("refresh",tabIndex);//刷新下
 					}
-				});
+				}); */
   		$("#tab_devices").tabs({
   				onSelect : function(title,index){
   					tabIndex = index;

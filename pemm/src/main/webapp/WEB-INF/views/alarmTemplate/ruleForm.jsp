@@ -89,11 +89,11 @@
 				 missingMessage:"该输入项为必输项"
 			});
 			$("#maxValue").numberspinner({
-				validType:"maxValue['#minValue']",
+				validType:"maxValue['#minValue','不能小于或等于最小值']",
 			 missingMessage:"该输入项为必输项"
 		});
 			$("#minValue").numberspinner({
-				validType:"minValue['#maxValue']",
+				validType:"minValue['#maxValue','不能大于或等于最大值']",
 				 missingMessage:"该输入项为必输项"
 			});
 			
@@ -144,11 +144,11 @@
 						});
 						$("#value").numberspinner("setValue",null);
 						$("#minValue").numberspinner({
-							validType:"minValue['#maxValue']",
+							validType:"minValue['#maxValue','不能大于或等于最大值']",
 							required:true
 						});
 						$("#maxValue").numberspinner({
-							validType:"maxValue['#minValue']",
+							validType:"maxValue['#minValue','不能小于或等于最小值']",
 							required:true
 						});
 						

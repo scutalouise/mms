@@ -3,8 +3,10 @@ package com.agama.authority.web;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,8 +19,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.agama.authority.entity.Organization;
 import com.agama.authority.service.IOrganizationService;
+import com.agama.authority.utils.UserUtil;
+import com.agama.common.dao.utils.Page;
+import com.agama.common.dao.utils.PropertyFilter;
 import com.agama.common.domain.TreeBean;
+import com.agama.common.enumbean.EnabledStateEnum;
+import com.agama.common.enumbean.StatusEnum;
 import com.agama.common.web.BaseController;
+import com.agama.tool.service.excel.ExcelUtils;
+import com.agama.tool.service.excel.JsGridReportBase;
+import com.agama.tool.service.excel.TableData;
 
 /**
  * 机构信息controller
@@ -43,11 +53,13 @@ public class OrganizationController extends BaseController{
 	/**
 	 * 获取机构信息json
 	 */
-	@RequestMapping(value="json",method = RequestMethod.GET)
+	@RequestMapping(value="json",method = RequestMethod.POST)
 	@ResponseBody
-	public List<Organization> areaInfoList(HttpServletRequest request) {
-		List<Organization> organizations=organizationService.getAll();
-		return organizations;
+	public List<Organization> organizationList(HttpServletRequest request) {
+		List<PropertyFilter> filters = PropertyFilter.buildFromHttpRequest(request);
+		filters.add(new PropertyFilter("EQ_StatusEnum_status",StatusEnum.NORMAL.toString()));//过滤掉，状态为删除状态并且不可用的记录；
+		filters.add(new PropertyFilter("EQ_EnabledStateEnum_enable",EnabledStateEnum.ENABLED.toString()));//过滤掉，状态为禁用的记录；
+		return organizationService.search(filters);
 	}
 	
 	/**
@@ -112,9 +124,11 @@ public class OrganizationController extends BaseController{
 	@RequestMapping(value = "delete/{id}")
 	@ResponseBody
 	public String delete(@PathVariable("id") Integer id) {
-		organizationService.delete(id);
+		organizationService.delete(id, UserUtil.getCurrentUser().getId());
 		return "success";
 	}
+	
+	
 	@RequestMapping(value="tree")
 	@ResponseBody
 	public List<TreeBean> tree(Integer pid){
@@ -123,5 +137,27 @@ public class OrganizationController extends BaseController{
 		
 	}
 	
-	
+	/**
+	 * 导出excel
+	 * @param request
+	 * @param response
+	 * @throws Exception
+	 */
+	@RequestMapping("exportExcel")
+	public void exportExcel(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		response.setContentType("application/msexcel;charset=GBK");
+		Page<Organization> page = getPage(request);
+		page.setPageSize(Integer.MAX_VALUE);
+		List<PropertyFilter> filters = PropertyFilter.buildFromHttpRequest(request);
+		filters.add(new PropertyFilter("EQ_StatusEnum_status",StatusEnum.NORMAL.toString()));
+		filters.add(new PropertyFilter("EQ_EnabledStateEnum_enable",EnabledStateEnum.ENABLED.toString()));
+		List<Organization> list = organizationService.search(page, filters).getResult();// 获取数据
+		String title = "机构信息表";
+		String[] hearders = new String[] { "机构名字", "机构类型", "机构编码", "经度", "纬度", "地址", "联系方式" };// 表头数组
+		String[] fields = new String[] { "orgName", "orgType", "orgCode", "longitude", "latitude", "address", "contact" };// People对象属性数组
+		TableData td = ExcelUtils.createTableData(list, ExcelUtils.createTableHeader(hearders), fields);
+		JsGridReportBase report = new JsGridReportBase(request, response);
+		report.exportToExcel(title, SecurityUtils.getSubject().getPrincipal().toString(), td);
+	}
+
 }

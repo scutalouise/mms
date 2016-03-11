@@ -23,12 +23,4 @@ public interface IBrandService extends IBaseService<Brand, Integer> {
 	 * @return
 	 */
 	public List<Brand> validBrand(SecondDeviceType secondDeviceType, Integer id);
-
-	/**
-	 * 逻辑删除品牌
-	 * 
-	 * @param id
-	 */
-	public void updateStatusById(int id);
-
 }

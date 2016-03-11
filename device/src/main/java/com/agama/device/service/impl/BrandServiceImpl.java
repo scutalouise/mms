@@ -30,17 +30,10 @@ public class BrandServiceImpl extends BaseServiceImpl<Brand, Integer>implements 
 
 	@Override
 	public List<Brand> validBrand(SecondDeviceType secondDeviceType, Integer id) {
-		StringBuffer hql = new StringBuffer("from Brand where status=0 and secondDeviceType=")
-				.append(secondDeviceType.ordinal());
+		StringBuffer hql = new StringBuffer("from Brand where status=0 and secondDeviceType=?0");
 		if (id != null) {
 			hql.append(" and id!=").append(id);
 		}
-		return brandDao.find(hql.toString());
-	}
-
-	@Override
-	public void updateStatusById(int id) {
-		String hql = "update Brand set status=1 where id=?0";
-		brandDao.batchExecute(hql, id);
+		return brandDao.find(hql.toString(),secondDeviceType);
 	}
 }

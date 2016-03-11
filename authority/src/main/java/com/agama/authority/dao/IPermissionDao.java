@@ -44,4 +44,12 @@ public interface IPermissionDao extends IBaseDao<Permission, Integer> {
 	 * @return
 	 */
 	public List<Permission> findMenuOperation(Integer pid);
+	
+	
+	/**
+	 * @Description:查询当前pid下的所有Permission,包括操作与菜单；
+	 * @return
+	 * @Since :2016年2月26日 下午2:18:31
+	 */
+	public List<Permission> findAllPermissionsByPid(Integer pid);
 }

@@ -10,7 +10,6 @@ import com.agama.common.domain.StateEnum;
 import com.agama.common.enumbean.DeviceInterfaceType;
 import com.agama.common.enumbean.DeviceType;
 import com.agama.common.enumbean.StatusEnum;
-import com.agama.device.dao.IPeDeviceDao;
 import com.agama.device.domain.PeDevice;
 import com.agama.device.service.IPeDeviceService;
 
@@ -28,7 +27,6 @@ public class PeDeviceServiceImplTest {
 		peDevice.setIdentifier("04160122001");
 		peDevice.setName("测试动环设备");
 		peDevice.setManagerId(1);
-		peDevice.setRoleId(1);
 		peDevice.setPurchaseId(1);
 		peDevice.setOrganizationId(1);
 		peDevice.setUserDeviceTypeId(1);
@@ -48,7 +46,6 @@ public class PeDeviceServiceImplTest {
 		peDevice.setIdentifier("04160122001");
 		peDevice.setName("测试动环设备");
 		peDevice.setManagerId(1);
-		peDevice.setRoleId(1);
 		peDevice.setPurchaseId(1);
 		peDevice.setOrganizationId(1);
 		peDevice.setUserDeviceTypeId(1);

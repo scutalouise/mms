@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Transient;
 
@@ -16,6 +18,9 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+
+import com.agama.common.enumbean.EnabledStateEnum;
+import com.agama.common.enumbean.StatusEnum;
 
 /**
  * 区域entity
@@ -41,11 +46,16 @@ public class AreaInfo implements java.io.Serializable {
 	private List<Organization> goodOrganizations;
 	private List<Organization> warningOrganizations;
 	private List<Organization> errorOrganizations;
+	//2016年2月2日，将删除与启用2个字段与目前已有的项目统一处理，命名；
+	private EnabledStateEnum enable;	//是否启用
+	private StatusEnum status;			//是否删除
 
 	// Constructors
-
+	
 	/** default constructor */
 	public AreaInfo() {
+		this.enable = EnabledStateEnum.ENABLED;
+		this.status = StatusEnum.NORMAL;
 	}
 
 	/** minimal constructor */
@@ -56,11 +66,13 @@ public class AreaInfo implements java.io.Serializable {
 	}
 
 	/** full constructor */
-	public AreaInfo(String areaCode, String areaName, Integer pid, Integer sort) {
+	public AreaInfo(String areaCode, String areaName, Integer pid, Integer sort,StatusEnum status,EnabledStateEnum enable) {
 		this.areaCode = areaCode;
 		this.areaName = areaName;
 		this.pid = pid;
 		this.sort = sort;
+		this.status = status;
+		this.enable = enable;
 	}
 
 	// Property accessors
@@ -93,7 +105,7 @@ public class AreaInfo implements java.io.Serializable {
 		this.areaName = areaName;
 	}
 
-	@Column(name = "PID", nullable = false)
+	@Column(name = "PID")
 	public Integer getPid() {
 		return this.pid;
 	}
@@ -134,8 +146,29 @@ public class AreaInfo implements java.io.Serializable {
 	public void setErrorOrganizations(List<Organization> errorOrganizations) {
 		this.errorOrganizations = errorOrganizations;
 	}
-	
-	
-	
 
+	@Column(name = "ENABLE")
+	@Enumerated(EnumType.STRING)
+	public EnabledStateEnum getEnable() {
+		return enable;
+	}
+
+	public void setEnable(EnabledStateEnum enable) {
+		this.enable = enable;
+	}
+
+	@Column(name = "STATUS")
+	@Enumerated(EnumType.STRING)
+	public StatusEnum getStatus() {
+		return status;
+	}
+
+	public void setStatus(StatusEnum status) {
+		this.status = status;
+	}
+
+	@Override
+	public String toString() {
+		return "AreaInfo [id=" + id + ", enable=" + enable + ", status=" + status + "]";
+	}
 }

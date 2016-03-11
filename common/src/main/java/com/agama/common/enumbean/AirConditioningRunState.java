@@ -1,7 +1,7 @@
 package com.agama.common.enumbean;
 
 public enum AirConditioningRunState {
-	UNKNOWN(0,"未知"),SHUTDOWN(1,"精密"),RUN(2,"运行"),STANDBY(3,"待机"),LOCK(4,"锁定");
+	UNKNOWN(0,"未知"),SHUTDOWN(1,"关机"),RUN(2,"运行"),STANDBY(3,"待机"),LOCK(4,"锁定");
 	private Integer id;
 	private String value;
 	

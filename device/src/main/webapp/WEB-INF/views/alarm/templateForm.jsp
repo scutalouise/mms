@@ -19,6 +19,7 @@
 				<tr>
 					<td>模板名称:</td>
 					<td><form:hidden path="version" /> <form:hidden path="id" />
+					<form:hidden path="templateType"/>
 						<form:hidden path="status" value="NORMAL"/> <form:input path="name"
 							class="easyui-validatebox" data-options="required:true,validType:['maxLength[20]']" style="width:250px;"/></td>
 				</tr>

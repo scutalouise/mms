@@ -1,10 +1,12 @@
 package com.agama.device.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import com.agama.common.dao.IBaseDao;
 import com.agama.common.domain.StateEnum;
 import com.agama.common.enumbean.DeviceType;
+import com.agama.common.enumbean.SecondDeviceType;
 import com.agama.common.enumbean.StatusEnum;
 import com.agama.device.domain.PeDevice;
 
@@ -42,6 +44,30 @@ public interface IPeDeviceDao extends IBaseDao<PeDevice, Integer> {
 	public List<PeDevice> getPeDeviceByIpAndDeviceTypeAndIndex(String ip,
 			DeviceType switchinput, Integer index);
 
+	/**
+	 * @Description:获取设备运行状态的数量
+	 * @return
+	 * @Since :2016年2月18日 下午5:21:20
+	 */
+	public List<Map<String, Object>> getCurrentStateAndCount();
+	/**
+	 * @Description:根据二级设备类型获取网点下面的库存数量
+	 * @param orgId
+	 * @param secondType
+	 * @return
+	 * @Since :2016年3月8日 下午12:57:30
+	 */
+	public Long getInventoryCountBySecondDeviceType(Integer orgId,SecondDeviceType secondType);
+
+	/**
+	 * @Description:根据二级设备类型获取网点下面的所有设备数量
+	 * @param orgId
+	 * @param secondType
+	 * @return
+	 * @Since :2016年3月8日 下午6:05:33
+	 */
+	public Long getCountAll(Integer orgId,SecondDeviceType secondType);
 	
+	public List<PeDevice> getListByQueryMap(Map<String, Object> map);
 
 }

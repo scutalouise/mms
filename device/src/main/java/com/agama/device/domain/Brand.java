@@ -4,6 +4,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -22,13 +24,18 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class Brand extends BaseDomain {
 
 	private static final long serialVersionUID = -2251375643268067015L;
+	@Enumerated(EnumType.STRING)
 	private FirstDeviceType firstDeviceType;
+	@Enumerated(EnumType.STRING)
 	private SecondDeviceType secondDeviceType;
 	private String name;
 	private String otherNote;
 	private Date updateTime;
+	@Enumerated(EnumType.STRING)
 	private StatusEnum status;
+	@Enumerated(EnumType.STRING)
 	private EnabledStateEnum enable;
+	@Enumerated(EnumType.STRING)
 	private IsInitialEnum isInitial;
 
 	@Column(nullable = false)
@@ -41,6 +48,7 @@ public class Brand extends BaseDomain {
 	}
 
 	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
 	public SecondDeviceType getSecondDeviceType() {
 		return secondDeviceType;
 	}

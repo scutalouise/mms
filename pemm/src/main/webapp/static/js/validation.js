@@ -75,7 +75,7 @@ $.extend($.fn.validatebox.defaults.rules, {
 	           	}
 	           	return true;
 	          },
-	          message: '不能大于或等于最大值'
+	          message: '{1}'
 
 	 },
 	 maxValue:{
@@ -86,7 +86,7 @@ $.extend($.fn.validatebox.defaults.rules, {
 	           	}
 	           	return true;
 	          },
-	          message: '不能小于或等于最小值'
+	          message: "{1}"
 
 	 },
 	 checkPwd : { // 校验密码

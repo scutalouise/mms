@@ -22,7 +22,9 @@ import com.agama.authority.entity.User;
 import com.agama.authority.service.IUserRoleService;
 import com.agama.aws.utils.MongoBeanUtils;
 import com.agama.common.dao.utils.Page;
+import com.agama.common.enumbean.ProblemStatusEnum;
 import com.agama.common.web.BaseController;
+import com.agama.device.service.IDeviceService;
 import com.agama.itam.domain.Problem;
 import com.agama.itam.domain.ProblemType;
 import com.agama.itam.mongo.domain.ProblemHandle;
@@ -47,6 +49,8 @@ public class ProblemHandleController extends BaseController {
 	private IProblemHandleService phService;
 	@Autowired
 	private IProblemTypeService ptService;
+	@Autowired
+	private IDeviceService deviceService;
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String turnPage(Model model) {
@@ -55,15 +59,13 @@ public class ProblemHandleController extends BaseController {
 
 	@RequestMapping(value = "problem", method = RequestMethod.GET)
 	@ResponseBody
-	public Map<String, Object> view(HttpServletRequest request, String identifier, Integer problemTypeId, Integer enable, String recordTime,
+	public Map<String, Object> view(HttpServletRequest request, String problemCode, Integer problemTypeId, String enable, String recordTime,
 			String recordEndTime) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		try {
 			Page<Problem> page = getPage(request);
-			Session session = SecurityUtils.getSubject().getSession();
-			User user = (User) session.getAttribute("user");
-			List<Integer> roleIds = urService.getRoleIdList(user.getId());
-			page = problemService.searchListForHandling(identifier, problemTypeId, enable, recordTime, recordEndTime, roleIds, page);
+			User user = getSessionUser();
+			page = problemService.searchListForHandling(problemCode, problemTypeId, user.getId(), enable, recordTime, recordEndTime, page, "handle");
 			map = getEasyUIData(page);
 		} catch (Exception e) {
 			map.put("total", 0);
@@ -85,18 +87,31 @@ public class ProblemHandleController extends BaseController {
 
 	@RequestMapping(value = "create", method = RequestMethod.POST)
 	@ResponseBody
-	public String create(ProblemHandle problemHandle) {
+	public String create(ProblemHandle problemHandle, String change, String changeDeviceIdentifier) {
 		if (problemHandle != null) {
 			problemHandle.setHandleTime(new Date());
-			Session session = SecurityUtils.getSubject().getSession();
-			User user = (User) session.getAttribute("user");
+			User user = getSessionUser();
 			problemHandle.setHandleUserId(user.getId());
 			problemHandle.setHandleUserName(user.getName());
 			try {
-				phService.saveProblemHandle(problemHandle);
+				Problem problem = problemService.get(problemHandle.getProblemId());
+				problem.setEnable(problemHandle.getEnable());
+				if (problem.getEnable().equals(ProblemStatusEnum.RESOLVED)) {
+					problem.setResolveTime(new Date());
+				}
+				if (problemHandle.getEnable().equals(ProblemStatusEnum.RESOLVED) && "true".equals(change)) {
+					if (changeDeviceIdentifier == null) {
+						return "换修必须要选择新更换的设备！";
+					} else {
+						problemService.updateChangeDeviceRepair(problem, user, changeDeviceIdentifier);
+					}
+				} else {
+					problemService.update(problem);
+				}
+				phService.saveProblemHandle(problemHandle);//mongodb数据保存，没有事务管理
 			} catch (Exception e) {
 				e.printStackTrace();
-				return "failure";
+				return "提交数据异常！请联系相关技术人员！";
 			}
 		}
 		return "success";
@@ -122,6 +137,18 @@ public class ProblemHandleController extends BaseController {
 			e.printStackTrace();
 		}
 		return list;
+	}
+	
+	@RequestMapping(value = "obtainUser/devices", method = RequestMethod.GET)
+	@ResponseBody
+	public List<Object> getDeviceListByUserId() {
+		User user = getSessionUser();
+		return deviceService.getDeviceListByObtainUser(user.getId());
+	}
+	
+	private User getSessionUser() {
+		Session session = SecurityUtils.getSubject().getSession();
+		return (User) session.getAttribute("user");
 	}
 
 }

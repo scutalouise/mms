@@ -46,5 +46,15 @@ public interface IPermissionService extends IBaseService<Permission, Integer>{
 	 * @return 操作集合
 	 */
 	public List<Permission> getMenuOperation(Integer pid);
+	
+	
+	/**
+	 * @Description:提供支持回收站的逻辑删除；
+	 * @param id
+	 * @param opUserId
+	 * @Since :2016年2月25日 下午5:19:05
+	 */
+	public void delete(Integer id , Integer opUserId);
+	
 
 }
